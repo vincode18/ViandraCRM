@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case Header + Chevron Milestone + Dropdown</title>
+<style>
+  :root {
+    --tip: 20px;
+    --chev-h: 56px;
+    --green: #2bbb4e;
+    --blue: #1d7ed8;
+    --gray-bg: #e9ecef;
+    --gray-text: #98a2ad;
+    --card-radius: 6px;
+    --card-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
+    --gap: 5px;
+    --slds-blue: #0070d2;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #f4f6f8;
+    margin: 0;
+    padding: 32px 24px;
+    color: #2b3a4a;
+  }
+
+  .case-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap);
+    max-width: 1700px;
+  }
+
+  /* ====== CARD 1: HEADER ====== */
+  .header-card {
+    background: #fff;
+    border-radius: var(--card-radius);
+    box-shadow: var(--card-shadow);
+    padding: 14px 18px;
+  }
+  .header-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .header-left { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .case-title { font-size: 19px; font-weight: 700; color: #1c2733; }
+
+  .header-actions { display: flex; gap: 8px; align-items: center; position: relative; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 13px; padding: 6px 12px;
+    border: 1px solid #c9d1d9; border-radius: 4px;
+    background: #fff; color: var(--slds-blue); cursor: pointer;
+    font-weight: 500; white-space: nowrap;
+  }
+  .btn:hover { background: #f3f8fd; }
+  .btn-icon-only {
+    border: 1px solid #c9d1d9; border-radius: 4px; background: #fff;
+    width: 32px; height: 32px; cursor: pointer; color: #5a6b7b;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 13px;
+  }
+  .btn-icon-only:hover { background: #f3f8fd; }
+
+  /* ====== DROPDOWN ====== */
+  .dropdown { position: relative; }
+  .dropdown-caret {
+    width: 32px; height: 32px;
+    border: 1px solid #c9d1d9; border-radius: 4px;
+    background: #fff; cursor: pointer; color: var(--slds-blue);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 11px;
+  }
+  .dropdown-caret:hover { background: #f3f8fd; }
+  .dropdown-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    min-width: 200px;
+    background: #fff;
+    border: 1px solid #d6dde4;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+    padding: 6px 0;
+    z-index: 50;
+    display: none;
+  }
+  .dropdown-menu.open { display: block; }
+  .dropdown-item {
+    display: block;
+    padding: 8px 16px;
+    font-size: 13px;
+    color: var(--slds-blue);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .dropdown-item:hover { background: #f0f6fd; }
+  .dropdown-divider { height: 1px; background: #e5e9ee; margin: 5px 0; }
+
+  /* badges */
+  .badges { margin-top: 12px; display: flex; gap: 8px; }
+  .badge { font-size: 12px; padding: 3px 9px; border-radius: 4px; font-weight: 600; }
+  .badge.priority { background: #fff3cd; color: #b8860b; border: 1px solid #f0d98c; }
+  .badge.status { background: #eef1f4; color: #5a6b7b; border: 1px solid #d6dde4; }
+
+  /* ====== CARD 2: MILESTONE ====== */
+  .milestone-card {
+    background: #fff;
+    border-radius: var(--card-radius);
+    box-shadow: var(--card-shadow);
+    padding: 14px 16px;
+  }
+  .milestones { display: flex; width: 100%; align-items: stretch; padding-left: 2px; }
+  .chevron {
+    flex: 1; height: var(--chev-h);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 14px; font-weight: 600; white-space: nowrap;
+    clip-path: polygon(0 0, calc(100% - var(--tip)) 0, 100% 50%, calc(100% - var(--tip)) 100%, 0 100%, var(--tip) 50%);
+    margin-left: calc(var(--tip) * -1 + 2px);
+    padding-left: var(--tip);
+  }
+  .chevron:first-child {
+    margin-left: 0; padding-left: 0;
+    clip-path: polygon(0 0, calc(100% - var(--tip)) 0, 100% 50%, calc(100% - var(--tip)) 100%, 0 100%);
+  }
+  .chevron .check { margin-right: 6px; font-weight: 700; }
+  .chevron.done    { background: var(--green); }
+  .chevron.current { background: var(--blue); }
+  .chevron.todo    { background: var(--gray-bg); color: var(--gray-text); }
+</style>
+</head>
+<body>
+
+  <div class="case-wrapper">
+
+    <!-- CARD HEADER -->
+    <div class="header-card">
+      <div class="header-top">
+        <div class="header-left">
+          <span class="case-title">Case #: CASE-20260526-00101</span>
+          <button class="btn">✎ Edit</button>
+          <button class="btn">👤 Change Owner</button>
+          <button class="btn-icon-only">⋮</button>
+        </div>
+
+        <div class="header-actions">
+          <button class="btn">+ Follow</button>
+          <button class="btn">New Note</button>
+          <button class="btn">Accept</button>
+          <button class="btn">Delete</button>
+
+          <!-- DROPDOWN -->
+          <div class="dropdown">
+            <button class="dropdown-caret" id="dropdownToggle" aria-label="More actions">▼</button>
+            <div class="dropdown-menu" id="dropdownMenu">
+              <span class="dropdown-item">Change Record Type</span>
+              <span class="dropdown-item">Clone</span>
+              <span class="dropdown-item">Printable View</span>
+              <span class="dropdown-item">Change Owner</span>
+              <div class="dropdown-divider"></div>
+              <span class="dropdown-item">Edit</span>
+              <span class="dropdown-item">Sharing</span>
+              <div class="dropdown-divider"></div>
+              <span class="dropdown-item">Send Update WA</span>
+              <span class="dropdown-item">Send Closing Update WA</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="badges">
+        <span class="badge priority">Medium Priority</span>
+        <span class="badge status">Closed</span>
+      </div>
+    </div>
+
+    <!-- CARD MILESTONE -->
+    <div class="milestone-card">
+      <div class="milestones">
+        <div class="chevron done"><span class="check">✓</span>Open</div>
+        <div class="chevron done"><span class="check">✓</span>Assigned</div>
+        <div class="chevron done"><span class="check">✓</span>In Progress</div>
+        <div class="chevron done"><span class="check">✓</span>Resolved</div>
+        <div class="chevron current"><span class="check">✓</span>Closed</div>
+        <div class="chevron todo">Select a Milestone</div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const toggle = document.getElementById('dropdownToggle');
+    const menu = document.getElementById('dropdownMenu');
+
+    toggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      menu.classList.toggle('open');
+    });
+
+    // tutup dropdown saat klik di luar
+    document.addEventListener('click', () => menu.classList.remove('open'));
+
+    // klik item -> (contoh) tutup menu
+    menu.querySelectorAll('.dropdown-item').forEach(item => {
+      item.addEventListener('click', () => {
+        menu.classList.remove('open');
+        // di sini bisa ditambahkan aksi sesuai item yang dipilih
+      });
+    });
+  </script>
+
+</body>
+</html>

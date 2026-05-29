@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Edit, User, ChevronDown, RefreshCw, MapPin, Phone, Mail,
@@ -6,25 +6,36 @@ import {
   History, FileText, AlertCircle, MoreVertical,
   Bold, Italic, AtSign, Paperclip, Heart, MessageSquare,
   ClipboardList, Package, Download, Search, X, ArrowRight,
-  ChevronRight, Circle, Check, CircleDot
+  ChevronRight, Circle, Check, CircleDot, ArrowUpRight
 } from 'lucide-react';
 import api from '../utils/api';
 
-/* ── helpers ────────────────────────────────────────────── */
+/* ── Status Mapping (UIC-001) ────────────────────────────────────────────── */
+const CASE_STATUS_MAPPING = {
+  Open: { color: '#4A90E2', bg: 'rgba(74, 144, 226, 0.1)', workflow: 0 },
+  Assigned: { color: '#0073E6', bg: 'rgba(0, 115, 230, 0.1)', workflow: 1 },
+  'In Progress': { color: '#FFB81C', bg: 'rgba(255, 184, 28, 0.1)', workflow: 2 },
+  Resolved: { color: '#34C759', bg: 'rgba(52, 199, 89, 0.1)', workflow: 3 },
+  Closed: { color: '#6C7681', bg: 'rgba(108, 118, 129, 0.1)', workflow: 4 },
+};
+
 const statusColor = (s) => {
-  if (s === 'Closed') return 'bg-green-500/20 text-green-400';
-  if (s === 'In Progress') return 'bg-yellow-500/20 text-yellow-400';
-  if (s === 'Resolved') return 'bg-blue-500/20 text-blue-400';
-  if (s === 'Open') return 'bg-gray-500/20 text-gray-400';
-  if (s === 'Assigned') return 'bg-indigo-500/20 text-indigo-400';
-  return 'bg-gray-500/20 text-gray-400';
+  const mapping = CASE_STATUS_MAPPING[s];
+  if (!mapping) return 'bg-gray-500/20 text-gray-400';
+  return { backgroundColor: mapping.bg, color: mapping.color };
+};
+
+const statusBadgeClass = (s) => {
+  const mapping = CASE_STATUS_MAPPING[s];
+  if (!mapping) return 'bg-gray-500/20 text-gray-400';
+  return { backgroundColor: mapping.bg, color: mapping.color, border: `1px solid ${mapping.color}` };
 };
 
 const priorityColor = (p) => {
-  if (p === 'Critical') return 'bg-red-500/20 text-red-400';
-  if (p === 'High') return 'bg-orange-500/20 text-orange-400';
-  if (p === 'Medium') return 'bg-yellow-500/20 text-yellow-400';
-  return 'bg-green-500/20 text-green-400';
+  if (p === 'Critical') return { backgroundColor: 'rgba(231, 76, 60, 0.1)', color: '#E74C3C', border: '1px solid #E74C3C' };
+  if (p === 'High') return { backgroundColor: 'rgba(255, 159, 10, 0.1)', color: '#FF9F0A', border: '1px solid #FF9F0A' };
+  if (p === 'Medium') return { backgroundColor: 'rgba(255, 184, 28, 0.1)', color: '#FFB81C', border: '1px solid #FFB81C' };
+  return { backgroundColor: 'rgba(52, 199, 89, 0.1)', color: '#34C759', border: '1px solid #34C759' };
 };
 
 /* ── component ──────────────────────────────────────────── */
@@ -34,6 +45,22 @@ export default function CaseDetailPage() {
   const [activeTab, setActiveTab] = useState('details');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [selectedMilestone, setSelectedMilestone] = useState(null);
+  const [statusToast, setStatusToast] = useState(null);
+  const [caseParameter, setCaseParameter] = useState(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = React.useRef(null);
+
+  /* Close dropdown when clicking outside */
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, []);
 
   const fallbackDetail = {
     caseNumber: '01532785',
@@ -179,14 +206,67 @@ export default function CaseDetailPage() {
     { id: 3, name: 'Service Report.pdf', size: '890 KB' },
   ];
 
-  const auditLog = [
+  const [auditLog, setAuditLog] = useState([
     { id: 1, timestamp: '2026-10-26T14:30:00', date: 'Oct 26, 2026', time: '14:30', user: 'System User', field: 'Status', type: 'field-update', oldValue: 'In Progress', newValue: 'Closed' },
     { id: 2, timestamp: '2026-10-26T16:45:00', date: 'Oct 26, 2026', time: '16:45', user: 'System User', field: 'Target Date', type: 'field-update', oldValue: '02/06/2026', newValue: '26/10/2026' },
     { id: 3, timestamp: '2026-10-25T11:00:00', date: 'Oct 25, 2026', time: '11:00', user: 'Mechanic Rudi', field: 'Description', type: 'text-update', oldValue: 'Operator reported leak...', newValue: 'Inspected EX-8902. Found severe scoring...' },
     { id: 4, timestamp: '2026-10-24T07:31:00', date: 'Oct 24, 2026', time: '07:31', user: 'System', field: 'Case', type: 'system-event', description: 'Case #01532785 created via Telemetry' },
-  ];
+  ]);
 
   const currentStepIndex = caseData.progress.indexOf(caseData.status);
+  const effectiveCaseParam = caseParameter !== null ? caseParameter : currentStepIndex + 1;
+
+  const handleMilestoneClick = (idx) => {
+    // Any future (not-yet-accessed) stage is selectable for highlighting.
+    // The Mark Status button enforces the single-stage-advance rule separately.
+    if (idx > currentStepIndex) {
+      setSelectedMilestone(idx === selectedMilestone ? null : idx);
+    }
+  };
+
+  const handleMarkStatus = () => {
+    if (selectedMilestone === null) return;
+    // Validation: selectedParam must be exactly currentParam + 1 (no skipping)
+    const currentParam = currentStepIndex + 1;
+    const selectedParam = selectedMilestone + 1;
+    if (selectedParam !== currentParam + 1) return;
+
+    const oldStatus = caseData.status;
+    const newStatus = caseData.progress[selectedMilestone];
+    const newParam = selectedParam;
+
+    // Build timestamp for the new timeline entry
+    const now = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
+    const timeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+
+    const newEntry = {
+      id: Date.now(),
+      timestamp: now.toISOString(),
+      date: dateStr,
+      time: timeStr,
+      user: 'System User',
+      field: 'Status',
+      type: 'field-update',
+      oldValue: oldStatus,
+      newValue: newStatus,
+      note: `${now.toISOString()} - Status: ${oldStatus} → ${newStatus} (Parameter updated: ${newParam})`,
+    };
+
+    // Update case_parameter + status (persisted to backend in a real deployment)
+    setCaseData(prev => ({ ...prev, status: newStatus, lastUpdatedDate: `${dateStr}, ${timeStr}` }));
+    setCaseParameter(newParam);
+    setAuditLog(prev => [newEntry, ...prev]);
+    setStatusToast(`Status updated to: ${newStatus} (Parameter: ${newParam})`);
+    setSelectedMilestone(null);
+    setTimeout(() => setStatusToast(null), 3500);
+  };
+
+  // Button only valid when the selected stage is exactly one ahead of current
+  const isMilestoneButtonEnabled =
+    selectedMilestone !== null &&
+    selectedMilestone === currentStepIndex + 1;
 
   /* ── render ─────────────────────────────────────────────── */
   return (
@@ -200,73 +280,223 @@ export default function CaseDetailPage() {
 
       {/* ── Case Header ───────────────────────────────────── */}
       <div className="pl-[15px] pr-6 py-4" style={{ borderBottom: '1px solid var(--border)', backgroundColor: 'var(--bg-panel)' }}>
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex-1 min-w-0">
-            <div className="flex flex-wrap items-center gap-3 mb-2">
-              <h1 className="text-xl font-bold">Case #: {loading ? 'Loading…' : caseData.caseNumber}</h1>
+
+        {/* Top row: title+inline buttons LEFT  |  action buttons RIGHT */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
+
+          {/* LEFT — case title + Edit + Change Owner + ⋮ */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <div>
+              <h1 className="text-xl font-bold" style={{ lineHeight: 1.2 }}>
+                Case #: {loading ? 'Loading…' : caseData.caseNumber}
+              </h1>
+              {!loading && caseData.subject && (
+                <p className="text-sm" style={{ color: 'var(--text-muted)', marginTop: 2, fontWeight: 400 }}>
+                  {caseData.subject}
+                </p>
+              )}
+            </div>
+            <button
+              onClick={() => navigate(`/cases/${id}/edit`)}
+              className="flex items-center gap-1.5 text-sm transition-colors"
+              style={{ padding: '5px 11px', border: '1px solid var(--border)', borderRadius: 4, background: 'var(--bg-card)', color: '#0070d2', fontWeight: 500 }}
+            >
+              <Edit size={13} /> Edit
+            </button>
+            <button
+              className="flex items-center gap-1.5 text-sm transition-colors"
+              style={{ padding: '5px 11px', border: '1px solid var(--border)', borderRadius: 4, background: 'var(--bg-card)', color: '#0070d2', fontWeight: 500 }}
+            >
+              <User size={13} /> Change Owner
+            </button>
+            <button
+              className="flex items-center justify-center transition-colors"
+              style={{ width: 30, height: 30, border: '1px solid var(--border)', borderRadius: 4, background: 'var(--bg-card)', color: 'var(--text-muted)' }}
+            >
+              <MoreVertical size={15} />
+            </button>
+          </div>
+
+          {/* RIGHT — + Follow, New Note, Accept, Delete, ▼ dropdown */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, position: 'relative' }} ref={dropdownRef}>
+            {['+  Follow', 'New Note', 'Accept', 'Delete'].map(label => (
               <button
-                onClick={() => navigate(`/cases/${id}/edit`)}
-                className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-2 transition-colors"
-                style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-main)' }}
+                key={label}
+                className="flex items-center gap-1.5 text-sm transition-colors"
+                style={{ padding: '5px 11px', border: '1px solid #c9d1d9', borderRadius: 4, background: '#fff', color: '#0070d2', fontWeight: 500, whiteSpace: 'nowrap' }}
               >
-                <Edit size={14} /> Edit
+                {label}
               </button>
-              <button className="px-3 py-1.5 text-sm rounded-lg flex items-center gap-2 transition-colors"
-                style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-main)' }}
-              >
-                <User size={14} /> Change Owner
-              </button>
-              <button className="p-1.5 rounded-lg transition-colors"
-                style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}
-              >
-                <MoreVertical size={16} />
-              </button>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className={`px-2 py-0.5 rounded text-xs font-medium ${priorityColor(caseData.priority)}`}>
-                {caseData.priority} Priority
-              </span>
-              <span className={`px-2 py-0.5 rounded text-xs font-medium ${statusColor(caseData.status)}`}>
-                {caseData.status}
-              </span>
-            </div>
+            ))}
+
+            {/* Dropdown caret ▼ */}
+            <button
+              onClick={() => setDropdownOpen(prev => !prev)}
+              aria-label="More actions"
+              aria-expanded={dropdownOpen}
+              style={{ width: 30, height: 30, border: '1px solid #c9d1d9', borderRadius: 4, background: '#fff', color: '#0070d2', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11 }}
+            >
+              ▼
+            </button>
+
+            {/* Dropdown menu */}
+            {dropdownOpen && (
+              <div style={{ position: 'absolute', top: 'calc(100% + 4px)', right: 0, minWidth: 210, background: '#fff', border: '1px solid #d6dde4', borderRadius: 4, boxShadow: '0 2px 10px rgba(0,0,0,0.18)', padding: '6px 0', zIndex: 100 }}>
+                {[
+                  { label: 'Change Record Type' },
+                  { label: 'Clone' },
+                  { label: 'Printable View' },
+                  { label: 'Change Owner' },
+                  { divider: true },
+                  { label: 'Edit', action: () => navigate(`/cases/${id}/edit`) },
+                  { label: 'Sharing' },
+                  { divider: true },
+                  { label: 'Send WA Update' },
+                  { label: 'Send Closing WA Update' },
+                ].map((item, i) =>
+                  item.divider
+                    ? <div key={i} style={{ height: 1, background: '#e5e9ee', margin: '5px 0' }} />
+                    : (
+                        <div
+                          key={item.label}
+                          onClick={() => { setDropdownOpen(false); item.action && item.action(); /* add item-specific action here */ }}
+                          style={{ display: 'block', padding: '7px 16px', fontSize: 13, color: '#0070d2', cursor: 'pointer', whiteSpace: 'nowrap' }}
+                          onMouseEnter={e => e.currentTarget.style.background = '#f0f6fd'}
+                          onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                        >
+                          {item.label}
+                        </div>
+                      )
+                )}
+              </div>
+            )}
           </div>
         </div>
 
-        {/* ── Milestone / Progress Steps (FRD v2.0) ───────── */}
-        <div className="mt-5">
-          <div className="flex items-center gap-0">
+        {/* Badges row — priority + status */}
+        <div className="flex items-center gap-3" style={{ marginTop: 10 }}>
+          <span className="px-2 py-0.5 rounded text-xs font-medium" style={priorityColor(caseData.priority)}>
+            {caseData.priority} Priority
+          </span>
+          <span className="px-2 py-0.5 rounded text-xs font-medium" style={statusBadgeClass(caseData.status)}>
+            {caseData.status}
+          </span>
+        </div>
+
+        {/* ── Interactive Chevron Milestone Bar — sample.html approach ── */}
+
+        {/* Outer card: uses CSS vars so it inverts correctly in dark mode */}
+        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 4, padding: '16px 16px 16px 14px', marginTop: 14 }}>
+
+          {/* Inner flex row: milestones + Mark Status button */}
+          <div
+            role="progressbar"
+            aria-label="Case status workflow"
+            aria-valuemin={1}
+            aria-valuemax={caseData.progress.length}
+            aria-valuenow={currentStepIndex + 1}
+            style={{ display: 'flex', alignItems: 'stretch', gap: 0 }}
+          >
+            {/* Chevron segments — direct children, no wrapper div */}
             {caseData.progress.map((step, idx) => {
               const isCompleted = idx < currentStepIndex;
-              const isActive = idx === currentStepIndex;
-              const isLast = idx === caseData.progress.length - 1;
+              const isActive    = idx === currentStepIndex;
+              const isFuture    = idx > currentStepIndex;
+              const isSelected  = selectedMilestone === idx;
+              const paramValue  = idx + 1;
+              const statusText  = isCompleted ? 'completed' : isActive ? 'active' : 'disabled';
+
+              /* --tip value: depth of arrow tip and V-notch (keep consistent) */
+              const TIP = 20;
+
+              /* clip-path: first segment has straight left, rest have V-notch */
+              const clipFirst = `polygon(0 0, calc(100% - ${TIP}px) 0, 100% 50%, calc(100% - ${TIP}px) 100%, 0 100%)`;
+              const clipRest  = `polygon(0 0, calc(100% - ${TIP}px) 0, 100% 50%, calc(100% - ${TIP}px) 100%, 0 100%, ${TIP}px 50%)`;
+
+              /* Colors — todo uses CSS vars so dark mode inverts correctly */
+              const bg = isCompleted ? '#2bbb4e' : isActive ? '#1d7ed8' : 'var(--bg-lighter)';
+              const fg = isFuture ? 'var(--text-tertiary)' : '#fff';
+
               return (
-                <React.Fragment key={step}>
-                  <div className="flex flex-col items-center gap-1.5 min-w-[80px]">
-                    <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all
-                        ${isCompleted ? 'bg-brand-blue text-white' :
-                          isActive ? 'bg-brand-blue/20 text-brand-blue ring-2 ring-brand-blue' :
-                          'bg-gray-700 text-gray-500'}`}
-                    >
-                      {isCompleted ? <Check size={14} /> : isActive ? <CircleDot size={14} /> : <Circle size={14} />}
-                    </div>
-                    <span
-                      className={`text-[11px] font-medium text-center leading-tight max-w-[90px]
-                        ${isCompleted ? 'text-brand-blue' : isActive ? 'text-white' : 'text-gray-500'}`}
-                    >
-                      {step}
-                    </span>
-                  </div>
-                  {!isLast && (
-                    <div className={`flex-1 h-0.5 mx-1 self-start mt-4 transition-all
-                      ${idx < currentStepIndex ? 'bg-brand-blue' : 'bg-gray-700'}`} />
+                <div
+                  key={step}
+                  data-parameter={paramValue}
+                  onClick={() => isFuture ? handleMilestoneClick(idx) : undefined}
+                  role={isFuture ? 'button' : undefined}
+                  tabIndex={isFuture ? 0 : undefined}
+                  onKeyDown={e => isFuture && (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), handleMilestoneClick(idx))}
+                  aria-label={`Stage ${idx + 1}: ${step}, Parameter: ${paramValue}, Status: ${statusText}`}
+                  aria-current={isActive ? 'step' : undefined}
+                  style={{
+                    flex: 1,
+                    height: 56,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: bg,
+                    color: fg,
+                    fontWeight: 600,
+                    fontSize: 14,
+                    whiteSpace: 'nowrap',
+                    userSelect: 'none',
+                    cursor: isFuture ? 'pointer' : 'default',
+                    transition: 'filter 0.2s ease, box-shadow 0.2s ease',
+                    /* Negative margin creates interlocking overlap — same formula as sample.html */
+                    marginLeft: idx === 0 ? 0 : -(TIP - 2),
+                    /* Text padding compensates for V-notch so label stays centred */
+                    paddingLeft: idx === 0 ? 8 : TIP,
+                    clipPath: idx === 0 ? clipFirst : clipRest,
+                    boxShadow: isSelected ? 'inset 0 0 0 3px #FFD700' : 'none',
+                  }}
+                >
+                  {(isCompleted || isActive) && (
+                    <Check size={13} strokeWidth={3} style={{ marginRight: 6, flexShrink: 0 }} />
                   )}
-                </React.Fragment>
+                  {step}
+                </div>
               );
             })}
+
+            {/* Mark Status button — same height as chevrons, aligned in the same flex row */}
+            <button
+              onClick={handleMarkStatus}
+              disabled={!isMilestoneButtonEnabled}
+              aria-label={isMilestoneButtonEnabled ? `Mark status as ${caseData.progress[selectedMilestone]}` : 'Select a milestone to advance status'}
+              style={{
+                flexShrink: 0,
+                height: 56,
+                marginLeft: 12,
+                padding: '0 20px',
+                background: isMilestoneButtonEnabled ? '#1d7ed8' : 'var(--bg-lighter)',
+                color: isMilestoneButtonEnabled ? '#fff' : 'var(--text-tertiary)',
+                border: 'none',
+                borderRadius: 4,
+                fontWeight: 600,
+                fontSize: 13,
+                cursor: isMilestoneButtonEnabled ? 'pointer' : 'not-allowed',
+                whiteSpace: 'nowrap',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              {isMilestoneButtonEnabled ? 'Mark Status ↗' : 'Select a Milestone'}
+            </button>
           </div>
         </div>
+        {/* Success Toast */}
+        {statusToast && (
+          <div
+            className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3 rounded-lg shadow-xl"
+            style={{
+              backgroundColor: '#34C759',
+              color: '#fff',
+              fontWeight: 600,
+              fontSize: 14,
+              animation: 'slideInRight 0.3s cubic-bezier(0.4,0,0.2,1)',
+            }}
+          >
+            <Check size={16} /> {statusToast}
+          </div>
+        )}
       </div>
 
       {/* ── Tab Navigation ────────────────────────────────── */}
@@ -288,21 +518,37 @@ export default function CaseDetailPage() {
       <div className="flex-1 overflow-hidden flex">
         {/* ── Left Panel ────────────────────────────────── */}
         <div className="w-72 flex-shrink-0 overflow-y-auto p-4 border-r" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--bg-panel)' }}>
-          {/* Fleet Units */}
+          {/* Fleet Units (UIC-001) */}
           <Card title={`Fleet Units (${fleetUnits.length})`} icon={<RefreshCw size={14} />}>
-            <div className="space-y-3">
+            <div className="space-y-2">
               {fleetUnits.map(unit => (
-                <div key={unit.id} className="p-2.5 rounded-md" style={{ backgroundColor: 'var(--bg-base)', border: '1px solid var(--border)' }}>
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold text-sm">{unit.id}</span>
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${unit.status === 'Active' ? 'text-green-400 bg-green-500/10' : 'text-yellow-400 bg-yellow-500/10'}`}>
-                      {unit.status}
-                    </span>
-                  </div>
-                  <div className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>{unit.model}</div>
-                  <div className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>HM: {unit.hours.toLocaleString()} hrs</div>
-                  <div className="text-xs flex items-center gap-1 mt-1" style={{ color: 'var(--text-muted)' }}>
-                    <MapPin size={10} /> {unit.location}
+                <div key={unit.id} className="p-3 rounded-md" style={{ backgroundColor: 'var(--bg-base)', border: '1px solid var(--border)' }}>
+                  <div className="flex items-start gap-3">
+                    <input type="checkbox" className="mt-1 rounded" defaultChecked={false} />
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-sm">{unit.id}</span>
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium
+                          ${unit.status === 'Active' ? 'text-green-600' :
+                            unit.status === 'Operational' ? 'text-blue-600' :
+                            unit.status === 'In Repair' ? 'text-orange-600' :
+                            'text-yellow-600'}`}
+                          style={{
+                            backgroundColor: unit.status === 'Active' ? 'rgba(52, 199, 89, 0.1)' :
+                              unit.status === 'Operational' ? 'rgba(74, 144, 226, 0.1)' :
+                              unit.status === 'In Repair' ? 'rgba(255, 159, 10, 0.1)' :
+                              'rgba(255, 184, 28, 0.1)'
+                          }}
+                        >
+                          [{unit.status}]
+                        </span>
+                      </div>
+                      <div className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>{unit.model}</div>
+                      <div className="text-xs mt-1" style={{ color: 'var(--text-tertiary)' }}>HM: {unit.hours.toLocaleString()} hrs</div>
+                      <div className="text-xs flex items-center gap-1 mt-1" style={{ color: 'var(--text-tertiary)' }}>
+                        <MapPin size={10} /> {unit.location}
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -342,7 +588,7 @@ export default function CaseDetailPage() {
         {/* ── Center Panel ──────────────────────────────── */}
         <div className="flex-1 overflow-y-auto p-6" style={{ backgroundColor: 'var(--bg-base)' }}>
           <div className="max-w-5xl space-y-5">
-            {activeTab === 'details' && <DetailsTab caseData={caseData} />}
+            {activeTab === 'details' && <DetailsTab caseData={caseData} caseParameter={effectiveCaseParam} />}
             {activeTab === 'feed' && <FeedTab feedItems={feedItems} />}
             {activeTab === 'related' && <RelatedTab workOrders={workOrders} parts={parts} documents={documents} navigate={navigate} />}
             {activeTab === 'log' && <LogTab auditLog={auditLog} />}
@@ -351,35 +597,35 @@ export default function CaseDetailPage() {
 
         {/* ── Right Panel ───────────────────────────────── */}
         <div className="w-80 flex-shrink-0 overflow-y-auto p-4 border-l" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--bg-panel)' }}>
-          {/* SLA Status */}
-          <div className="mb-4 rounded-lg p-4 border" style={{ backgroundColor: 'var(--bg-card)', borderColor: 'rgba(239,68,68,0.4)' }}>
+          {/* SLA Status (UIC-001) */}
+          <div className="mb-4 rounded-lg p-4 border" style={{ backgroundColor: 'rgba(231, 76, 60, 0.1)', borderColor: '#E74C3C' }}>
             <div className="flex items-start gap-3 mb-3">
-              <AlertTriangle className="text-red-500 shrink-0" size={24} />
+              <AlertTriangle className="shrink-0" size={24} style={{ color: '#E74C3C' }} />
               <div>
-                <h3 className="font-bold text-red-500 text-sm">OVER SLA - BREACHED</h3>
-                <span className="text-2xl font-bold text-red-500">{caseData.slaDaysOverdue} Days</span>
+                <h3 className="font-bold text-sm" style={{ color: '#E74C3C' }}>OVER SLA - BREACHED</h3>
+                <span className="text-2xl font-bold" style={{ color: '#E74C3C' }}>{caseData.slaDaysOverdue} Days</span>
               </div>
             </div>
             <div className="space-y-2 mb-4">
               <div className="flex justify-between text-sm">
-                <span style={{ color: 'var(--text-muted)' }}>OTF Mechanic:</span>
-                <span className="text-red-400 font-medium">FAILED (+6.0d)</span>
+                <span style={{ color: 'var(--text-tertiary)' }}>OTF Mechanic:</span>
+                <span className="font-medium" style={{ color: '#E74C3C' }}>FAILED (+6.0d)</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span style={{ color: 'var(--text-muted)' }}>OTF Solution:</span>
-                <span className="text-yellow-400 font-medium">PENDING</span>
+                <span style={{ color: 'var(--text-tertiary)' }}>OTF Solution:</span>
+                <span className="font-medium" style={{ color: '#FFB81C' }}>PENDING</span>
               </div>
             </div>
             <div className="mb-4">
               <div className="flex justify-between text-sm mb-1">
-                <span style={{ color: 'var(--text-muted)' }}>SLA Compliance Score:</span>
-                <span className="text-red-400 font-medium">{caseData.slaCompliance}%</span>
+                <span style={{ color: 'var(--text-tertiary)' }}>SLA Compliance Score:</span>
+                <span className="font-medium" style={{ color: '#E74C3C' }}>{caseData.slaCompliance}%</span>
               </div>
-              <div className="w-full h-2 rounded-full bg-gray-700">
-                <div className="h-full rounded-full bg-red-500" style={{ width: `${caseData.slaCompliance}%` }} />
+              <div className="w-full h-2 rounded-full" style={{ backgroundColor: 'var(--border)' }}>
+                <div className="h-full rounded-full" style={{ width: `${caseData.slaCompliance}%`, backgroundColor: '#E74C3C' }} />
               </div>
             </div>
-            <button className="w-full py-2 rounded-lg text-sm font-medium bg-red-500/15 text-red-400 hover:bg-red-500/25 transition-colors">
+            <button className="w-full py-2 rounded-lg text-sm font-medium transition-colors" style={{ backgroundColor: 'rgba(231, 76, 60, 0.2)', color: '#E74C3C', border: '1px solid #E74C3C' }}>
               Acknowledge Breach
             </button>
           </div>
@@ -430,6 +676,30 @@ export default function CaseDetailPage() {
               ))}
             </div>
           </Card>
+
+          {/* Action Buttons (UIC-001) */}
+          <Card title="ACTION BUTTONS" icon={<AlertCircle size={14} />}>
+            <div className="space-y-2">
+              <button className="w-full px-3 py-2 rounded text-xs font-medium flex items-center gap-2 transition-colors" style={{ backgroundColor: 'var(--accent)', color: '#1a1a1a' }}>
+                <Check size={14} /> Mark Status as Complete
+              </button>
+              <button className="w-full px-3 py-2 rounded text-xs font-medium flex items-center gap-2 transition-colors" style={{ backgroundColor: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
+                <CheckCircle size={14} /> Accept
+              </button>
+              <button className="w-full px-3 py-2 rounded text-xs font-medium flex items-center gap-2 transition-colors" style={{ backgroundColor: 'rgba(231, 76, 60, 0.1)', border: '1px solid #E74C3C', color: '#E74C3C' }}>
+                <AlertTriangle size={14} /> Acknowledge Breach
+              </button>
+              <button className="w-full px-3 py-2 rounded text-xs font-medium flex items-center gap-2 transition-colors" style={{ backgroundColor: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
+                <MessageSquare size={14} /> New Note
+              </button>
+              <button className="w-full px-3 py-2 rounded text-xs font-medium flex items-center gap-2 transition-colors" style={{ backgroundColor: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
+                <Heart size={14} /> Follow
+              </button>
+              <button className="w-full px-3 py-2 rounded text-xs font-medium flex items-center gap-2 transition-colors" style={{ backgroundColor: 'rgba(231, 76, 60, 0.1)', border: '1px solid #E74C3C', color: '#E74C3C' }}>
+                <X size={14} /> Delete
+              </button>
+            </div>
+          </Card>
         </div>
       </div>
     </div>
@@ -473,9 +743,9 @@ function InfoField({ label, value }) {
 function MetricRow({ label, target, value, status }) {
   return (
     <div className="grid grid-cols-3 gap-2 text-xs p-2.5 rounded-md" style={{ backgroundColor: 'var(--bg-base)', border: '1px solid var(--border)' }}>
-      <span style={{ color: 'var(--text-muted)' }}>{label}</span>
-      <span style={{ color: 'var(--text-muted)' }}>{target}</span>
-      <span className={`flex items-center gap-1 font-medium ${status === 'good' ? 'text-green-400' : 'text-red-400'}`}>
+      <span style={{ color: 'var(--text-tertiary)' }}>{label}</span>
+      <span style={{ color: 'var(--text-tertiary)' }}>{target}</span>
+      <span className={`flex items-center gap-1 font-medium`} style={{ color: status === 'good' ? '#34C759' : '#E74C3C' }}>
         {value} {status === 'good' ? <CheckCircle size={10} /> : <AlertCircle size={10} />}
       </span>
     </div>
@@ -483,7 +753,7 @@ function MetricRow({ label, target, value, status }) {
 }
 
 /* ── Details Tab ─────────────────────────────────────────── */
-function DetailsTab({ caseData }) {
+function DetailsTab({ caseData, caseParameter }) {
   return (
     <>
       {/* Section 1: Completion & SLA Tracking */}
@@ -552,9 +822,25 @@ function DetailsTab({ caseData }) {
         </h3>
         <div className="grid grid-cols-2 gap-x-8 gap-y-4">
           <InfoRow label="Case Owner" value={caseData.owner} />
-          <InfoRow label="Status" badge={caseData.status} badgeColor={statusColor(caseData.status)} />
+          <InfoRow label="Status" badge={caseData.status} badgeColor={statusBadgeClass(caseData.status)} />
           <InfoRow label="Case Number" value={caseData.caseNumber} />
           <InfoRow label="Priority" badge={caseData.priority} badgeColor={priorityColor(caseData.priority)} />
+          <InfoRow
+            label="Case Parameter"
+            value={
+              <span className="inline-flex items-center gap-2">
+                <span
+                  className="inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold"
+                  style={{ backgroundColor: '#0B2D6E', color: '#fff' }}
+                >
+                  {caseParameter}
+                </span>
+                <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
+                  {['', 'Open', 'Assigned', 'In Progress', 'Resolved', 'Closed'][caseParameter] || ''}
+                </span>
+              </span>
+            }
+          />
           <InfoRow label="Created Date" value={caseData.createdDate} />
           <InfoRow label="Created By" value={caseData.createdBy} />
           <InfoRow label="Last Updated" value={caseData.lastUpdatedDate} />
@@ -590,7 +876,7 @@ function InfoRow({ label, value, badge, badgeColor }) {
     <div className="flex flex-col gap-1.5">
       <span className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{label}</span>
       {badge ? (
-        <span className={`inline-block self-start px-2 py-0.5 rounded text-xs font-medium ${badgeColor}`}>
+        <span className="inline-block self-start px-2 py-0.5 rounded text-xs font-medium" style={badgeColor}>
           {badge}
         </span>
       ) : (
@@ -705,50 +991,111 @@ function ToolbarBtn({ icon, title }) {
   );
 }
 
-/* ── Related Tab ─────────────────────────────────────────── */
+/* ── Related Tab (UIC-001) ─────────────────────────────────────────── */
 function RelatedTab({ workOrders, parts, documents }) {
   return (
     <div className="space-y-5">
-      {/* Work Orders */}
-      <div className="rounded-lg p-4" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+      {/* Work Order Object Structure (UIC-001) */}
+      <div className="rounded-lg p-5" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-bold flex items-center gap-2">
             <ClipboardList size={16} style={{ color: 'var(--text-muted)' }} />
-            Work Orders ({workOrders.length})
+            WORK ORDER
           </h3>
-          <button className="px-2 py-1 rounded text-xs font-medium" style={{ backgroundColor: 'var(--accent)', color: '#1f2937' }}>
+          <button className="px-2 py-1 rounded text-xs font-medium" style={{ backgroundColor: 'var(--accent)', color: '#1a1a1a' }}>
             New WO
           </button>
         </div>
+        
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4 text-xs">
+            <InfoField label="WO Number" value="SAP-21315419" />
+            <InfoField label="Created" value="20/05/2026, 15:27" />
+            <InfoField label="Plant" value="JBI" />
+            <InfoField label="Work Center" value="FD-JBI" />
+          </div>
+
+          <div style={{ borderTop: '1px solid var(--border)', paddingTop: '12px' }}>
+            <div className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--text-tertiary)' }}>Schedule</div>
+            <div className="space-y-2 text-xs pl-2 border-l-2" style={{ borderColor: 'var(--border)' }}>
+              <div className="flex justify-between">
+                <span style={{ color: 'var(--text-tertiary)' }}>Start:</span>
+                <span style={{ color: 'var(--text-secondary)' }}>20/05/2026, 15:27</span>
+              </div>
+              <div className="flex justify-between">
+                <span style={{ color: 'var(--text-tertiary)' }}>End:</span>
+                <span style={{ color: 'var(--text-tertiary)' }}>[Pending Assignment]</span>
+              </div>
+              <div className="flex justify-between">
+                <span style={{ color: 'var(--text-tertiary)' }}>Duration:</span>
+                <span style={{ color: 'var(--text-tertiary)' }}>[Calculated]</span>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ borderTop: '1px solid var(--border)', paddingTop: '12px' }}>
+            <div className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--text-tertiary)' }}>Work Details</div>
+            <div className="space-y-2 text-xs pl-2 border-l-2" style={{ borderColor: 'var(--border)' }}>
+              <div className="flex justify-between">
+                <span style={{ color: 'var(--text-tertiary)' }}>Object Type:</span>
+                <span style={{ color: 'var(--text-secondary)' }}>Equipment Repair</span>
+              </div>
+              <div className="flex justify-between">
+                <span style={{ color: 'var(--text-tertiary)' }}>Breakdown:</span>
+                <span style={{ color: 'var(--text-secondary)' }}>[Standard breakdown]</span>
+              </div>
+              <div className="flex justify-between">
+                <span style={{ color: 'var(--text-tertiary)' }}>Cause Test:</span>
+                <span style={{ color: '#FFB81C' }}>[In Progress]</span>
+              </div>
+              <div className="flex justify-between">
+                <span style={{ color: 'var(--text-tertiary)' }}>Damage Test:</span>
+                <span style={{ color: 'var(--text-tertiary)' }}>[Pending]</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex gap-2 mt-4">
+            <button className="px-3 py-2 rounded text-xs font-medium flex items-center gap-2" style={{ backgroundColor: 'var(--accent)', color: '#1a1a1a' }}>
+              <Package size={12} /> Check Parts Availability
+            </button>
+            <button className="px-3 py-2 rounded text-xs font-medium flex items-center gap-2" style={{ backgroundColor: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
+              <Paperclip size={12} /> Upload Files
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Work Orders List */}
+      <div className="rounded-lg p-4" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+        <h3 className="text-sm font-bold flex items-center gap-2 mb-4">
+          <ClipboardList size={16} style={{ color: 'var(--text-muted)' }} />
+          Related Work Orders ({workOrders.length})
+        </h3>
         <div className="space-y-3">
           {workOrders.map(wo => (
             <div key={wo.id} className="p-3 rounded-md cursor-pointer transition-colors hover:opacity-90" style={{ backgroundColor: 'var(--bg-base)', border: '1px solid var(--border)' }}>
               <div className="flex items-center justify-between mb-1.5">
                 <span className="font-semibold text-sm">{wo.number}</span>
-                <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${statusColor(wo.status)}`}>
+                <span className="text-[10px] px-1.5 py-0.5 rounded font-medium" style={statusBadgeClass(wo.status)}>
                   {wo.status}
                 </span>
               </div>
-              <p className="text-xs mb-2" style={{ color: 'var(--text-muted)' }}>{wo.description}</p>
-              <div className="flex items-center justify-between text-xs" style={{ color: 'var(--text-muted)' }}>
+              <p className="text-xs mb-2" style={{ color: 'var(--text-tertiary)' }}>{wo.description}</p>
+              <div className="flex items-center justify-between text-xs" style={{ color: 'var(--text-tertiary)' }}>
                 <span>Tech: {wo.technician}</span>
                 <span>Due: {wo.dueDate}</span>
               </div>
               {wo.progress !== undefined && (
                 <div className="mt-2">
-                  <div className="w-full h-1.5 rounded-full bg-gray-700">
-                    <div className="h-full rounded-full bg-brand-blue" style={{ width: `${wo.progress}%` }} />
+                  <div className="w-full h-1.5 rounded-full" style={{ backgroundColor: 'var(--border)' }}>
+                    <div className="h-full rounded-full" style={{ width: `${wo.progress}%`, backgroundColor: '#4A90E2' }} />
                   </div>
                 </div>
               )}
             </div>
           ))}
         </div>
-        {workOrders.length > 0 && (
-          <button className="mt-3 text-xs font-medium text-brand-blue hover:underline">
-            View All {workOrders.length} Work Orders →
-          </button>
-        )}
       </div>
 
       {/* Parts Requests */}
@@ -758,7 +1105,7 @@ function RelatedTab({ workOrders, parts, documents }) {
             <Package size={16} style={{ color: 'var(--text-muted)' }} />
             Parts Requests ({parts.length})
           </h3>
-          <button className="px-2 py-1 rounded text-xs font-medium" style={{ backgroundColor: 'var(--accent)', color: '#1f2937' }}>
+          <button className="px-2 py-1 rounded text-xs font-medium" style={{ backgroundColor: 'var(--accent)', color: '#1a1a1a' }}>
             Request Part
           </button>
         </div>
@@ -767,13 +1114,13 @@ function RelatedTab({ workOrders, parts, documents }) {
             <div key={part.id} className="p-3 rounded-md" style={{ backgroundColor: 'var(--bg-base)', border: '1px solid var(--border)' }}>
               <div className="flex items-center justify-between mb-1.5">
                 <span className="font-semibold text-sm">{part.description}</span>
-                <span className="text-[10px] px-1.5 py-0.5 rounded font-medium" style={{ backgroundColor: 'var(--bg-base)', color: 'var(--text-muted)' }}>
+                <span className="text-[10px] px-1.5 py-0.5 rounded font-medium" style={{ backgroundColor: 'var(--bg-base)', color: 'var(--text-tertiary)' }}>
                   Qty: {part.quantity}
                 </span>
               </div>
-              <div className="flex items-center justify-between text-xs" style={{ color: 'var(--text-muted)' }}>
+              <div className="flex items-center justify-between text-xs" style={{ color: 'var(--text-tertiary)' }}>
                 <span>Part: {part.partNumber}</span>
-                <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${statusColor(part.status)}`}>
+                <span className="text-[10px] px-1.5 py-0.5 rounded font-medium" style={statusBadgeClass(part.status)}>
                   {part.status}
                 </span>
               </div>
@@ -797,7 +1144,7 @@ function RelatedTab({ workOrders, parts, documents }) {
             >
               <FileText size={16} style={{ color: 'var(--text-muted)' }} />
               <span className="flex-1 text-sm font-medium truncate">{doc.name}</span>
-              <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{doc.size}</span>
+              <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{doc.size}</span>
               <button className="p-1 rounded hover:bg-gray-500/20" style={{ color: 'var(--text-muted)' }}>
                 <Download size={14} />
               </button>
@@ -891,13 +1238,18 @@ function LogTab({ auditLog }) {
                 </div>
 
                 {entry.type === 'field-update' && (
-                  <div className="flex items-center gap-2 mt-2 flex-wrap">
-                    <span className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>From:</span>
-                    <span className="text-xs px-2 py-0.5 rounded font-mono bg-red-500/15 text-red-400">{entry.oldValue}</span>
-                    <ArrowRight size={12} style={{ color: 'var(--text-muted)' }} />
-                    <span className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>To:</span>
-                    <span className="text-xs px-2 py-0.5 rounded font-mono bg-green-500/15 text-green-400">{entry.newValue}</span>
-                  </div>
+                  <>
+                    <div className="flex items-center gap-2 mt-2 flex-wrap">
+                      <span className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>From:</span>
+                      <span className="text-xs px-2 py-0.5 rounded font-mono bg-red-500/15 text-red-400">{entry.oldValue}</span>
+                      <ArrowRight size={12} style={{ color: 'var(--text-muted)' }} />
+                      <span className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>To:</span>
+                      <span className="text-xs px-2 py-0.5 rounded font-mono bg-green-500/15 text-green-400">{entry.newValue}</span>
+                    </div>
+                    {entry.note && (
+                      <p className="text-xs italic mt-1.5" style={{ color: 'var(--text-muted)' }}>{entry.note}</p>
+                    )}
+                  </>
                 )}
 
                 {entry.type === 'text-update' && (

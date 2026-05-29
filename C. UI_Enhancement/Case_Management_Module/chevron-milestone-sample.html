@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chevron Milestone Tracker</title>
+<style>
+  :root {
+    /* Kedalaman runcing/takik chevron. Ubah nilai ini untuk membuat
+       runcing lebih tajam (besarkan, mis. 28px) atau lebih landai (kecilkan, mis. 12px) */
+    --tip: 20px;
+    --chev-h: 56px;
+    --green: #2bbb4e;
+    --green-edge: #25a645;
+    --blue: #1d7ed8;
+    --blue-edge: #196dbd;
+    --gray-bg: #e9ecef;
+    --gray-text: #98a2ad;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #f4f6f8;
+    margin: 0;
+    padding: 40px 24px;
+    color: #2b3a4a;
+  }
+
+  .case-header { margin-bottom: 16px; }
+  .case-title { font-size: 20px; font-weight: 700; }
+  .badges { margin-top: 8px; display: flex; gap: 8px; }
+  .badge {
+    font-size: 12px; padding: 3px 9px; border-radius: 4px; font-weight: 600;
+  }
+  .badge.priority { background: #fff3cd; color: #b8860b; border: 1px solid #f0d98c; }
+  .badge.status { background: #eef1f4; color: #5a6b7b; border: 1px solid #d6dde4; }
+
+  /* ====== CHEVRON TRACKER ====== */
+  .milestones {
+    display: flex;
+    width: 100%;
+    align-items: stretch;
+    /* sedikit padding kiri supaya segmen pertama tidak terpotong tepi */
+    padding-left: 2px;
+  }
+
+  .chevron {
+    flex: 1;
+    height: var(--chev-h);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+    position: relative;
+
+    /* geometri panah: runcing di kanan + takik V di kiri */
+    clip-path: polygon(
+      0 0,
+      calc(100% - var(--tip)) 0,
+      100% 50%,
+      calc(100% - var(--tip)) 100%,
+      0 100%,
+      var(--tip) 50%
+    );
+
+    /* overlap supaya runcing & takik menyatu tanpa celah */
+    margin-left: calc(var(--tip) * -1 + 2px);
+    /* kompensasi takik V agar teks tetap di tengah visual */
+    padding-left: var(--tip);
+  }
+
+  /* segmen pertama: sisi kiri RATA (tanpa takik V) */
+  .chevron:first-child {
+    margin-left: 0;
+    padding-left: 0;
+    clip-path: polygon(
+      0 0,
+      calc(100% - var(--tip)) 0,
+      100% 50%,
+      calc(100% - var(--tip)) 100%,
+      0 100%
+    );
+  }
+
+  .chevron .check { margin-right: 6px; font-weight: 700; }
+
+  /* state warna */
+  .chevron.done    { background: var(--green); }
+  .chevron.current { background: var(--blue); }
+  .chevron.todo {
+    background: var(--gray-bg);
+    color: var(--gray-text);
+    font-weight: 600;
+  }
+
+  /* garis pemisah tipis antar segmen hijau/biru agar batas tetap kebaca */
+  .chevron.done + .chevron.done,
+  .chevron.done + .chevron.current { filter: brightness(0.99); }
+</style>
+</head>
+<body>
+
+  <div class="case-header">
+    <div class="case-title">Case #: CASE-20260526-00101</div>
+    <div class="badges">
+      <span class="badge priority">Medium Priority</span>
+      <span class="badge status">Closed</span>
+    </div>
+  </div>
+
+  <div class="milestones">
+    <div class="chevron done"><span class="check">✓</span>Open</div>
+    <div class="chevron done"><span class="check">✓</span>Assigned</div>
+    <div class="chevron done"><span class="check">✓</span>In Progress</div>
+    <div class="chevron done"><span class="check">✓</span>Resolved</div>
+    <div class="chevron current"><span class="check">✓</span>Closed</div>
+    <div class="chevron todo">Select a Milestone</div>
+  </div>
+
+</body>
+</html>

@@ -8,6 +8,7 @@ import CasesPage from './pages/CasesPage';
 import CaseDetailPage from './pages/CaseDetailPage';
 import NewCasePage from './pages/NewCasePage';
 import WorkOrdersPage from './pages/WorkOrdersPage';
+import WorkOrderDetailPage from './pages/WorkOrderDetailPage';
 import AppLayout from './components/layout/AppLayout';
 
 function ProtectedRoute({ children }) {
@@ -49,6 +50,7 @@ export default function App() {
             <Route path="/cases/new"   element={<NewCasePage />} />
             <Route path="/cases/:id"   element={<CaseDetailPage />} />
             <Route path="/workorders"  element={<WorkOrdersPage />} />
+            <Route path="/workorders/:id" element={<WorkOrderDetailPage />} />
             <Route path="*"            element={<Navigate to="/dashboard" replace />} />
           </Route>
         </Routes>
