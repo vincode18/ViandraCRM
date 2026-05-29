@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+
+<html class="" lang="en" style=""><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>UT Service Console - Case 01532785</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "on-background": "#1a1c1c",
+                "tertiary": "#5d5f5f",
+                "on-surface-variant": "#4d4632",
+                "secondary-fixed-dim": "#c8c6c5",
+                "outline-variant": "#d1c6ab",
+                "outline": "#7f7660",
+                "tertiary-fixed": "#e2e2e2",
+                "surface-variant": "#e2e2e2",
+                "on-error-container": "#93000a",
+                "on-surface": "#1a1c1c",
+                "surface-container-lowest": "#ffffff",
+                "on-primary": "#ffffff",
+                "surface-tint": "#725c00",
+                "surface-container": "#eeeeee",
+                "secondary": "#5f5e5e",
+                "tertiary-container": "#cdcdcd",
+                "primary-fixed-dim": "#eec200",
+                "surface-container-low": "#f3f3f3",
+                "on-secondary-container": "#656464",
+                "on-secondary-fixed-variant": "#474646",
+                "on-primary-fixed": "#231b00",
+                "on-primary-container": "#695400",
+                "surface-container-high": "#e8e8e8",
+                "primary-fixed": "#ffe081",
+                "background": "#f9f9f9",
+                "inverse-primary": "#eec200",
+                "on-secondary-fixed": "#1c1b1b",
+                "on-tertiary-fixed-variant": "#454747",
+                "on-error": "#ffffff",
+                "surface": "#f9f9f9",
+                "on-tertiary-container": "#555757",
+                "surface-dim": "#dadada",
+                "on-tertiary": "#ffffff",
+                "surface-bright": "#f9f9f9",
+                "on-tertiary-fixed": "#1a1c1c",
+                "on-primary-fixed-variant": "#564500",
+                "secondary-container": "#e5e2e1",
+                "error": "#ba1a1a",
+                "on-secondary": "#ffffff",
+                "primary-container": "#f5c800",
+                "error-container": "#ffdad6",
+                "primary": "#725c00",
+                "surface-container-highest": "#e2e2e2",
+                "tertiary-fixed-dim": "#c6c6c6",
+                "secondary-fixed": "#e5e2e1",
+                "inverse-surface": "#2f3131",
+                "inverse-on-surface": "#f1f1f1",
+                "status-warning": "#f5c800",
+                "status-info": "#60A5FA",
+                "status-error": "#ba1a1a",
+                "status-success": "#52C41A",
+                "brand-blue": "#0066CC"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+        },
+        "spacing": {
+                "xs": "4px",
+                "xl": "32px",
+                "margin": "24px",
+                "sm": "8px",
+                "base": "8px",
+                "lg": "24px",
+                "md": "16px",
+                "gutter": "16px",
+                "page-padding": "16px",
+                "height-pipeline": "44px"
+        },
+        "fontFamily": {
+                "body-md": [
+                        "Hanken Grotesk"
+                ],
+                "headline-md": [
+                        "Hanken Grotesk"
+                ],
+                "body-sm": [
+                        "Hanken Grotesk"
+                ],
+                "headline-lg-mobile": [
+                        "Hanken Grotesk"
+                ],
+                "label-sm": [
+                        "JetBrains Mono"
+                ],
+                "label-md": [
+                        "JetBrains Mono"
+                ],
+                "headline-sm": [
+                        "Hanken Grotesk"
+                ],
+                "body-lg": [
+                        "Hanken Grotesk"
+                ],
+                "headline-lg": [
+                        "Hanken Grotesk"
+                ],
+                "section-header": ["Hanken Grotesk"],
+                "label-meta": ["JetBrains Mono"],
+                "tab-active": ["Hanken Grotesk"],
+                "tab-inactive": ["Hanken Grotesk"],
+                "headline-display": ["Hanken Grotesk"],
+                "badge-text": ["Hanken Grotesk"],
+                "field-value": ["Hanken Grotesk"],
+                "body-notes": ["Hanken Grotesk"]
+        },
+        "fontSize": {
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "24px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "headline-md": [
+                        "24px",
+                        {
+                                "lineHeight": "32px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "body-sm": [
+                        "14px",
+                        {
+                                "lineHeight": "20px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "headline-lg-mobile": [
+                        "24px",
+                        {
+                                "lineHeight": "32px",
+                                "letterSpacing": "-0.01em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "label-sm": [
+                        "12px",
+                        {
+                                "lineHeight": "14px",
+                                "letterSpacing": "0.05em",
+                                "fontWeight": "500"
+                        }
+                ],
+                "label-md": [
+                        "14px",
+                        {
+                                "lineHeight": "16px",
+                                "letterSpacing": "0.02em",
+                                "fontWeight": "500"
+                        }
+                ],
+                "headline-sm": [
+                        "20px",
+                        {
+                                "lineHeight": "28px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "body-lg": [
+                        "18px",
+                        {
+                                "lineHeight": "28px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "headline-lg": [
+                        "32px",
+                        {
+                                "lineHeight": "40px",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "label-meta": ["11px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                "tab-active": ["13px", { "lineHeight": "20px", "fontWeight": "600" }],
+                "tab-inactive": ["13px", { "lineHeight": "20px", "fontWeight": "400" }],
+                "section-header": ["13px", { "lineHeight": "18px", "fontWeight": "600" }],
+                "headline-display": ["22px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                "badge-text": ["11px", { "lineHeight": "14px", "fontWeight": "600" }],
+                "field-value": ["13px", { "lineHeight": "20px", "fontWeight": "500" }],
+                "body-notes": ["12px", { "lineHeight": "18px", "fontWeight": "400" }]
+        }
+},
+    },
+  }
+</script>
+<style>
+        body { background-color: #f9f9f9; color: #1a1c1c; font-family: 'Hanken Grotesk', sans-serif; overflow: hidden; }
+        ::-webkit-scrollbar { width: 6px; background-color: transparent; }
+        ::-webkit-scrollbar-thumb { background-color: #cdcdcd; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background-color: #f5c800; }
+        .card-panel { background-color: #ffffff; border: 1px solid #e2e2e2; border-radius: 0.25rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .data-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; }
+        .sidebar-active { background-color: #f5c800; color: #231b00; font-weight: 700; border-left: 4px solid #725c00; }
+        .footer-link:hover { color: #0066CC; text-decoration: underline; }
+    </style>
+</head>
+<body class="flex flex-col h-screen">
+<!-- Layer 1: Global Header -->
+<header class="fixed top-0 left-0 w-full h-16 bg-white border-b border-surface-variant z-50 flex justify-between items-center px-4 shrink-0">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 bg-primary-container rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container text-[20px]">engineering</span>
+</div>
+<a class="font-bold text-[14px] text-on-surface" href="/">UT Service Console</a>
+</div>
+<div class="flex-1 flex justify-center px-4">
+<div class="relative w-full max-w-[300px]">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
+<input class="bg-white border border-surface-variant text-on-surface font-body-md rounded pl-10 pr-4 py-1.5 w-full focus:outline-none focus:border-brand-blue focus:ring-1 focus:ring-brand-blue transition-all placeholder:text-on-surface-variant" placeholder="Search..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<button class="relative text-on-surface-variant hover:text-on-surface p-1 rounded hover:bg-surface-container transition-colors" title="Notifications">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-status-error rounded-full border border-white"></span>
+</button>
+<button class="relative text-on-surface-variant hover:text-on-surface p-1 rounded hover:bg-surface-container transition-colors" title="Alerts">
+<span class="material-symbols-outlined text-[20px]">warning</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-status-error rounded-full border border-white"></span>
+</button>
+<button class="text-on-surface-variant hover:text-on-surface p-1 rounded hover:bg-surface-container transition-colors" title="Help">
+<span class="material-symbols-outlined text-[20px]">help</span>
+</button>
+<button class="text-on-surface-variant hover:text-on-surface p-1 rounded hover:bg-surface-container transition-colors" title="Settings">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+</button>
+</div>
+<div class="w-px h-6 bg-surface-variant mx-2"></div>
+<div class="flex items-center gap-2 cursor-pointer hover:bg-surface-container px-2 py-1 rounded transition-colors">
+<div class="w-8 h-8 rounded-full border border-surface-variant overflow-hidden">
+<img alt="User avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDwyKwoQmmRy5_SglCaf8vevL6s_to0-Ik-_FP6ILFX0kVNJ_IH9dDQifNnNq7YlneYSQppm2fzT5uihWRC3uyvcbPk-Kgs3nWGg6cyLZ3AZH4zYQmX6d82u36j2EIDoAL7BYLuD-rde1VV41Vz7kDLI6QoUF-0eX7-fQGg10RssLjb1gGXOG4b227sOGsTSV36Wirbt6LEN7NiE8VXBaRTbx13OvdpP2OFGkUuYtTDhkO0xVHJRF7XNyafxRxNlMOaNqUJ6n2ICkAv"/>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">more_vert</span>
+</div>
+</div>
+</header>
+<div class="flex flex-1 pt-16 overflow-hidden">
+<!-- Layer 2: SideNavBar ('Industrial Light') -->
+<aside class="w-64 bg-surface-container-low border-r border-outline-variant flex flex-col shrink-0 hidden lg:flex">
+<nav class="flex-1 flex flex-col gap-1 py-4">
+<div class="flex items-center gap-3 px-6 py-3 text-on-surface-variant font-label-md hover:bg-surface-container-highest cursor-pointer transition-all">
+<span class="material-symbols-outlined text-[20px]">dashboard</span>
+                Console
+            </div>
+<div class="flex items-center gap-3 px-6 py-3 text-on-surface-variant font-label-md hover:bg-surface-container-highest cursor-pointer transition-all">
+<span class="material-symbols-outlined text-[20px]">business_center</span>
+                Accounts
+            </div>
+<div class="flex items-center gap-3 px-6 py-3 sidebar-active">
+<span class="material-symbols-outlined text-[20px]">medical_services</span>
+                Cases
+            </div>
+<div class="flex items-center gap-3 px-6 py-3 text-on-surface-variant font-label-md hover:bg-surface-container-highest cursor-pointer transition-all">
+<span class="material-symbols-outlined text-[20px]">group</span>
+                Contacts
+            </div>
+<div class="flex items-center gap-3 px-6 py-3 text-on-surface-variant font-label-md hover:bg-surface-container-highest cursor-pointer transition-all">
+<span class="material-symbols-outlined text-[20px]">auto_stories</span>
+                Knowledge
+            </div>
+<div class="flex items-center gap-3 px-6 py-3 text-on-surface-variant font-label-md hover:bg-surface-container-highest cursor-pointer transition-all">
+<span class="material-symbols-outlined text-[20px]">bar_chart</span>
+                Reports
+            </div>
+</nav>
+<div class="mt-auto p-4 border-t border-outline-variant">
+<div class="bg-surface-container-highest/30 rounded p-3">
+<div class="text-[10px] font-label-meta text-on-surface-variant mb-2">QUICK LINKS</div>
+<ul class="text-[12px] flex flex-col gap-2">
+<li class="hover:text-primary cursor-pointer">• My Open Cases</li>
+<li class="hover:text-primary cursor-pointer">• Urgent WOs</li>
+<li class="hover:text-primary cursor-pointer">• Today's Assets</li>
+</ul>
+</div>
+</div>
+</aside>
+<!-- Main Workspace -->
+<main class="flex-1 flex flex-col overflow-hidden bg-background">
+<!-- Module Header & Navigation -->
+<div class="bg-surface-container-low border-b border-surface-variant shrink-0 flex flex-col">
+<div class="flex items-center justify-between px-page-padding py-2">
+<div class="flex items-center gap-4">
+<select class="bg-white border border-surface-variant rounded px-3 py-1.5 text-[14px] font-medium text-on-surface focus:outline-none focus:border-brand-blue">
+<option selected="">Cases</option>
+<option>Work Orders</option>
+<option>Accounts</option>
+</select>
+<nav aria-label="Breadcrumb" class="hidden md:flex items-center text-[12px] text-on-surface-variant font-medium">
+<a class="hover:text-brand-blue" href="#">UT Service Console</a>
+<span class="material-symbols-outlined text-[16px] mx-1">chevron_right</span>
+<a class="hover:text-brand-blue" href="#">Cases</a>
+<span class="material-symbols-outlined text-[16px] mx-1">chevron_right</span>
+<a class="hover:text-brand-blue" href="#">Sangkulirang...</a>
+<span class="material-symbols-outlined text-[16px] mx-1">chevron_right</span>
+<span class="text-on-surface font-bold">01532785</span>
+</nav>
+</div>
+</div>
+<nav class="flex items-end px-page-padding h-10 gap-2 overflow-x-auto">
+<div class="flex items-center gap-2 text-on-surface-variant font-tab-inactive text-tab-inactive px-4 py-2 hover:bg-surface-container rounded-t-lg transition-colors cursor-pointer border-t border-x border-transparent hover:border-surface-variant group">
+<span class="material-symbols-outlined text-[16px]">home</span>
+                    Home
+                    <span class="material-symbols-outlined text-[16px] opacity-0 group-hover:opacity-100 ml-2 hover:text-on-surface">close</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-tab-inactive text-tab-inactive px-4 py-2 hover:bg-surface-container rounded-t-lg transition-colors cursor-pointer border-t border-x border-transparent hover:border-surface-variant group">
+<span class="material-symbols-outlined text-[16px]">medical_services</span>
+                    Cases
+                    <span class="material-symbols-outlined text-[16px] opacity-0 group-hover:opacity-100 ml-2 hover:text-on-surface">close</span>
+</div>
+<div class="flex items-center gap-2 bg-white text-brand-blue font-bold text-[14px] px-4 py-2 border-t border-x border-surface-variant rounded-t-lg relative before:absolute before:bottom-0 before:left-0 before:w-full before:h-[2px] before:bg-brand-blue z-10 cursor-pointer group shadow-[0_-2px_4px_rgba(0,0,0,0.02)]">
+<span class="material-symbols-outlined text-[16px]">description</span>
+                    01532785
+                    <span class="material-symbols-outlined text-[16px] ml-2 opacity-0 group-hover:opacity-100 hover:text-status-error transition-opacity">close</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant font-tab-inactive text-tab-inactive px-4 py-2 hover:bg-surface-container rounded-t-lg transition-colors cursor-pointer border-t border-x border-transparent hover:border-surface-variant group">
+<span class="material-symbols-outlined text-[16px]">build</span>
+                    Work Orders
+                    <span class="material-symbols-outlined text-[16px] opacity-0 group-hover:opacity-100 ml-2 hover:text-on-surface">close</span>
+</div>
+</nav>
+</div>
+<!-- Layer 4: Case Header & Pipeline -->
+<div class="bg-surface-container-lowest border-b border-surface-variant shrink-0">
+<div class="h-20 px-page-padding flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-primary-container rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container text-[28px]">support_agent</span>
+</div>
+<div>
+<div class="flex items-center gap-3">
+<span class="font-label-meta text-label-meta text-on-surface-variant uppercase tracking-wider">Case</span>
+<span class="font-badge-text text-badge-text bg-status-warning/20 text-on-surface-variant px-2 py-0.5 rounded border border-status-warning/50">Medium Priority</span>
+<span class="font-badge-text text-badge-text bg-surface-container text-on-surface-variant px-2 py-0.5 rounded border border-surface-variant">Closed</span>
+</div>
+<h1 class="font-headline-display text-headline-display text-primary-container mt-1">01532785</h1>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="px-4 py-1.5 border border-surface-variant text-on-surface font-section-header rounded hover:bg-surface-container transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">edit</span> Edit
+                    </button>
+<button class="px-4 py-1.5 border border-surface-variant text-on-surface font-section-header rounded hover:bg-surface-container transition-colors">
+                        Change Owner
+                    </button>
+<button class="px-3 py-1.5 border border-surface-variant text-on-surface rounded hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[20px]">more_horiz</span>
+</button>
+</div>
+</div>
+<div class="h-height-pipeline bg-surface-container-low border-t border-surface-variant px-page-padding flex items-center">
+<div class="flex items-center w-full max-w-5xl">
+<div class="flex items-center flex-1">
+<div class="text-status-success border border-status-success rounded-full w-5 h-5 flex items-center justify-center shrink-0 z-10 bg-white">
+<span class="material-symbols-outlined text-[12px]">check</span>
+</div>
+<div class="ml-2 font-label-meta text-[10px] text-on-surface mr-3">Open</div>
+<div class="h-[2px] bg-status-success flex-1 mr-3"></div>
+</div>
+<div class="flex items-center flex-1">
+<div class="text-status-success border border-status-success rounded-full w-5 h-5 flex items-center justify-center shrink-0 z-10 bg-white">
+<span class="material-symbols-outlined text-[12px]">check</span>
+</div>
+<div class="ml-2 font-label-meta text-[10px] text-on-surface mr-3">Assigned</div>
+<div class="h-[2px] bg-status-success flex-1 mr-3"></div>
+</div>
+<div class="flex items-center flex-1">
+<div class="text-status-success border border-status-success rounded-full w-5 h-5 flex items-center justify-center shrink-0 z-10 bg-white">
+<span class="material-symbols-outlined text-[12px]">check</span>
+</div>
+<div class="ml-2 font-label-meta text-[10px] text-on-surface mr-3">In Progress</div>
+<div class="h-[2px] bg-status-success flex-1 mr-3"></div>
+</div>
+<div class="flex items-center flex-1">
+<div class="text-status-success border border-status-success rounded-full w-5 h-5 flex items-center justify-center shrink-0 z-10 bg-white">
+<span class="material-symbols-outlined text-[12px]">check</span>
+</div>
+<div class="ml-2 font-label-meta text-[10px] text-on-surface mr-3">Resolved</div>
+<div class="h-[2px] bg-primary-container flex-1 mr-3"></div>
+</div>
+<div class="flex items-center">
+<div class="bg-primary-container text-on-primary-container font-bold rounded-full w-6 h-6 flex items-center justify-center shrink-0 z-10 text-[11px]">5</div>
+<div class="ml-2 font-label-meta text-[10px] text-primary-container font-bold">Closed</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Layer 5: 3-Panel Integrated Body Architecture -->
+<div class="flex flex-1 overflow-hidden p-4 gap-4 flex-col lg:flex-row">
+<!-- PANEL 1: LEFT - MODULAR FLEET DASHBOARD -->
+<div class="w-full lg:w-[300px] shrink-0 flex flex-col gap-4 overflow-y-auto pr-1">
+<!-- Fleet Units Health -->
+<div class="card-panel overflow-hidden">
+<div class="bg-surface-container px-4 py-2 border-b border-surface-variant flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-primary-container">precision_manufacturing</span>
+<span class="font-section-header text-section-header text-on-surface">FLEET UNITS (4)</span>
+</div>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant cursor-pointer">refresh</span>
+</div>
+<div class="p-3 bg-surface-container-lowest flex flex-col gap-2">
+<!-- GD-829 (Operational - Active Context) -->
+<div class="border border-primary-container rounded p-3 bg-surface-bright border-l-4 border-l-primary-container relative">
+<div class="flex justify-between items-start mb-2">
+<div>
+<div class="font-field-value text-field-value text-primary font-bold">GD-829</div>
+<div class="font-label-meta text-[10px] text-on-surface-variant">Komatsu D85ESS-2</div>
+</div>
+<span class="font-badge-text text-[10px] bg-status-success/20 text-status-success px-1.5 py-0.5 rounded">Active</span>
+</div>
+<div class="grid grid-cols-2 gap-2 text-[10px] font-label-meta text-on-surface-variant">
+<div class="">HM: 14,250 hrs</div>
+<div class="text-right">Site B - Pit 4</div>
+</div>
+</div>
+<!-- Other units as compact items -->
+<div class="border border-surface-variant rounded p-2 hover:bg-surface-container-low cursor-pointer transition-colors">
+<div class="flex justify-between items-center">
+<span class="text-[12px] font-bold">GD-830</span>
+<span class="material-symbols-outlined text-status-warning text-[16px]">warning</span>
+</div>
+<div class="text-[10px] text-on-surface-variant">12,500 hrs • PC200-8</div>
+</div>
+<div class="border border-surface-variant rounded p-2 hover:bg-surface-container-low cursor-pointer transition-colors">
+<div class="flex justify-between items-center">
+<span class="text-[12px] font-bold">GD-831</span>
+<span class="material-symbols-outlined text-status-success text-[16px]">check_circle</span>
+</div>
+<div class="text-[10px] text-on-surface-variant">16,750 hrs • WA200-6</div>
+</div>
+<div class="border border-surface-variant rounded p-2 hover:bg-surface-container-low cursor-pointer transition-colors">
+<div class="flex justify-between items-center">
+<span class="text-[12px] font-bold">GD-832</span>
+<span class="material-symbols-outlined text-status-error text-[16px]">build_circle</span>
+</div>
+<div class="text-[10px] text-on-surface-variant text-status-error">In Repair • D65EX-12</div>
+</div>
+</div>
+</div>
+<!-- Account / Contact Quickview -->
+<div class="card-panel overflow-hidden">
+<div class="bg-surface-container px-4 py-2 border-b border-surface-variant">
+<span class="font-section-header text-section-header">ACCOUNT CONTEXT</span>
+</div>
+<div class="p-4 flex flex-col gap-3">
+<div>
+<div class="text-status-info font-bold text-[13px] hover:underline cursor-pointer">PUTRA PERKASA ABADI</div>
+<div class="flex items-center gap-2 mt-1">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">person</span>
+<span class="text-[12px]">Andi Wijaya (Manager)</span>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 py-1.5 border border-surface-variant rounded text-[11px] font-bold flex items-center justify-center gap-1 hover:bg-surface-container">
+<span class="material-symbols-outlined text-[14px]">call</span> Call
+                            </button>
+<button class="flex-1 py-1.5 border border-surface-variant rounded text-[11px] font-bold flex items-center justify-center gap-1 hover:bg-surface-container">
+<span class="material-symbols-outlined text-[14px]">mail</span> Email
+                            </button>
+</div>
+</div>
+</div>
+</div>
+<!-- PANEL 2: CENTER - PRIMARY DETAIL TABS -->
+<div class="flex-1 flex flex-col gap-4 overflow-hidden min-w-0">
+<div class="card-panel flex-1 flex flex-col overflow-hidden">
+<!-- Tab Headers -->
+<div class="flex border-b border-surface-variant bg-surface-container px-2 pt-2 shrink-0 overflow-x-auto">
+<div class="px-6 py-2 border-b-2 border-primary-container text-primary font-tab-active text-tab-active cursor-pointer whitespace-nowrap">
+                            Details
+                        </div>
+<div class="px-6 py-2 border-b-2 border-transparent text-on-surface-variant hover:text-on-surface font-tab-inactive text-tab-inactive cursor-pointer transition-colors whitespace-nowrap">
+                            Feed
+                        </div>
+<div class="px-6 py-2 border-b-2 border-transparent text-on-surface-variant hover:text-on-surface font-tab-inactive text-tab-inactive cursor-pointer transition-colors whitespace-nowrap">
+                            Related
+                        </div>
+<div class="px-6 py-2 border-b-2 border-transparent text-on-surface-variant hover:text-on-surface font-tab-inactive text-tab-inactive cursor-pointer transition-colors whitespace-nowrap">
+                            Log
+                        </div>
+</div>
+<!-- Content Area (Scrollable) -->
+<div class="flex-1 overflow-y-auto p-6 bg-surface-container-lowest">
+<!-- SECTION: COMPLETION & SLA TRACKING (Expanded High Fidelity) -->
+<div class="mb-8">
+<h3 class="font-section-header text-on-surface border-b border-surface-variant pb-2 mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-primary-container">schedule</span>
+                                COMPLETION &amp; SLA TRACKING
+                            </h3>
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+<div class="flex flex-col gap-4">
+<div class="border-l-2 border-surface-variant pl-3">
+<div class="text-[11px] font-label-meta text-on-surface-variant mb-1">Start Date OTF Mechanic</div>
+<div class="text-[13px] font-bold">26/05/2026, 07:31</div>
+<div class="text-[11px] font-label-meta text-on-surface-variant mt-3 mb-1">Target Date OTF Mechanic</div>
+<div class="text-[13px] font-bold">26/05/2026, 11:31</div>
+</div>
+<div class="border-l-2 border-surface-variant pl-3">
+<div class="text-[11px] font-label-meta text-on-surface-variant mb-1">Start Date SLA</div>
+<div class="text-[13px] font-bold">26/05/2026, 07:31</div>
+<div class="text-[11px] font-label-meta text-on-surface-variant mt-3 mb-1">Target Date SLA</div>
+<div class="text-[13px] font-bold">02/06/2026, 07:31</div>
+</div>
+</div>
+<div class="bg-surface-container-low p-4 rounded border border-surface-variant">
+<div class="text-[10px] font-bold uppercase text-on-surface-variant mb-3 tracking-widest">Backdate Validation</div>
+<div class="space-y-3">
+<div class="flex justify-between items-center text-[12px]">
+<span class="text-on-surface-variant">Mechanic Start</span>
+<span class="font-medium flex items-center gap-1">26/05/2026, 07:31 <span class="material-symbols-outlined text-[14px] text-status-success">check_circle</span></span>
+</div>
+<div class="flex justify-between items-center text-[12px]">
+<span class="text-on-surface-variant">Job Complete</span>
+<span class="font-medium flex items-center gap-1">26/05/2026, 15:30 <span class="material-symbols-outlined text-[14px] text-on-surface-variant">pending</span></span>
+</div>
+<div class="text-[11px] text-on-surface-variant italic mt-2 border-t pt-2 border-surface-variant">
+                                            "Manual Backdate: Initial dispatch delayed due to site access clearance."
+                                        </div>
+</div>
+</div>
+</div>
+</div>
+<!-- SECTION: CASE INFORMATION -->
+<div class="mb-8">
+<h3 class="font-section-header text-on-surface border-b border-surface-variant pb-2 mb-4">CASE INFORMATION</h3>
+<div class="data-grid px-2">
+<div>
+<div class="text-[11px] font-label-meta text-on-surface-variant mb-1">Case Owner</div>
+<div class="text-[13px] font-medium border-b border-transparent hover:border-surface-variant pb-1 cursor-text">System User</div>
+</div>
+<div>
+<div class="text-[11px] font-label-meta text-on-surface-variant mb-1">Status</div>
+<div class="text-[13px] font-medium border-b border-transparent hover:border-surface-variant pb-1 cursor-text">Closed</div>
+</div>
+<div>
+<div class="text-[11px] font-label-meta text-on-surface-variant mb-1">Case Number</div>
+<div class="text-[13px] font-medium border-b border-transparent hover:border-surface-variant pb-1 cursor-text">01532785</div>
+</div>
+<div>
+<div class="text-[11px] font-label-meta text-on-surface-variant mb-1">Priority</div>
+<div class="text-[13px] font-medium border-b border-transparent hover:border-surface-variant pb-1 cursor-text">Medium</div>
+</div>
+</div>
+</div>
+<!-- SECTION: DESCRIPTION -->
+<div class="mb-8">
+<h3 class="font-section-header text-on-surface border-b border-surface-variant pb-2 mb-4">SUBJECT &amp; DESCRIPTION</h3>
+<div class="px-2">
+<div class="text-[11px] font-label-meta text-on-surface-variant mb-1">Subject</div>
+<div class="text-[14px] font-bold mb-4">Hydraulic Leak on Right Cylinder</div>
+<div class="text-[11px] font-label-meta text-on-surface-variant mb-1">Detailed Description</div>
+<div class="text-[13px] text-on-surface bg-surface-container-low p-4 rounded border border-surface-variant leading-relaxed">
+                                    Operator reported significant hydraulic fluid leak near the right cylinder during morning inspection. Machine grounded pending repair. Suspect blown seal or damaged hose fitting. Requires immediate inspection and replacement parts. Equipment is critical for daily operations.
+                                </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- PANEL 3: RIGHT - SLA HUB & PERFORMANCE -->
+<div class="w-full lg:w-[340px] shrink-0 flex flex-col gap-4 overflow-y-auto pl-1">
+<!-- SLA Performance Indicator -->
+<div class="card-panel bg-surface-container-lowest p-5 border-t-4 border-t-status-error shadow-sm">
+<div class="flex justify-between items-start mb-4">
+<div>
+<div class="text-[11px] font-bold text-status-error uppercase tracking-widest flex items-center gap-1 mb-1">
+<span class="material-symbols-outlined text-[16px]">warning</span>
+                                SLA BREACHED
+                            </div>
+<div class="text-[12px] text-on-surface-variant">Resolution overdue by:</div>
+</div>
+<div class="text-right">
+<span class="text-[32px] font-bold text-status-error leading-none">17</span>
+<span class="text-[12px] font-medium text-on-surface-variant ml-1">Days</span>
+</div>
+</div>
+<div class="space-y-3 mb-6">
+<div class="flex justify-between items-center text-[12px]">
+<span class="text-on-surface-variant">OTF Mechanic</span>
+<span class="font-bold text-status-error bg-status-error/10 px-2 rounded">FAILED (+6.0d)</span>
+</div>
+<div class="flex justify-between items-center text-[12px]">
+<span class="text-on-surface-variant">OTF Solution</span>
+<span class="font-bold text-status-warning bg-status-warning/10 px-2 rounded">PENDING</span>
+</div>
+</div>
+<div class="pt-4 border-t border-surface-variant">
+<div class="flex justify-between text-[11px] font-bold text-on-surface-variant mb-2 uppercase">
+<span class="">Compliance Score</span>
+<span class="">0%</span>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-status-error h-full w-[5%] rounded-full"></div>
+</div>
+</div>
+</div>
+<!-- Metrics Table -->
+<div class="card-panel overflow-hidden">
+<div class="bg-surface-container px-4 py-2 border-b border-surface-variant">
+<span class="font-section-header text-section-header">PERFORMANCE METRICS</span>
+</div>
+<table class="w-full text-left text-[12px]">
+<thead class="bg-surface-container-low text-[10px] font-bold uppercase text-on-surface-variant border-b border-surface-variant">
+<tr>
+<th class="px-3 py-2">Metric</th>
+<th class="px-3 py-2">Target</th>
+<th class="px-3 py-2">Actual</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-variant">
+<tr>
+<td class="px-3 py-2 font-medium">1st Response</td>
+<td class="px-3 py-2 text-on-surface-variant">4h</td>
+<td class="px-3 py-2 text-status-success font-bold">0.5h ✓</td>
+</tr>
+<tr>
+<td class="px-3 py-2 font-medium">Resolution</td>
+<td class="px-3 py-2 text-on-surface-variant">5d</td>
+<td class="px-3 py-2 text-status-error font-bold">153d ✗</td>
+</tr>
+<tr>
+<td class="px-3 py-2 font-medium">SLA Comp.</td>
+<td class="px-3 py-2 text-on-surface-variant">95%</td>
+<td class="px-3 py-2 text-status-error font-bold">0% ✗</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Timeline Flow -->
+<div class="card-panel flex flex-col flex-1 min-h-[400px]">
+<div class="bg-surface-container px-4 py-2 border-b border-surface-variant flex items-center justify-between">
+<span class="font-section-header text-section-header">TIMELINE FLOW</span>
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant cursor-pointer">filter_list</span>
+</div>
+<div class="p-4 bg-surface-container-lowest overflow-y-auto flex-1 relative before:absolute before:left-[27px] before:top-6 before:bottom-6 before:w-[2px] before:bg-surface-variant">
+<!-- Event: Closed -->
+<div class="relative pl-10 mb-6 group">
+<div class="absolute left-[3px] top-1 w-3 h-3 rounded bg-status-success border border-white ring-2 ring-status-success/20 z-10 rotate-45 shadow-sm"></div>
+<div class="text-[10px] font-bold text-primary-container mb-1">26/10/2026</div>
+<div class="flex items-baseline gap-2">
+<span class="text-[11px] font-bold">14:30</span>
+<span class="text-[12px] font-bold">CASE CLOSED</span>
+</div>
+<div class="text-[11px] text-on-surface-variant mt-1 leading-tight">System User - Final SLA audit completed.</div>
+</div>
+<!-- Event: Completion Note -->
+<div class="relative pl-10 mb-6 group">
+<div class="absolute left-[3px] top-1 w-3 h-3 rounded bg-surface-container-highest border border-surface-variant z-10 rotate-45"></div>
+<div class="text-[10px] font-bold text-primary-container mb-1">28/05/2026</div>
+<div class="flex items-baseline gap-2">
+<span class="text-[11px] font-bold">16:45</span>
+<span class="text-[12px] font-bold">COMPLETION NOTE</span>
+</div>
+<div class="text-[11px] text-on-surface-variant mt-1 leading-tight italic">"All repairs completed. System pressure tested."</div>
+</div>
+<!-- Event: Parts Arrived -->
+<div class="relative pl-10 mb-6 group">
+<div class="absolute left-[3px] top-1 w-3 h-3 rounded bg-surface-container-highest border border-surface-variant z-10 rotate-45"></div>
+<div class="text-[10px] font-bold text-primary-container mb-1">27/05/2026</div>
+<div class="flex items-baseline gap-2">
+<span class="text-[11px] font-bold">09:00</span>
+<span class="text-[12px] font-bold">PARTS ARRIVED</span>
+</div>
+<div class="text-[11px] text-on-surface-variant mt-1 leading-tight">Warehouse - Items verified and dispatched to site.</div>
+</div>
+<!-- Event: Created -->
+<div class="relative pl-10 mb-2 group">
+<div class="absolute left-[3px] top-1 w-3 h-3 rounded bg-primary-container border border-surface-variant z-10 rotate-45"></div>
+<div class="text-[10px] font-bold text-primary-container mb-1">26/05/2026</div>
+<div class="flex items-baseline gap-2">
+<span class="text-[11px] font-bold">07:31</span>
+<span class="text-[12px] font-bold">CASE CREATED</span>
+</div>
+<div class="text-[11px] text-on-surface-variant mt-1 leading-tight">System User - Automated case generation from telemetry.</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Global Footer -->
+<footer class="bg-[#F8F9FA] border-t border-surface-variant mt-auto shrink-0 px-8 py-6 text-[#6C757D] text-[12px] font-body-sm">
+<div class="max-w-7xl mx-auto flex flex-col md:flex-row gap-8 justify-between">
+<!-- Column 1: Links -->
+<div class="flex-1 flex flex-col gap-3">
+<div class="font-bold">© 2026 United Tractors<br/><span class="font-normal">All Rights Reserved</span></div>
+<div class="flex flex-col gap-2 mt-2">
+<a class="footer-link" href="#">About</a>
+<a class="footer-link" href="#">Documentation</a>
+<a class="footer-link" href="#">Support Portal</a>
+</div>
+<div class="flex gap-3 mt-4">
+<span class="material-symbols-outlined cursor-pointer hover:text-[#0066CC] transition-colors text-[20px]">language</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-[#0066CC] transition-colors text-[20px]">share</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-[#0066CC] transition-colors text-[20px]">forum</span>
+</div>
+</div>
+<!-- Column 2: System Info -->
+<div class="flex-1 flex flex-col gap-2 text-[11px]">
+<h3 class="font-bold text-[12px] mb-1">System Information</h3>
+<div>Version: 2.1.0</div>
+<div>Build: #12345</div>
+<div>Environment: Production</div>
+<div class="flex items-center gap-1">API Status: <span class="text-status-success font-bold flex items-center gap-1">Operational <span class="material-symbols-outlined text-[14px]">check_circle</span></span></div>
+<div class="mt-4 pt-4 border-t border-surface-variant text-[#999999]">
+<div class="flex gap-4">
+<span>Load: 234ms</span>
+<span>Session: Active</span>
+<span>Timezone: UTC+7</span>
+</div>
+</div>
+</div>
+<!-- Column 3: Compliance -->
+<div class="flex-1 flex flex-col gap-2">
+<h3 class="font-bold text-[12px] mb-1">Legal &amp; Compliance</h3>
+<a class="footer-link" href="#">Terms of Service</a>
+<a class="footer-link" href="#">Privacy Policy</a>
+<a class="footer-link" href="#">Security</a>
+<div class="mt-4 pt-4 border-t border-surface-variant flex flex-col gap-1 text-[11px]">
+<div>support@company.com</div>
+<div>1-800-SERVICE</div>
+</div>
+</div>
+</div>
+</footer>
+</main>
+</div>
+</body></html>

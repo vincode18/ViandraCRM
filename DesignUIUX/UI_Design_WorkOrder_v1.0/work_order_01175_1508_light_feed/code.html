@@ -1,0 +1,506 @@
+<!DOCTYPE html><html class="" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Work Order Detail - UT Service Console</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "error": "#ba1a1a",
+                "surface-bright": "#f9f9f9",
+                "secondary-fixed": "#e5e2e1",
+                "on-primary-fixed": "#231b00",
+                "on-tertiary-fixed": "#1a1c1c",
+                "surface-container": "#eeeeee",
+                "secondary": "#5f5e5e",
+                "outline": "#7f7660",
+                "on-secondary-container": "#656464",
+                "tertiary-container": "#cdcdcd",
+                "on-surface": "#1a1c1c",
+                "on-surface-variant": "#4d4632",
+                "primary-fixed-dim": "#eec200",
+                "surface": "#f9f9f9",
+                "on-tertiary-container": "#555757",
+                "primary-fixed": "#ffe081",
+                "outline-variant": "#d1c6ab",
+                "on-secondary": "#ffffff",
+                "on-secondary-fixed-variant": "#474646",
+                "primary-container": "#f5c800",
+                "surface-container-low": "#f3f3f3",
+                "background": "#f9f9f9",
+                "on-tertiary-fixed-variant": "#454747",
+                "on-primary-container": "#695400",
+                "inverse-primary": "#eec200",
+                "on-background": "#1a1c1c",
+                "tertiary": "#5d5f5f",
+                "on-error-container": "#93000a",
+                "secondary-fixed-dim": "#c8c6c5",
+                "surface-tint": "#725c00",
+                "primary": "#725c00",
+                "secondary-container": "#e5e2e1",
+                "surface-dim": "#dadada",
+                "surface-container-highest": "#e2e2e2",
+                "tertiary-fixed": "#e2e2e2",
+                "inverse-on-surface": "#f1f1f1",
+                "on-primary-fixed-variant": "#564500",
+                "surface-container-lowest": "#ffffff",
+                "on-error": "#ffffff",
+                "error-container": "#ffdad6",
+                "surface-container-high": "#e8e8e8",
+                "on-secondary-fixed": "#1c1b1b",
+                "tertiary-fixed-dim": "#c6c6c6",
+                "on-primary": "#ffffff",
+                "surface-variant": "#e2e2e2",
+                "inverse-surface": "#2f3131",
+                "on-tertiary": "#ffffff"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+        },
+        "spacing": {
+                "xs": "4px",
+                "margin": "24px",
+                "sm": "8px",
+                "gutter": "16px",
+                "xl": "32px",
+                "lg": "24px",
+                "md": "16px",
+                "base": "8px"
+        },
+        "fontFamily": {
+                "headline-lg-mobile": [
+                        "Hanken Grotesk"
+                ],
+                "label-md": [
+                        "JetBrains Mono"
+                ],
+                "headline-md": [
+                        "Hanken Grotesk"
+                ],
+                "headline-sm": [
+                        "Hanken Grotesk"
+                ],
+                "headline-lg": [
+                        "Hanken Grotesk"
+                ],
+                "body-sm": [
+                        "Hanken Grotesk"
+                ],
+                "label-sm": [
+                        "JetBrains Mono"
+                ],
+                "body-md": [
+                        "Hanken Grotesk"
+                ],
+                "body-lg": [
+                        "Hanken Grotesk"
+                ]
+        },
+        "fontSize": {
+                "headline-lg-mobile": [
+                        "24px",
+                        {
+                                "lineHeight": "32px",
+                                "letterSpacing": "-0.01em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "label-md": [
+                        "14px",
+                        {
+                                "lineHeight": "16px",
+                                "letterSpacing": "0.02em",
+                                "fontWeight": "500"
+                        }
+                ],
+                "headline-md": [
+                        "24px",
+                        {
+                                "lineHeight": "32px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "headline-sm": [
+                        "20px",
+                        {
+                                "lineHeight": "28px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "headline-lg": [
+                        "32px",
+                        {
+                                "lineHeight": "40px",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "body-sm": [
+                        "14px",
+                        {
+                                "lineHeight": "20px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "label-sm": [
+                        "12px",
+                        {
+                                "lineHeight": "14px",
+                                "letterSpacing": "0.05em",
+                                "fontWeight": "500"
+                        }
+                ],
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "24px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "body-lg": [
+                        "18px",
+                        {
+                                "lineHeight": "28px",
+                                "fontWeight": "400"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<style>
+        body {
+            background-color: #f9f9f9;
+            color: #1a1c1c;
+        }
+        /* Hide scrollbar for a cleaner look in mission control */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f9f9f9; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cdcdcd; 
+            border-radius: 0.125rem;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #f5c800; 
+        }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden text-on-surface">
+<!-- Layer 1: Global Top Bar (TopNavBar Shared Component mapping) -->
+<header class="bg-surface-container-lowest border-b-2 border-primary-container flex justify-between items-center w-full px-margin h-[36px] flex-shrink-0 z-50">
+<div class="flex items-center gap-6 h-full">
+<span class="font-headline-md text-headline-md text-primary font-bold uppercase tracking-tighter">UT SERVICE CONSOLE</span>
+</div>
+<div class="flex items-center gap-4 h-full">
+<div class="relative h-6 w-64">
+<input class="w-full h-full bg-surface-container-lowest border border-outline-variant text-on-surface px-2 py-0 font-body-sm text-body-sm focus:border-primary focus:ring-1 focus:ring-primary rounded-DEFAULT placeholder-on-surface-variant outline-none" placeholder="Search..." type="text">
+<span class="material-symbols-outlined absolute right-1 top-1 text-[16px] text-on-surface-variant">search</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant cursor-pointer hover:text-primary transition-colors duration-200">notifications</span>
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant cursor-pointer hover:text-primary transition-colors duration-200">settings</span>
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant cursor-pointer hover:text-primary transition-colors duration-200">help</span>
+<div class="w-6 h-6 rounded-full bg-surface-container-highest border border-outline-variant overflow-hidden flex items-center justify-center cursor-pointer ml-1">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="A small, circular avatar portrait of an industrial technician wearing safety gear, shot in a neutral, high-contrast studio setting. The lighting is crisp and modern, matching a dark mode interface aesthetic with deep blacks and stark whites." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYGoYzpDUv_LjNudANzwKSC74rFrKsgNMvJZgGfO6LCAYeBLE_b9lfkxMB6SnK0WbJSGN07sr7D7retJ2GoiOyXOaMnbKGld6O-Si-1-QrcpQM06BKBoLjXjRnAc4kbmCwtGAdueuaYBZwcSKbH0zYD4PYJfDfZfOurRDpYPl0fIPF9B_HGaTvRa0RzaX9yiK-sAAxTDq-88FVJotD5KtlcJtSnC1oTYIjqsX-4-o-rZNM-2oySPtXAsGuDwc9J1kBkxi3E9CXFloM">
+</div>
+</div>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<!-- Sidebar Navigation (SideNavBar Shared Component mapping) -->
+<nav class="bg-surface border-r border-outline-variant flex flex-col h-full py-md w-[280px] flex-shrink-0 z-40 hidden md:flex">
+<div class="px-margin mb-6 flex flex-col gap-2">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 bg-surface-container-lowest border border-outline-variant flex items-center justify-center rounded-DEFAULT">
+<span class="material-symbols-outlined text-primary text-[20px]">engineering</span>
+</div>
+<div>
+<div class="font-label-md text-label-md font-bold text-on-surface">Work Order</div>
+
+</div>
+</div>
+<button class="w-full bg-primary-container text-on-primary-container font-label-md text-label-md py-1.5 px-3 rounded-DEFAULT mt-4 hover:opacity-90 active:scale-95 transition-all duration-150">New Work Order</button>
+</div>
+<div class="flex-1 flex flex-col gap-1 px-2">
+<div class="text-on-surface-variant font-body-sm text-body-sm hover:bg-surface-container-highest transition-all duration-150 cursor-pointer px-4 py-2 flex items-center gap-3 rounded-DEFAULT">
+<span class="material-symbols-outlined text-[18px]">dashboard</span>
+<span class="">Overview</span>
+</div>
+<div class="text-on-surface-variant font-body-sm text-body-sm hover:bg-surface-container-highest transition-all duration-150 cursor-pointer px-4 py-2 flex items-center gap-3 rounded-DEFAULT">
+<span class="material-symbols-outlined text-[18px]">calendar_today</span>
+<span class="">Schedule</span>
+</div>
+<div class="text-on-surface-variant font-body-sm text-body-sm hover:bg-surface-container-highest transition-all duration-150 cursor-pointer px-4 py-2 flex items-center gap-3 rounded-DEFAULT">
+<span class="material-symbols-outlined text-[18px]">minor_crash</span>
+<span class="">Dispatch</span>
+</div>
+<div class="bg-primary-container text-on-primary-container font-semibold border-l-4 border-primary px-4 py-2 flex items-center gap-3 rounded-r-DEFAULT">
+<span class="material-symbols-outlined text-[18px]">build</span>
+<span class="">Work Orders</span>
+</div>
+<div class="text-on-surface-variant font-body-sm text-body-sm hover:bg-surface-container-highest transition-all duration-150 cursor-pointer px-4 py-2 flex items-center gap-3 rounded-DEFAULT">
+<span class="material-symbols-outlined text-[18px]">analytics</span>
+<span class="">Analytics</span>
+</div>
+<div class="text-on-surface-variant font-body-sm text-body-sm hover:bg-surface-container-highest transition-all duration-150 cursor-pointer px-4 py-2 flex items-center gap-3 rounded-DEFAULT">
+<span class="material-symbols-outlined text-[18px]">description</span>
+<span class="">Reports</span>
+</div>
+</div>
+<div class="px-2 mt-auto pt-4 border-t border-outline-variant flex flex-col gap-1">
+<div class="text-on-surface-variant font-body-sm text-body-sm hover:bg-surface-container-highest transition-all duration-150 cursor-pointer px-4 py-2 flex items-center gap-3 rounded-DEFAULT">
+<span class="material-symbols-outlined text-[18px]">headset_mic</span>
+<span class="">Support</span>
+</div>
+<div class="text-on-surface-variant font-body-sm text-body-sm hover:bg-surface-container-highest transition-all duration-150 cursor-pointer px-4 py-2 flex items-center gap-3 rounded-DEFAULT">
+<span class="material-symbols-outlined text-[18px]">dns</span>
+<span class="">System Status</span>
+</div>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col min-w-0 overflow-hidden bg-background">
+<!-- Layer 2: App Bar (Open Tabs) -->
+<div class="h-[40px] bg-surface flex border-b border-outline-variant flex-shrink-0 px-2 overflow-x-auto">
+<div class="flex items-center px-4 h-full border-r border-outline-variant font-body-sm text-body-sm text-on-surface-variant cursor-pointer hover:bg-surface-container-highest">
+<span class="material-symbols-outlined text-[16px] mr-2">home</span>
+                    Console
+                </div>
+<div class="flex items-center px-4 h-full border-b-2 border-primary bg-surface-container-highest font-body-sm text-body-sm font-semibold text-primary cursor-pointer relative group">
+<span class="material-symbols-outlined text-[16px] mr-2">build</span>
+                    01175378
+                    <span class="material-symbols-outlined text-[14px] ml-4 text-on-surface-variant hover:text-error opacity-0 group-hover:opacity-100 transition-opacity">close</span>
+</div>
+<div class="flex items-center px-4 h-full border-r border-outline-variant font-body-sm text-body-sm text-on-surface-variant cursor-pointer hover:bg-surface-container-highest group">
+<span class="material-symbols-outlined text-[16px] mr-2">cases</span>
+                    Case 01532785
+                    <span class="material-symbols-outlined text-[14px] ml-4 text-on-surface-variant hover:text-error opacity-0 group-hover:opacity-100 transition-opacity">close</span>
+</div>
+</div>
+<!-- Layer 3: WO Title Bar -->
+<div class="h-[80px] bg-surface border-b border-outline-variant flex-shrink-0 px-margin flex justify-between items-center gap-4 shadow-sm z-20">
+<div class="flex items-center gap-6 h-full">
+<div class="flex flex-col justify-center border-r border-outline-variant pr-6 h-full">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase mb-1">Work Order</span>
+<div class="font-headline-sm text-headline-sm text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-[24px]">build</span>
+                            01175-1508
+                        </div>
+</div>
+<div class="flex items-center gap-8 py-2 overflow-x-auto h-full">
+<div class="flex flex-col justify-center min-w-[120px]">
+<span class="font-label-sm text-label-sm text-on-surface-variant mb-1">Subject</span>
+<span class="font-body-sm text-body-sm font-semibold text-on-surface truncate">Excavator Hydraulic Failure</span>
+</div>
+<div class="flex flex-col justify-center min-w-[100px]">
+<span class="font-label-sm text-label-sm text-on-surface-variant mb-1">Case</span>
+<span class="font-body-sm text-body-sm font-semibold text-primary underline cursor-pointer">01532785</span>
+</div>
+<div class="flex flex-col justify-center min-w-[120px]">
+<span class="font-label-sm text-label-sm text-on-surface-variant mb-1">Status</span>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded-DEFAULT border border-error text-error bg-error-container inline-block w-max">Cancelled</span>
+</div>
+<div class="flex flex-col justify-center min-w-[100px]">
+<span class="font-label-sm text-label-sm text-on-surface-variant mb-1">Owner</span>
+<span class="font-body-sm text-body-sm font-semibold text-on-surface">System</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-2 flex-shrink-0 h-full py-4">
+<button class="h-full px-3 bg-surface border border-outline-variant text-on-surface font-label-md text-label-md rounded-DEFAULT hover:bg-surface-container-highest transition-colors">Add TSR</button>
+<button class="h-full px-3 bg-surface border border-outline-variant text-on-surface font-label-md text-label-md rounded-DEFAULT hover:bg-surface-container-highest transition-colors">Book Appt.</button>
+<div class="relative h-full">
+<button class="h-full px-2 bg-surface border border-outline-variant text-on-surface rounded-DEFAULT flex items-center justify-center hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</div>
+<button class="h-full px-4 bg-primary-container text-on-primary-container font-label-md text-label-md rounded-DEFAULT hover:opacity-90 transition-opacity flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">sync_alt</span>
+                        Send to SAP
+                    </button>
+</div>
+</div>
+<!-- Body Container -->
+<div class="flex-1 overflow-hidden flex flex-col p-gutter gap-gutter">
+<!-- Layer 4: Sub-Tab Bar -->
+<div class="flex gap-4 border-b border-outline-variant flex-shrink-0">
+<button class="px-4 py-2 font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface border-b-2 border-transparent transition-colors">Details</button>
+<button class="px-4 py-2 font-body-sm text-body-sm font-semibold text-primary border-b-2 border-primary">Feed</button>
+<button class="px-4 py-2 font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface border-b-2 border-transparent transition-colors">Related</button>
+</div>
+<!-- Layer 5: 2-Column Body -->
+<div class="flex-1 flex gap-gutter overflow-hidden">
+<!-- Col 1: Feed View -->
+<div class="flex-1 bg-surface-container-lowest border border-outline-variant rounded-DEFAULT flex flex-col overflow-hidden">
+<!-- Feed Function Button Bar -->
+<div class="p-4 border-b border-outline-variant bg-surface-container-low flex gap-2 flex-wrap">
+<button class="px-3 py-1.5 bg-surface border border-outline-variant text-on-surface font-label-md text-label-md rounded-DEFAULT hover:bg-surface-container-highest flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">post_add</span> Post
+                            </button>
+<button class="px-3 py-1.5 bg-surface border border-outline-variant text-on-surface font-label-md text-label-md rounded-DEFAULT hover:bg-surface-container-highest flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">upload_file</span> File
+                            </button>
+<button class="px-3 py-1.5 bg-surface border border-outline-variant text-on-surface font-label-md text-label-md rounded-DEFAULT hover:bg-surface-container-highest flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">link</span> Link
+                            </button>
+<button class="px-3 py-1.5 bg-surface border border-outline-variant text-on-surface font-label-md text-label-md rounded-DEFAULT hover:bg-surface-container-highest flex items-center gap-1 ml-auto">
+<span class="material-symbols-outlined text-[16px]">filter_list</span> Filter
+                            </button>
+</div>
+<!-- Feed Content (Scrollable) -->
+<div class="flex-1 overflow-y-auto p-4 flex flex-col gap-6">
+<!-- Feed Item 1 -->
+<div class="flex gap-4">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex-shrink-0 flex items-center justify-center border border-outline-variant overflow-hidden">
+<span class="font-label-md text-label-md text-primary">TI</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-baseline mb-1">
+<div class="font-body-sm text-body-sm text-on-surface"><span class="font-bold">Tegar Alnu Indrawan</span> created this Work Order</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Oct 12, 14:32</div>
+</div>
+<div class="bg-surface-container-low border border-outline-variant rounded-DEFAULT p-3 mt-2 text-on-surface-variant font-body-sm text-body-sm">
+                                        Initial creation from Case 01532785 regarding GD825A-2 hydraulic pressure drop.
+                                    </div>
+</div>
+</div>
+<!-- Feed Item 2 (Status Change) -->
+<div class="flex gap-4">
+<div class="w-8 h-8 rounded-full bg-surface-container-low flex-shrink-0 flex items-center justify-center border border-outline-variant">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">swap_horiz</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-baseline">
+<div class="font-body-sm text-body-sm text-on-surface">Status changed from <span class="line-through text-on-surface-variant">New</span> to <span class="text-[#b45309]">In Progress</span></div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Oct 12, 15:05</div>
+</div>
+</div>
+</div>
+<!-- Feed Item 3 (Notes & Attachments) -->
+<div class="flex gap-4">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex-shrink-0 flex items-center justify-center border border-outline-variant overflow-hidden">
+<span class="font-label-md text-label-md text-primary">TI</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-baseline mb-1">
+<div class="font-body-sm text-body-sm text-on-surface"><span class="font-bold">Tegar Alnu Indrawan</span> added Approval Notes</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Oct 13, 09:15</div>
+</div>
+<div class="bg-surface-container-low border border-outline-variant rounded-DEFAULT p-3 mt-2 font-body-sm text-body-sm text-on-surface">
+                                        Inspected the main pump. Found significant wear on the thrust plate. Requires immediate replacement before further operation to prevent catastrophic failure.
+                                    </div>
+<div class="flex gap-2 mt-3 flex-wrap">
+<div class="flex items-center gap-2 border border-outline-variant bg-surface-container-highest rounded-DEFAULT px-2 py-1 cursor-pointer hover:border-primary transition-colors">
+<span class="material-symbols-outlined text-[16px] text-primary">image</span>
+<span class="font-label-sm text-label-sm text-on-surface">pump_wear_01.jpg</span>
+</div>
+<div class="flex items-center gap-2 border border-outline-variant bg-surface-container-highest rounded-DEFAULT px-2 py-1 cursor-pointer hover:border-primary transition-colors">
+<span class="material-symbols-outlined text-[16px] text-error">picture_as_pdf</span>
+<span class="font-label-sm text-label-sm text-on-surface">diagnostic_report.pdf</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Feed Item 4 (Cancellation) -->
+<div class="flex gap-4 border-l-2 border-error pl-4 ml-2">
+<div class="w-8 h-8 rounded-full bg-error-container flex-shrink-0 flex items-center justify-center border border-error -ml-[35px]">
+<span class="material-symbols-outlined text-[16px] text-error">cancel</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-baseline mb-1">
+<div class="font-body-sm text-body-sm text-on-surface"><span class="font-bold">System</span> updated status</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Oct 14, 11:30</div>
+</div>
+<div class="bg-error-container border border-error rounded-DEFAULT p-3 mt-2 text-on-error-container font-body-sm text-body-sm">
+                                        Work Order cancelled. Parts unavailable locally; consolidated into WO-01176-0023 for depot repair.
+                                    </div>
+</div>
+</div>
+</div>
+<!-- Feed Input -->
+<div class="p-4 border-t border-outline-variant bg-surface-container-low">
+<div class="relative">
+<textarea class="w-full bg-surface-container-lowest border border-outline-variant text-on-surface p-3 font-body-sm text-body-sm focus:border-primary focus:ring-1 focus:ring-primary rounded-DEFAULT placeholder-on-surface-variant resize-none h-20" placeholder="Write a post..."></textarea>
+<div class="absolute bottom-2 right-2 flex gap-2">
+<button class="p-1 text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[18px]">attach_file</span></button>
+<button class="px-4 py-1 bg-primary-container text-on-primary-container rounded-DEFAULT font-label-md text-label-md hover:opacity-90">Share</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Col 2: Related Sidebar -->
+<div class="w-[320px] flex-shrink-0 flex flex-col gap-4 overflow-y-auto">
+<!-- Asset Details Card -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-DEFAULT flex flex-col">
+<div class="p-3 border-b border-outline-variant bg-surface-container-highest rounded-t-DEFAULT flex justify-between items-center">
+<h3 class="font-label-md text-label-md text-on-surface">Asset Details</h3>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant cursor-pointer">open_in_new</span>
+</div>
+<div class="p-4 flex flex-col gap-3">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-surface-container-low border border-outline-variant rounded-DEFAULT flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px] text-primary">agriculture</span>
+</div>
+<div>
+<div class="font-body-sm text-body-sm font-semibold text-primary underline cursor-pointer">GD825A-2</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Motor Grader</div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-2 mt-2">
+<div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Serial Number</div>
+<div class="font-body-sm text-body-sm text-on-surface font-semibold">120948A</div>
+</div>
+<div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Operating Hours</div>
+<div class="font-body-sm text-body-sm text-on-surface font-semibold">4,520 hrs</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Knowledge Card -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-DEFAULT flex flex-col">
+<div class="p-3 border-b border-outline-variant bg-surface-container-highest rounded-t-DEFAULT flex justify-between items-center">
+<h3 class="font-label-md text-label-md text-on-surface">Suggested Knowledge</h3>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant cursor-pointer">search</span>
+</div>
+<div class="p-0 flex flex-col">
+<div class="p-3 border-b border-outline-variant hover:bg-surface-container-highest cursor-pointer transition-colors group">
+<div class="font-body-sm text-body-sm font-semibold text-primary group-hover:underline">GD825A Hydraulic Pump Replacement Proc...</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant mt-1 flex justify-between">
+<span class="">Article • KN-0921</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">thumb_up</span> 92%</span>
+</div>
+</div>
+<div class="p-3 hover:bg-surface-container-highest cursor-pointer transition-colors group rounded-b-DEFAULT">
+<div class="font-body-sm text-body-sm font-semibold text-primary group-hover:underline">Troubleshooting Thrust Plate Wear</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant mt-1 flex justify-between">
+<span class="">Bulletin • TB-1104</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">thumb_up</span> 78%</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+
+
+</body></html>

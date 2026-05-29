@@ -1,0 +1,210 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── CSS custom properties for light-mode design system ─────────────────────────────── */
+:root {
+  /* Backgrounds */
+  --bg-base:    #ffffff;
+  --bg-panel:   #ffffff;
+  --bg-card:    #ffffff;
+  --bg-light:   #f5f5f5;
+  --bg-lighter: #efefef;
+  
+  /* Borders */
+  --border:     #e0e0e0;
+  
+  /* Text Colors */
+  --text-main:  #1a1a1a;
+  --text-secondary: #2c2c2c;
+  --text-tertiary:  #757575;
+  --text-muted: #bdbdbd;
+  
+  /* Brand Colors */
+  --accent:     #f5c800;
+  --accent-dark: #e0b200;
+  --accent-light: #ffc800;
+  --accent-pale: #fffde7;
+  
+  /* Status Colors */
+  --status-open:      #1976d2;
+  --status-assigned:  #1976d2;
+  --status-progress:  #00897b;
+  --status-resolved:  #388e3c;
+  
+  /* Priority Colors */
+  --priority-critical: #c62828;
+  --priority-high:    #f57c00;
+  --priority-medium:  #f5c800;
+  --priority-low:     #2e7d32;
+  
+  /* Semantic Colors */
+  --color-success: #388e3c;
+  --color-warning: #f57c00;
+  --color-danger:  #c62828;
+  --color-info:    #1976d2;
+  
+  /* Scrollbar */
+  --scrollbar-track: #f5f5f5;
+  --scrollbar-thumb: #e0e0e0;
+  
+  /* Typography */
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.dark {
+  --bg-base:    #1a1a1a;
+  --bg-panel:   #242424;
+  --bg-card:    #2d2d2d;
+  --bg-light:   #3a3a3a;
+  --bg-lighter: #4a4a4a;
+  --border:     #3a3a3a;
+  --text-main:  #f3f4f6;
+  --text-secondary: #e5e7eb;
+  --text-tertiary:  #9ca3af;
+  --text-muted: #6b7280;
+  --accent:     #fbbf24;
+  --accent-dark: #f59e0b;
+  --accent-light: #fcd34d;
+  --accent-pale: #fef3c7;
+  --scrollbar-track: #1a1a1a;
+  --scrollbar-thumb: #3a3a3a;
+}
+
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.15s ease;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--bg-base);
+    color: var(--text-main);
+    @apply font-sans antialiased;
+    min-height: 100dvh;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track  { background: var(--scrollbar-track); }
+  ::-webkit-scrollbar-thumb  { background: var(--scrollbar-thumb); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary); }
+}
+
+@layer components {
+  .btn-primary {
+    @apply flex items-center justify-center gap-2
+           font-medium text-sm
+           px-4 py-2.5 rounded
+           transition-all duration-200
+           min-h-[44px]
+           disabled:opacity-50 disabled:cursor-not-allowed;
+    background-color: var(--accent);
+    color: var(--text-main);
+  }
+  
+  .btn-primary:hover:not(:disabled) {
+    background-color: var(--accent-light);
+  }
+  
+  .btn-primary:active:not(:disabled) {
+    background-color: var(--accent-dark);
+  }
+
+  .btn-secondary {
+    @apply flex items-center justify-center gap-2
+           font-medium text-sm
+           px-4 py-2.5 rounded border
+           transition-all duration-200
+           min-h-[44px]
+           disabled:opacity-50 disabled:cursor-not-allowed;
+    background-color: var(--bg-light);
+    color: var(--text-secondary);
+    border-color: var(--border);
+  }
+  
+  .btn-secondary:hover:not(:disabled) {
+    background-color: var(--bg-lighter);
+  }
+
+  .input-field {
+    @apply w-full px-3 py-2 rounded text-sm
+           transition-all duration-150
+           min-h-[44px];
+    background-color: var(--bg-base);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+  }
+  
+  .input-field::placeholder {
+    color: var(--text-muted);
+  }
+  
+  .input-field:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(245, 200, 0, 0.1);
+  }
+
+  .input-field.error {
+    border-color: var(--color-danger);
+  }
+  
+  .input-field.error:focus {
+    box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.1);
+  }
+
+  .badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium;
+    height: 28px;
+  }
+
+  /* Status Badges */
+  .badge-open      { background-color: #E3F2FD; color: #1976D2; }
+  .badge-assigned  { background-color: #E3F2FD; color: #1976D2; }
+  .badge-inprogress{ background-color: #E0F2F1; color: #00897B; }
+  .badge-resolved  { background-color: #E8F5E9; color: #388E3C; }
+  .badge-closed    { background-color: #F5F5F5; color: #757575; }
+
+  /* Priority Badges */
+  .badge-low      { background-color: #E8F5E9; color: #1D5E1D; }
+  .badge-medium   { background-color: #FFFDE7; color: #8B7500; }
+  .badge-high     { background-color: #FFF3E0; color: #8B4513; }
+  .badge-critical { background-color: #FFEBEE; color: #6D0000; }
+
+  .card {
+    @apply rounded p-6;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+  
+  .card:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  }
+
+  .input-field {
+    background-color: var(--bg-base) !important;
+    border-color: var(--border) !important;
+    color: var(--text-secondary) !important;
+  }
+
+  .sr-only {
+    position: absolute; width: 1px; height: 1px;
+    padding: 0; margin: -1px; overflow: hidden;
+    clip: rect(0,0,0,0); white-space: nowrap; border-width: 0;
+  }
+}

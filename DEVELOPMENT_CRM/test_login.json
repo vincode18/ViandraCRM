@@ -1,0 +1,6 @@
+[
+  { "email": "admin@utconsole.com",       "password": "Admin@2026!",   "role": "Admin" },
+  { "email": "john.doe@utconsole.com",    "password": "Service@2026!", "role": "Service" },
+  { "email": "budi.santoso@utconsole.com","password": "Mechanic@2026!","role": "Mechanic" },
+  { "email": "manager.user@utconsole.com","password": "Manager@2026!", "role": "Manager" }
+]

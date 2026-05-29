@@ -1,0 +1,14 @@
+D:\02_Learning\Viandra Project CRM\DEVELOPMENT_CRM\backend\HashGen\bin\Debug\net8.0\HashGen.exe
+D:\02_Learning\Viandra Project CRM\DEVELOPMENT_CRM\backend\HashGen\bin\Debug\net8.0\HashGen.deps.json
+D:\02_Learning\Viandra Project CRM\DEVELOPMENT_CRM\backend\HashGen\bin\Debug\net8.0\HashGen.runtimeconfig.json
+D:\02_Learning\Viandra Project CRM\DEVELOPMENT_CRM\backend\HashGen\bin\Debug\net8.0\HashGen.dll
+D:\02_Learning\Viandra Project CRM\DEVELOPMENT_CRM\backend\HashGen\bin\Debug\net8.0\HashGen.pdb
+D:\02_Learning\Viandra Project CRM\DEVELOPMENT_CRM\backend\HashGen\obj\Debug\net8.0\HashGen.GeneratedMSBuildEditorConfig.editorconfig
+D:\02_Learning\Viandra Project CRM\DEVELOPMENT_CRM\backend\HashGen\obj\Debug\net8.0\HashGen.AssemblyInfoInputs.cache
+D:\02_Learning\Viandra Project CRM\DEVELOPMENT_CRM\backend\HashGen\obj\Debug\net8.0\HashGen.AssemblyInfo.cs
+D:\02_Learning\Viandra Project CRM\DEVELOPMENT_CRM\backend\HashGen\obj\Debug\net8.0\HashGen.csproj.CoreCompileInputs.cache
+D:\02_Learning\Viandra Project CRM\DEVELOPMENT_CRM\backend\HashGen\obj\Debug\net8.0\HashGen.dll
+D:\02_Learning\Viandra Project CRM\DEVELOPMENT_CRM\backend\HashGen\obj\Debug\net8.0\refint\HashGen.dll
+D:\02_Learning\Viandra Project CRM\DEVELOPMENT_CRM\backend\HashGen\obj\Debug\net8.0\HashGen.pdb
+D:\02_Learning\Viandra Project CRM\DEVELOPMENT_CRM\backend\HashGen\obj\Debug\net8.0\HashGen.genruntimeconfig.cache
+D:\02_Learning\Viandra Project CRM\DEVELOPMENT_CRM\backend\HashGen\obj\Debug\net8.0\ref\HashGen.dll

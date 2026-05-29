@@ -1,0 +1,445 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>UT.ServiceConsole.API</name>
+    </assembly>
+    <members>
+        <member name="T:UT.ServiceConsole.API.Configurations.JwtSettings">
+            <summary>JWT configuration bound from appsettings.json → JwtSettings section.</summary>
+        </member>
+        <member name="P:UT.ServiceConsole.API.Configurations.JwtSettings.SecretKey">
+            <summary>HMAC signing secret – must be at least 32 characters.</summary>
+        </member>
+        <member name="P:UT.ServiceConsole.API.Configurations.JwtSettings.Issuer">
+            <summary>Token issuer (iss claim).</summary>
+        </member>
+        <member name="P:UT.ServiceConsole.API.Configurations.JwtSettings.Audience">
+            <summary>Token audience (aud claim).</summary>
+        </member>
+        <member name="P:UT.ServiceConsole.API.Configurations.JwtSettings.ExpirationMinutes">
+            <summary>Access token lifetime in minutes. Default 480 = 8 hours.</summary>
+        </member>
+        <member name="P:UT.ServiceConsole.API.Configurations.JwtSettings.RefreshTokenExpirationDays">
+            <summary>Refresh token lifetime in days.</summary>
+        </member>
+        <member name="T:UT.ServiceConsole.API.Controllers.AuthController">
+            <summary>
+            Authentication endpoints: login, logout, forgot password.
+            POST /api/auth/login  – public
+            POST /api/auth/logout – requires valid JWT
+            </summary>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Controllers.AuthController.#ctor(UT.ServiceConsole.API.Services.Interfaces.IAuthService,Microsoft.Extensions.Logging.ILogger{UT.ServiceConsole.API.Controllers.AuthController})">
+            <inheritdoc />
+        </member>
+        <member name="M:UT.ServiceConsole.API.Controllers.AuthController.Login(UT.ServiceConsole.API.Models.DTOs.Auth.LoginRequest)">
+            <summary>
+            Authenticates a user and returns a signed JWT access token.
+            </summary>
+            <remarks>
+            Dummy credentials for local testing:
+              admin@utconsole.com / Admin@2026!
+              john.doe@utconsole.com / Service@2026!
+              budi.santoso@utconsole.com / Mechanic@2026!
+              manager.user@utconsole.com / Manager@2026!
+            </remarks>
+            <param name="request">Email + password credentials.</param>
+            <returns>200 OK with JWT on success; 401 on bad credentials; 400 on validation error.</returns>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Controllers.AuthController.Logout">
+            <summary>
+            Logs out the current user and records the logout timestamp.
+            </summary>
+            <returns>200 OK on success.</returns>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Controllers.AuthController.ForgotPassword(System.String)">
+            <summary>
+            Initiates a password reset email flow.
+            Always returns 200 to prevent user enumeration.
+            </summary>
+            <param name="email">Registered email address.</param>
+            <returns>200 OK always.</returns>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Controllers.AuthController.Me">
+            <summary>Returns information about the currently authenticated user.</summary>
+        </member>
+        <member name="T:UT.ServiceConsole.API.Controllers.CasesController">
+            <summary>
+            CRUD endpoints for Cases.
+            All endpoints require a valid JWT (Bearer token).
+            </summary>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Controllers.CasesController.#ctor(UT.ServiceConsole.API.Services.Interfaces.ICaseService,Microsoft.Extensions.Logging.ILogger{UT.ServiceConsole.API.Controllers.CasesController})">
+            <inheritdoc />
+        </member>
+        <member name="M:UT.ServiceConsole.API.Controllers.CasesController.GetCases(System.Int32,System.Int32,System.String,System.String,System.String)">
+            <summary>Returns a paginated list of cases with optional filters.</summary>
+            <param name="page">Page number (default 1).</param>
+            <param name="pageSize">Items per page (default 20).</param>
+            <param name="status">Filter by status: Open, Assigned, InProgress, Resolved, Closed.</param>
+            <param name="priority">Filter by priority: Low, Medium, High, Critical.</param>
+            <param name="search">Full-text search on case number, subject, and description.</param>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Controllers.CasesController.GetCase(System.Int32)">
+            <summary>Returns full detail of a single case.</summary>
+            <param name="id">Case primary key.</param>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Controllers.CasesController.GetCaseDetail(System.String)">
+            <summary>Returns case detail with 3-column layout (FRD: Case Module Main Layout).</summary>
+            <param name="id">Case primary key or case number.</param>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Controllers.CasesController.ConvertToCaseDetailDto(UT.ServiceConsole.API.Models.DTOs.Cases.CaseDetailDto)">
+            <summary>Converts existing CaseDto to CaseDetailLayoutDto with 3-column layout data.</summary>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Controllers.CasesController.GetDummyCaseDetail(System.String)">
+            <summary>Returns dummy data for case detail 3-column layout (FRD: Case Module Main Layout).</summary>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Controllers.CasesController.CreateCase(UT.ServiceConsole.API.Models.DTOs.Cases.CreateCaseRequest)">
+            <summary>Creates a new case. Assigns auto-generated case number.</summary>
+            <param name="request">Case creation payload.</param>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Controllers.CasesController.UpdateCase(System.Int32,UT.ServiceConsole.API.Models.DTOs.Cases.UpdateCaseRequest)">
+            <summary>Updates an existing case's fields.</summary>
+            <param name="id">Case primary key.</param>
+            <param name="request">Fields to update (null fields are ignored).</param>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Controllers.CasesController.DeleteCase(System.Int32)">
+            <summary>Permanently deletes a case (Admin role required).</summary>
+            <param name="id">Case primary key.</param>
+        </member>
+        <member name="T:UT.ServiceConsole.API.Controllers.WorkOrdersController">
+            <summary>
+            CRUD endpoints for Work Orders.
+            All endpoints require a valid JWT (Bearer token).
+            </summary>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Controllers.WorkOrdersController.#ctor(UT.ServiceConsole.API.Services.Interfaces.IWorkOrderService,Microsoft.Extensions.Logging.ILogger{UT.ServiceConsole.API.Controllers.WorkOrdersController})">
+            <inheritdoc />
+        </member>
+        <member name="M:UT.ServiceConsole.API.Controllers.WorkOrdersController.GetWorkOrders(System.Int32,System.Int32,System.String,System.String)">
+            <summary>Returns a paginated list of work orders with optional filters.</summary>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Controllers.WorkOrdersController.GetByCaseId(System.Int32)">
+            <summary>Returns all work orders for a specific case.</summary>
+            <param name="caseId">Parent case ID.</param>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Controllers.WorkOrdersController.GetWorkOrder(System.Int32)">
+            <summary>Returns full details of a single work order.</summary>
+            <param name="id">Work order primary key.</param>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Controllers.WorkOrdersController.CreateWorkOrder(UT.ServiceConsole.API.Models.DTOs.WorkOrders.CreateWorkOrderRequest)">
+            <summary>Creates a new work order linked to an existing case.</summary>
+            <param name="request">Work order creation payload.</param>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Controllers.WorkOrdersController.UpdateWorkOrder(System.Int32,UT.ServiceConsole.API.Models.DTOs.WorkOrders.UpdateWorkOrderRequest)">
+            <summary>Updates an existing work order (status, mechanic, scores, etc.).</summary>
+            <param name="id">Work order primary key.</param>
+            <param name="request">Fields to update (null fields are ignored).</param>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Controllers.WorkOrdersController.DeleteWorkOrder(System.Int32)">
+            <summary>Permanently deletes a work order (Admin role required).</summary>
+            <param name="id">Work order primary key.</param>
+        </member>
+        <member name="T:UT.ServiceConsole.API.Data.ApplicationDbContext">
+            <summary>
+            Main EF Core DbContext for UT Service Console.
+            Contains all 14 entity DbSets with relationship configuration and seed data.
+            </summary>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Data.ApplicationDbContext.#ctor(Microsoft.EntityFrameworkCore.DbContextOptions{UT.ServiceConsole.API.Data.ApplicationDbContext})">
+            <inheritdoc />
+        </member>
+        <member name="M:UT.ServiceConsole.API.Data.ApplicationDbContext.OnModelCreating(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:UT.ServiceConsole.API.Data.DesignTimeDbContextFactory">
+            <summary>
+            Design-time factory used by EF Core CLI tools (dotnet ef migrations add / update).
+            Uses SQLite with a local .db file — no database server required.
+            </summary>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Data.DesignTimeDbContextFactory.CreateDbContext(System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="T:UT.ServiceConsole.API.DTOs.CaseDetailLayoutDto">
+            <summary>
+            DTO for Case Detail View - 3-Column Layout
+            Based on FRD: 1.1 FRD Case Module Main Layout
+            </summary>
+        </member>
+        <member name="T:UT.ServiceConsole.API.Middleware.JwtMiddleware">
+            <summary>
+            Validates the JWT Bearer token on every request that carries one.
+            Invalid tokens are rejected with 401 before reaching any controller.
+            Endpoints decorated with [AllowAnonymous] bypass this check via the built-in
+            ASP.NET Core authentication middleware (this middleware runs in addition to it
+            to provide detailed logging).
+            </summary>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Middleware.JwtMiddleware.#ctor(Microsoft.AspNetCore.Http.RequestDelegate,UT.ServiceConsole.API.Configurations.JwtSettings,Microsoft.Extensions.Logging.ILogger{UT.ServiceConsole.API.Middleware.JwtMiddleware})">
+            <inheritdoc />
+        </member>
+        <member name="M:UT.ServiceConsole.API.Middleware.JwtMiddleware.InvokeAsync(Microsoft.AspNetCore.Http.HttpContext)">
+            <summary>Intercepts each request, extracts and validates the Bearer token if present.</summary>
+        </member>
+        <member name="T:UT.ServiceConsole.API.Migrations.InitialCreate">
+            <inheritdoc />
+        </member>
+        <member name="M:UT.ServiceConsole.API.Migrations.InitialCreate.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:UT.ServiceConsole.API.Migrations.InitialCreate.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:UT.ServiceConsole.API.Migrations.InitialCreate.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:UT.ServiceConsole.API.Models.DTOs.Auth.LoginRequest">
+            <summary>Request payload for POST /api/auth/login.</summary>
+        </member>
+        <member name="P:UT.ServiceConsole.API.Models.DTOs.Auth.LoginRequest.Email">
+            <summary>Email address or username of the user.</summary>
+        </member>
+        <member name="P:UT.ServiceConsole.API.Models.DTOs.Auth.LoginRequest.Password">
+            <summary>Plain-text password (never stored/logged).</summary>
+        </member>
+        <member name="P:UT.ServiceConsole.API.Models.DTOs.Auth.LoginRequest.RememberMe">
+            <summary>When true, extends session duration.</summary>
+        </member>
+        <member name="T:UT.ServiceConsole.API.Models.DTOs.Auth.LoginResponse">
+            <summary>Response payload returned on successful login.</summary>
+        </member>
+        <member name="T:UT.ServiceConsole.API.Models.DTOs.Auth.UserDto">
+            <summary>Safe user info embedded in LoginResponse (no sensitive fields).</summary>
+        </member>
+        <member name="T:UT.ServiceConsole.API.Models.DTOs.Cases.CaseDto">
+            <summary>Summary DTO for Case list views.</summary>
+        </member>
+        <member name="T:UT.ServiceConsole.API.Models.DTOs.Cases.CaseDetailDto">
+            <summary>Full detail DTO for Case detail page.</summary>
+        </member>
+        <member name="T:UT.ServiceConsole.API.Models.DTOs.Cases.CreateCaseRequest">
+            <summary>Request payload to create a new Case.</summary>
+        </member>
+        <member name="T:UT.ServiceConsole.API.Models.DTOs.Cases.UpdateCaseRequest">
+            <summary>Request payload to update an existing Case.</summary>
+        </member>
+        <member name="T:UT.ServiceConsole.API.Models.DTOs.Common.ApiResponse`1">
+            <summary>Generic API envelope for all responses.</summary>
+        </member>
+        <member name="T:UT.ServiceConsole.API.Models.DTOs.Common.PagedResult`1">
+            <summary>Paginated list wrapper.</summary>
+        </member>
+        <member name="T:UT.ServiceConsole.API.Models.DTOs.WorkOrders.WorkOrderDto">
+            <summary>Summary DTO for WorkOrder list views.</summary>
+        </member>
+        <member name="T:UT.ServiceConsole.API.Models.DTOs.WorkOrders.WorkOrderDetailDto">
+            <summary>Full detail DTO for WorkOrder detail page.</summary>
+        </member>
+        <member name="T:UT.ServiceConsole.API.Models.DTOs.WorkOrders.CreateWorkOrderRequest">
+            <summary>Request payload to create a new WorkOrder.</summary>
+        </member>
+        <member name="T:UT.ServiceConsole.API.Models.DTOs.WorkOrders.UpdateWorkOrderRequest">
+            <summary>Request payload to update an existing WorkOrder.</summary>
+        </member>
+        <member name="T:UT.ServiceConsole.API.Models.Entities.Account">
+            <summary>Customer account / company record.</summary>
+        </member>
+        <member name="T:UT.ServiceConsole.API.Models.Entities.Asset">
+            <summary>Equipment / machinery asset record.</summary>
+        </member>
+        <member name="T:UT.ServiceConsole.API.Models.Entities.AuditLog">
+            <summary>Immutable audit trail for all entity changes.</summary>
+        </member>
+        <member name="T:UT.ServiceConsole.API.Models.Entities.Case">
+            <summary>Service case / ticket record.</summary>
+        </member>
+        <member name="T:UT.ServiceConsole.API.Models.Entities.CaseNote">
+            <summary>Note / comment attached to a Case.</summary>
+        </member>
+        <member name="T:UT.ServiceConsole.API.Models.Entities.Contact">
+            <summary>Contact person linked to an Account.</summary>
+        </member>
+        <member name="T:UT.ServiceConsole.API.Models.Entities.LoginHistory">
+            <summary>Login/logout audit history per user.</summary>
+        </member>
+        <member name="T:UT.ServiceConsole.API.Models.Entities.Permission">
+            <summary>Granular permission for RBAC.</summary>
+        </member>
+        <member name="T:UT.ServiceConsole.API.Models.Entities.Role">
+            <summary>Application role for RBAC.</summary>
+        </member>
+        <member name="T:UT.ServiceConsole.API.Models.Entities.RolePermission">
+            <summary>Join table for Role ↔ Permission many-to-many relationship.</summary>
+        </member>
+        <member name="T:UT.ServiceConsole.API.Models.Entities.SLA">
+            <summary>Service Level Agreement tracking record linked to a Case.</summary>
+        </member>
+        <member name="T:UT.ServiceConsole.API.Models.Entities.User">
+            <summary>System user with authentication, roles, and audit tracking.</summary>
+        </member>
+        <member name="T:UT.ServiceConsole.API.Models.Entities.WorkOrder">
+            <summary>Work order linked to a case; assigned to a mechanic for execution.</summary>
+        </member>
+        <member name="T:UT.ServiceConsole.API.Models.Entities.WorkOrderNote">
+            <summary>Note / comment attached to a WorkOrder.</summary>
+        </member>
+        <member name="T:UT.ServiceConsole.API.Services.AuthService">
+            <summary>
+            Handles user authentication: credential validation, account lockout (5 attempts / 30 min),
+            JWT generation (8-hour expiry), and login history recording.
+            Passwords are never logged at any level.
+            </summary>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Services.AuthService.#ctor(UT.ServiceConsole.API.Data.ApplicationDbContext,Microsoft.Extensions.Logging.ILogger{UT.ServiceConsole.API.Services.AuthService},UT.ServiceConsole.API.Configurations.JwtSettings)">
+            <inheritdoc />
+        </member>
+        <member name="M:UT.ServiceConsole.API.Services.AuthService.LoginAsync(UT.ServiceConsole.API.Models.DTOs.Auth.LoginRequest,System.String,System.String)">
+            <summary>
+            Validates email/password, enforces lockout policy, and returns a signed JWT on success.
+            </summary>
+            <param name="request">Login credentials (password never logged).</param>
+            <param name="ipAddress">Caller IP for audit trail.</param>
+            <param name="userAgent">Caller user-agent for audit trail.</param>
+            <returns><see cref="T:UT.ServiceConsole.API.Models.DTOs.Auth.LoginResponse"/> with JWT on success or error details on failure.</returns>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Services.AuthService.LogoutAsync(System.Int32)">
+            <summary>Records the logout event (token blacklist deferred to Phase 2).</summary>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Services.AuthService.ForgotPasswordAsync(System.String)">
+            <summary>
+            Initiates forgot-password flow. Returns true even if email is not found
+            to prevent user enumeration attacks.
+            </summary>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Services.AuthService.ResetPasswordAsync(System.String,System.String,System.String)">
+            <summary>Resets user password after validating reset token.</summary>
+        </member>
+        <member name="T:UT.ServiceConsole.API.Services.CaseService">
+            <summary>
+            Business logic for Case CRUD operations, case number generation, and status transitions.
+            </summary>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Services.CaseService.#ctor(UT.ServiceConsole.API.Data.ApplicationDbContext,Microsoft.Extensions.Logging.ILogger{UT.ServiceConsole.API.Services.CaseService})">
+            <inheritdoc />
+        </member>
+        <member name="M:UT.ServiceConsole.API.Services.CaseService.GetCasesAsync(System.Int32,System.Int32,System.String,System.String,System.String)">
+            <summary>Returns a paginated, filterable list of cases.</summary>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Services.CaseService.GetCaseByIdAsync(System.Int32)">
+            <summary>Returns full case details including related entities.</summary>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Services.CaseService.CreateCaseAsync(UT.ServiceConsole.API.Models.DTOs.Cases.CreateCaseRequest,System.Int32)">
+            <summary>Creates a new case with auto-generated case number.</summary>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Services.CaseService.UpdateCaseAsync(System.Int32,UT.ServiceConsole.API.Models.DTOs.Cases.UpdateCaseRequest,System.Int32)">
+            <summary>Updates mutable fields of an existing case.</summary>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Services.CaseService.DeleteCaseAsync(System.Int32)">
+            <summary>Soft-deletes a case (sets status to Closed) — hard delete not permitted in MVP.</summary>
+        </member>
+        <member name="T:UT.ServiceConsole.API.Services.Interfaces.IAuthService">
+            <summary>Contract for the authentication and session management service.</summary>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Services.Interfaces.IAuthService.LoginAsync(UT.ServiceConsole.API.Models.DTOs.Auth.LoginRequest,System.String,System.String)">
+            <summary>Validates credentials and returns a JWT token on success.</summary>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Services.Interfaces.IAuthService.LogoutAsync(System.Int32)">
+            <summary>Records logout event (token revocation handled client-side for MVP).</summary>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Services.Interfaces.IAuthService.ForgotPasswordAsync(System.String)">
+            <summary>Sends a password reset link to the given email address.</summary>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Services.Interfaces.IAuthService.ResetPasswordAsync(System.String,System.String,System.String)">
+            <summary>Resets password with a valid reset token.</summary>
+        </member>
+        <member name="T:UT.ServiceConsole.API.Services.Interfaces.ICaseService">
+            <summary>Contract for Case management business logic.</summary>
+        </member>
+        <member name="T:UT.ServiceConsole.API.Services.Interfaces.IWorkOrderService">
+            <summary>Contract for Work Order management business logic.</summary>
+        </member>
+        <member name="T:UT.ServiceConsole.API.Services.WorkOrderService">
+            <summary>
+            Business logic for Work Order CRUD, WO number generation, and status transitions.
+            </summary>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Services.WorkOrderService.#ctor(UT.ServiceConsole.API.Data.ApplicationDbContext,Microsoft.Extensions.Logging.ILogger{UT.ServiceConsole.API.Services.WorkOrderService})">
+            <inheritdoc />
+        </member>
+        <member name="M:UT.ServiceConsole.API.Services.WorkOrderService.GetWorkOrdersAsync(System.Int32,System.Int32,System.String,System.String)">
+            <summary>Returns a paginated, filterable list of work orders.</summary>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Services.WorkOrderService.GetWorkOrdersByCaseAsync(System.Int32)">
+            <summary>Returns all work orders belonging to a specific case.</summary>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Services.WorkOrderService.GetWorkOrderByIdAsync(System.Int32)">
+            <summary>Returns full work order details including related entities.</summary>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Services.WorkOrderService.CreateWorkOrderAsync(UT.ServiceConsole.API.Models.DTOs.WorkOrders.CreateWorkOrderRequest,System.Int32)">
+            <summary>Creates a new work order linked to an existing case.</summary>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Services.WorkOrderService.UpdateWorkOrderAsync(System.Int32,UT.ServiceConsole.API.Models.DTOs.WorkOrders.UpdateWorkOrderRequest,System.Int32)">
+            <summary>Updates mutable fields of an existing work order.</summary>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Services.WorkOrderService.DeleteWorkOrderAsync(System.Int32)">
+            <summary>Deletes a work order (Admin only in controllers).</summary>
+        </member>
+        <member name="T:UT.ServiceConsole.API.Utilities.JwtTokenGenerator">
+            <summary>
+            Generates and validates JWT access tokens and opaque refresh tokens.
+            </summary>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Utilities.JwtTokenGenerator.GenerateToken(System.Int32,System.String,System.String,System.String,UT.ServiceConsole.API.Configurations.JwtSettings)">
+            <summary>
+            Creates a signed JWT containing UserID, Email, Username, and Role claims.
+            Token expiration is driven by <see cref="P:UT.ServiceConsole.API.Configurations.JwtSettings.ExpirationMinutes"/> (default 480 = 8 h).
+            </summary>
+            <param name="userId">Database primary key of the authenticated user.</param>
+            <param name="username">Login username.</param>
+            <param name="email">User email address.</param>
+            <param name="role">Application role (Admin, Manager, ServiceAdvisor, Mechanic).</param>
+            <param name="jwtSettings">JWT configuration from appsettings.json.</param>
+            <returns>Signed JWT token string.</returns>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Utilities.JwtTokenGenerator.GenerateRefreshToken">
+            <summary>
+            Generates a cryptographically secure 64-byte opaque refresh token.
+            </summary>
+            <returns>Base64-encoded refresh token string.</returns>
+        </member>
+        <member name="T:UT.ServiceConsole.API.Utilities.PasswordHasher">
+            <summary>
+            Provides SHA-256 password hashing with a per-password salt and
+            password-strength validation following security best practices.
+            Passwords are NEVER logged or returned in any response.
+            </summary>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Utilities.PasswordHasher.HashPassword(System.String)">
+            <summary>
+            Hashes a plain-text password using SHA-256 with a random salt.
+            Format stored: base64(salt):base64(hash)
+            </summary>
+            <param name="password">Plain-text password – never stored.</param>
+            <returns>Salted hash string safe for database storage.</returns>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Utilities.PasswordHasher.VerifyPassword(System.String,System.String)">
+            <summary>
+            Verifies a plain-text password against a stored salted hash.
+            </summary>
+            <param name="password">Plain-text password to verify.</param>
+            <param name="storedHash">Hash previously produced by <see cref="M:UT.ServiceConsole.API.Utilities.PasswordHasher.HashPassword(System.String)"/>.</param>
+            <returns><c>true</c> if password matches; otherwise <c>false</c>.</returns>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Utilities.PasswordHasher.ValidateStrength(System.String)">
+            <summary>
+            Validates password strength: min 8 chars, uppercase, digit, special character.
+            </summary>
+            <param name="password">Password to validate.</param>
+            <returns>Tuple of (isValid, errorMessage).</returns>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Utilities.PasswordHasher.CryptographicEquals(System.Byte[],System.Byte[])">
+            <summary>Constant-time comparison to prevent timing attacks.</summary>
+        </member>
+    </members>
+</doc>

@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Work Order Detail View - Enhanced</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-error-container": "#93000a",
+                        "primary-fixed-dim": "#eec200",
+                        "on-primary-fixed": "#231b00",
+                        "surface-container-low": "#f3f3f3",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#cdcdcd",
+                        "on-primary-fixed-variant": "#564500",
+                        "error-container": "#ffdad6",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed-dim": "#c8c6c5",
+                        "on-error": "#ffffff",
+                        "on-surface-variant": "#4d4632",
+                        "on-secondary-fixed": "#1c1b1b",
+                        "background": "#f9f9f9",
+                        "surface-container": "#eeeeee",
+                        "secondary": "#5f5e5e",
+                        "secondary-fixed": "#e5e2e1",
+                        "surface": "#f9f9f9",
+                        "tertiary": "#5d5f5f",
+                        "surface-dim": "#dadada",
+                        "on-secondary-container": "#656464",
+                        "inverse-surface": "#2f3131",
+                        "error": "#ba1a1a",
+                        "primary-container": "#f5c800",
+                        "outline": "#7f7660",
+                        "surface-variant": "#e2e2e2",
+                        "on-background": "#1a1c1c",
+                        "on-surface": "#1a1c1c",
+                        "outline-variant": "#d1c6ab",
+                        "primary": "#725c00"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "sm": "8px",
+                        "lg": "24px",
+                        "base": "8px",
+                        "xs": "4px",
+                        "xl": "32px",
+                        "gutter": "16px",
+                        "md": "16px",
+                        "margin": "24px"
+                    },
+                    "fontFamily": {
+                        "body-sm": ["Hanken Grotesk"],
+                        "label-sm": ["JetBrains Mono"],
+                        "headline-sm": ["Hanken Grotesk"],
+                        "label-md": ["JetBrains Mono"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"],
+                        "body-md": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+    /* Custom scrollbar for high-density feel */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #d1c6ab; border-radius: 2px; }
+    ::-webkit-scrollbar-thumb:hover { background: #7f7660; }
+</style>
+</head>
+<body class="bg-surface font-body-md text-body-md text-on-surface antialiased min-h-screen flex overflow-hidden">
+<!-- Persistent Left Sidebar (5% width) -->
+<aside class="w-[72px] lg:w-[5%] min-w-[72px] bg-surface-container-highest border-r border-outline-variant flex flex-col z-[60] shrink-0">
+<!-- Top Section -->
+<div class="h-14 flex flex-col items-center justify-center border-b border-outline-variant bg-surface-container-lowest">
+<span class="material-symbols-outlined text-primary cursor-pointer hover:bg-surface-container-high p-xs rounded transition-colors" data-icon="menu">menu</span>
+</div>
+<!-- Navigation Section -->
+<nav class="flex-1 py-md flex flex-col items-center gap-md">
+<div class="group relative">
+<span class="material-symbols-outlined text-primary bg-primary-container p-sm rounded-lg shadow-sm cursor-pointer" data-icon="push_pin" style="font-variation-settings: 'FILL' 1;">push_pin</span>
+<div class="absolute left-full ml-xs px-xs py-[2px] bg-on-surface text-surface text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">Work Orders</div>
+</div>
+<div class="group relative">
+<span class="material-symbols-outlined text-secondary hover:bg-surface-container-high p-sm rounded-lg transition-colors cursor-pointer" data-icon="assignment">assignment</span>
+<div class="absolute left-full ml-xs px-xs py-[2px] bg-on-surface text-surface text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">Cases</div>
+</div>
+<div class="group relative">
+<span class="material-symbols-outlined text-secondary hover:bg-surface-container-high p-sm rounded-lg transition-colors cursor-pointer" data-icon="bar_chart">bar_chart</span>
+<div class="absolute left-full ml-xs px-xs py-[2px] bg-on-surface text-surface text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">Analytics</div>
+</div>
+<div class="group relative">
+<span class="material-symbols-outlined text-secondary hover:bg-surface-container-high p-sm rounded-lg transition-colors cursor-pointer" data-icon="monitoring">monitoring</span>
+<div class="absolute left-full ml-xs px-xs py-[2px] bg-on-surface text-surface text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">Reports</div>
+</div>
+</nav>
+<!-- Bottom Section -->
+<div class="mt-auto flex flex-col items-center gap-sm pb-sm">
+<span class="material-symbols-outlined text-secondary hover:bg-surface-container-high p-xs rounded transition-colors cursor-pointer text-[20px]" data-icon="settings">settings</span>
+<span class="material-symbols-outlined text-secondary hover:bg-surface-container-high p-xs rounded transition-colors cursor-pointer text-[20px]" data-icon="help">help</span>
+<span class="material-symbols-outlined text-secondary hover:bg-surface-container-high p-xs rounded transition-colors cursor-pointer text-[20px]" data-icon="language">language</span>
+<span class="material-symbols-outlined text-error hover:bg-error-container p-xs rounded transition-colors cursor-pointer text-[20px]" data-icon="logout">logout</span>
+</div>
+<!-- Quick Links Card -->
+<div class="p-xs border-t border-outline-variant bg-surface-container">
+<div class="flex flex-col gap-xs py-xs">
+<a class="text-[10px] font-bold text-primary text-center hover:underline leading-tight" href="#">Open Cases</a>
+<a class="text-[10px] font-bold text-primary text-center hover:underline leading-tight" href="#">My WOs</a>
+<a class="text-[10px] font-bold text-primary text-center hover:underline leading-tight" href="#">Tasks</a>
+</div>
+</div>
+</aside>
+<div class="flex-1 flex flex-col overflow-hidden">
+<!-- Top Nav Bar -->
+<nav class="flex justify-between items-center w-full px-gutter h-14 bg-surface-container-lowest z-50 border-b border-outline-variant shrink-0">
+<div class="flex items-center gap-gutter">
+<span class="material-symbols-outlined text-primary hover:bg-surface-container-high p-xs rounded transition-colors cursor-pointer" data-icon="apps">apps</span>
+<div class="font-headline-md text-headline-md font-bold text-on-surface">
+                    UT Service Console
+                </div>
+</div>
+<div class="flex-1 flex justify-center max-w-md mx-gutter hidden md:block">
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-secondary" data-icon="search">search</span>
+<input class="w-full bg-surface border border-outline-variant rounded pl-xl py-xs text-body-sm font-body-sm focus:outline-none focus:border-primary-container transition-all" placeholder="Search..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-secondary hover:bg-surface-container-high p-xs rounded transition-colors cursor-pointer" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined text-secondary hover:bg-surface-container-high p-xs rounded transition-colors cursor-pointer" data-icon="help">help</span>
+<span class="material-symbols-outlined text-secondary hover:bg-surface-container-high p-xs rounded transition-colors cursor-pointer" data-icon="settings">settings</span>
+<img alt="User Profile" class="w-8 h-8 rounded-full border border-outline-variant cursor-pointer" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBLSCYw1f9YbaBzsxX3Bqon1DAB_dgIFRnKTVzjc5_CjUTgi8GzyhNEkZIc591Tys7bK5b8kvRi1IHxVNJWou-uFO2uUU2C4-ODezn0s4_6gOvtBZVWOZsCO4N_KiTdocjE0cT9CthGEH-zU2v3upT9yf0jx6TudnX76vBE1Y-hkgjHgSvneaxb4OHEz5bXwHqWKxCB7te3D9UP30mKXEcbf5s3nyCdrNNr9YH7KWlzn8DEkPrja1pSvb6fB7GcWOv7FcCRj5DB4IZY"/>
+</div>
+</nav>
+<!-- App Bar (Layer 2) Tabs -->
+<div class="bg-surface-container-low px-margin h-12 flex items-end border-b border-outline-variant gap-margin shrink-0">
+<div class="pb-sm font-label-md text-label-md text-secondary cursor-pointer hover:text-on-surface transition-colors">
+                Home
+            </div>
+<div class="pb-sm font-label-md text-label-md text-primary border-b-2 border-primary-container font-bold flex items-center gap-xs">
+                01275781 (WO)
+            </div>
+<div class="pb-sm font-label-md text-label-md text-secondary cursor-pointer hover:text-on-surface transition-colors flex items-center gap-xs">
+                01553477 (Case)
+                <span class="material-symbols-outlined text-label-sm" data-icon="close">close</span>
+</div>
+</div>
+<main class="flex-1 flex flex-col overflow-hidden">
+<!-- Title & Action Bar (Layer 3) -->
+<header class="bg-surface px-margin py-md border-b border-outline-variant shrink-0 flex flex-col md:flex-row md:items-start justify-between gap-md">
+<div class="flex flex-col gap-xs">
+<div class="flex items-center gap-sm flex-wrap">
+<span class="material-symbols-outlined text-primary-container text-[24px]" data-icon="handyman" style="font-variation-settings: 'FILL' 1;">handyman</span>
+<h1 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">Work Order #01275781</h1>
+<span class="bg-primary-container text-on-primary-container font-label-sm text-label-sm px-sm py-xs rounded uppercase border border-primary font-bold">New</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface-variant uppercase">TRS HYDRAULIK SYSTEM HO785</h2>
+</div>
+<div class="flex flex-wrap gap-xs items-center">
+<button class="px-md py-sm bg-surface border border-outline text-on-surface font-label-md text-label-md rounded hover:bg-surface-container transition-colors">Book Appointment</button>
+<button class="px-md py-sm bg-surface border border-outline text-on-surface font-label-md text-label-md rounded hover:bg-surface-container transition-colors">Approve/Reject WO</button>
+<button class="px-md py-sm bg-surface border border-outline text-on-surface font-label-md text-label-md rounded hover:bg-surface-container transition-colors">Generate PDF</button>
+<button class="px-md py-sm bg-primary-container text-on-primary-container font-label-md text-label-md font-bold rounded hover:brightness-95 transition-all shadow-sm">Send Job Data to SAP</button>
+<button class="px-md py-sm bg-blue-600 text-white font-label-md text-label-md font-bold rounded hover:bg-blue-700 transition-all flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]" data-icon="stars">stars</span>
+                        Recommend Mechanic
+                    </button>
+<button class="p-sm text-secondary hover:bg-surface-container rounded transition-colors border border-outline-variant">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</header>
+<!-- Sub-Tab Bar (Layer 4) -->
+<div class="flex items-center justify-between w-full px-margin h-16 bg-surface z-30 border-b border-outline-variant shrink-0">
+<div class="flex h-full gap-margin">
+<button class="h-full flex items-center border-b-2 pt-sm text-secondary font-medium border-transparent">
+<span class="font-label-md text-label-md">Details</span>
+</button>
+<button class="h-full flex items-center text-secondary font-medium hover:text-primary transition-colors pt-sm border-b-2 border-transparent">
+<span class="font-label-md text-label-md">Feed</span>
+</button>
+<button class="h-full flex items-center hover:text-primary transition-colors pt-sm border-b-2 text-primary font-bold border-primary">
+<span class="font-label-md text-label-md">Related</span>
+</button>
+<button class="h-full flex items-center text-secondary font-medium hover:text-primary transition-colors pt-sm border-b-2 border-transparent">
+<span class="font-label-md text-label-md">Log</span>
+</button>
+</div>
+</div>
+<!-- 2-Column High-Density Grid (Adjusted for Sidebar: Main Content 70% + Right Panel 25%) -->
+<div class="flex-1 overflow-hidden grid grid-cols-1 lg:grid-cols-[70%_30%] xl:grid-cols-[70%_30%]">
+<!-- Col 1: WO Details (Scrollable) - 70% Width -->
+<div class="overflow-y-auto p-margin flex flex-col gap-md bg-surface-bright border-r border-outline-variant"><div class="flex flex-col gap-lg">
+<!-- Asset Summary Card -->
+<section class="bg-surface border border-outline-variant rounded shadow-sm">
+<div class="px-md py-sm border-b border-outline-variant bg-surface-container-lowest flex justify-between items-center">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary text-[20px]" data-icon="package_2">package_2</span>
+<h3 class="font-label-md text-label-md font-bold text-on-surface uppercase">Asset: HD785-7 - 8076</h3>
+</div>
+<div class="flex gap-xs">
+<button class="px-sm py-1 bg-surface border border-outline text-on-surface font-label-sm text-label-sm rounded hover:bg-surface-container">Edit</button>
+<button class="px-sm py-1 bg-surface border border-outline text-on-surface font-label-sm text-label-sm rounded hover:bg-surface-container">Delete</button>
+<button class="px-sm py-1 bg-surface border border-outline text-on-surface font-label-sm text-label-sm rounded hover:bg-surface-container">Clone</button>
+</div>
+</div>
+<div class="p-md grid grid-cols-1 md:grid-cols-3 gap-md">
+<div>
+<span class="text-label-sm text-secondary uppercase block">Account</span>
+<span class="text-body-md font-medium">SIMS JAYA KALTIM</span>
+</div>
+<div>
+<span class="text-label-sm text-secondary uppercase block">Contact</span>
+<span class="text-body-md font-medium">BURHAN</span>
+</div>
+<div>
+<span class="text-label-sm text-secondary uppercase block">Quantity</span>
+<span class="text-body-md font-medium">1</span>
+</div>
+</div>
+</section>
+<!-- Cases Section -->
+<section class="bg-surface border border-outline-variant rounded shadow-sm">
+<div class="px-md py-sm border-b border-outline-variant bg-surface-container-lowest flex justify-between items-center">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary text-[20px]" data-icon="push_pin">push_pin</span>
+<h3 class="font-label-md text-label-md font-bold text-on-surface uppercase">Cases (6+)</h3>
+</div>
+<button class="px-sm py-1 bg-primary-container text-on-primary-container font-label-sm text-label-sm font-bold rounded">New</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container text-label-sm text-secondary uppercase">
+<tr>
+<th class="px-md py-xs font-medium border-b border-outline-variant">Case ID</th>
+<th class="px-md py-xs font-medium border-b border-outline-variant">Contact Name</th>
+<th class="px-md py-xs font-medium border-b border-outline-variant">Subject</th>
+<th class="px-md py-xs font-medium border-b border-outline-variant">Priority</th>
+<th class="px-md py-xs font-medium border-b border-outline-variant">Status</th>
+</tr>
+</thead>
+<tbody class="text-body-sm">
+<tr class="hover:bg-surface-container-lowest">
+<td class="px-md py-sm border-b border-outline-variant"><a class="text-primary font-bold" href="#">01553477</a></td>
+<td class="px-md py-sm border-b border-outline-variant">BURHAN</td>
+<td class="px-md py-sm border-b border-outline-variant">PERFORM BACKLOG HO785-7 HD1114</td>
+<td class="px-md py-sm border-b border-outline-variant">Medium</td>
+<td class="px-md py-sm border-b border-outline-variant">Open</td>
+</tr>
+<tr class="hover:bg-surface-container-lowest">
+<td class="px-md py-sm border-b border-outline-variant"><a class="text-primary font-bold" href="#">01467893</a></td>
+<td class="px-md py-sm border-b border-outline-variant">BURHAN</td>
+<td class="px-md py-sm border-b border-outline-variant">Periodic Service 4000 Hrs HD1114</td>
+<td class="px-md py-sm border-b border-outline-variant">Medium</td>
+<td class="px-md py-sm border-b border-outline-variant">In Progress</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-sm flex justify-center">
+<button class="text-primary font-label-md text-label-md font-bold hover:underline">View All Cases</button>
+</div>
+</section>
+<!-- Work Orders Section -->
+<section class="bg-surface border border-outline-variant rounded shadow-sm">
+<div class="px-md py-sm border-b border-outline-variant bg-surface-container-lowest flex justify-between items-center">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary text-[20px]" data-icon="handyman">handyman</span>
+<h3 class="font-label-md text-label-md font-bold text-on-surface uppercase">Work Orders (6+)</h3>
+</div>
+<button class="px-sm py-1 bg-primary-container text-on-primary-container font-label-sm text-label-sm font-bold rounded">New</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container text-label-sm text-secondary uppercase">
+<tr>
+<th class="px-md py-xs font-medium border-b border-outline-variant">WO Number</th>
+<th class="px-md py-xs font-medium border-b border-outline-variant">Subject</th>
+<th class="px-md py-xs font-medium border-b border-outline-variant">PMRct Type</th>
+<th class="px-md py-xs font-medium border-b border-outline-variant">Account</th>
+</tr>
+</thead>
+<tbody class="text-body-sm">
+<tr class="hover:bg-surface-container-lowest">
+<td class="px-md py-sm border-b border-outline-variant"><a class="text-primary font-bold" href="#">00263272</a></td>
+<td class="px-md py-sm border-b border-outline-variant">AC Burtu HD1114</td>
+<td class="px-md py-sm border-b border-outline-variant">USC</td>
+<td class="px-md py-sm border-b border-outline-variant">SIMS JAYA KALTIM</td>
+</tr>
+<tr class="hover:bg-surface-container-lowest">
+<td class="px-md py-sm border-b border-outline-variant"><a class="text-primary font-bold" href="#">00264271</a></td>
+<td class="px-md py-sm border-b border-outline-variant">AC Hot HD1114</td>
+<td class="px-md py-sm border-b border-outline-variant">USC</td>
+<td class="px-md py-sm border-b border-outline-variant">SIMS JAYA KALTIM</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-sm flex justify-center">
+<button class="text-primary font-label-md text-label-md font-bold hover:underline">View All Work Orders</button>
+</div>
+</section>
+<!-- Maintenance Plan Items Section -->
+<section class="bg-surface border border-outline-variant rounded shadow-sm">
+<div class="px-md py-sm border-b border-outline-variant bg-surface-container-lowest flex justify-between items-center">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary text-[20px]" data-icon="description">description</span>
+<h3 class="font-label-md text-label-md font-bold text-on-surface uppercase">Maintenance Plan Items (6+)</h3>
+</div>
+<button class="px-sm py-1 bg-primary-container text-on-primary-container font-label-sm text-label-sm font-bold rounded">New</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container text-label-sm text-secondary uppercase">
+<tr>
+<th class="px-md py-xs font-medium border-b border-outline-variant">Plan Item</th>
+<th class="px-md py-xs font-medium border-b border-outline-variant">Plan Date</th>
+<th class="px-md py-xs font-medium border-b border-outline-variant">Tasklist</th>
+<th class="px-md py-xs font-medium border-b border-outline-variant">SMR (Plan)</th>
+</tr>
+</thead>
+<tbody class="text-body-sm">
+<tr class="hover:bg-surface-container-lowest">
+<td class="px-md py-sm border-b border-outline-variant"><a class="text-primary font-bold" href="#">MI-0231911</a></td>
+<td class="px-md py-sm border-b border-outline-variant">25/08/2020</td>
+<td class="px-md py-sm border-b border-outline-variant">RAPH0008</td>
+<td class="px-md py-sm border-b border-outline-variant">49,750 hm</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-sm flex justify-center">
+<button class="text-primary font-label-md text-label-md font-bold hover:underline">View All Items</button>
+</div>
+</section>
+<!-- Service Contract Assets Section -->
+<section class="bg-surface border border-outline-variant rounded shadow-sm">
+<div class="px-md py-sm border-b border-outline-variant bg-surface-container-lowest flex justify-between items-center">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary text-[20px]" data-icon="handshake">handshake</span>
+<h3 class="font-label-md text-label-md font-bold text-on-surface uppercase">Service Contract Assets (5)</h3>
+</div>
+<button class="px-sm py-1 bg-primary-container text-on-primary-container font-label-sm text-label-sm font-bold rounded">New</button>
+</div>
+<div class="p-md space-y-md">
+<div class="flex flex-col p-sm border border-outline-variant rounded">
+<div class="flex justify-between mb-xs">
+<span class="text-primary font-bold">SA-0006175</span>
+<span class="bg-green-100 text-green-800 text-[10px] px-xs py-0.5 rounded font-bold uppercase">Active</span>
+</div>
+<div class="text-body-sm text-secondary">Premium Support • Key: 330026962-002700-0001</div>
+</div>
+<div class="flex flex-col p-sm border border-outline-variant rounded">
+<div class="flex justify-between mb-xs">
+<span class="text-primary font-bold">SA-0006173</span>
+<span class="bg-green-100 text-green-800 text-[10px] px-xs py-0.5 rounded font-bold uppercase">Active</span>
+</div>
+<div class="text-body-sm text-secondary">Extended Warranty • Key: 330026962-002680-0001</div>
+</div>
+</div>
+<div class="p-sm flex justify-center border-t border-outline-variant">
+<button class="text-primary font-label-md text-label-md font-bold hover:underline">View All Contracts</button>
+</div>
+</section>
+<!-- Asset History Section -->
+<section class="bg-surface border border-outline-variant rounded shadow-sm">
+<div class="px-md py-sm border-b border-outline-variant bg-surface-container-lowest flex justify-between items-center">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary text-[20px]" data-icon="history">history</span>
+<h3 class="font-label-md text-label-md font-bold text-on-surface uppercase">Asset History (1)</h3>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container text-label-sm text-secondary uppercase">
+<tr>
+<th class="px-md py-xs font-medium border-b border-outline-variant">Date</th>
+<th class="px-md py-xs font-medium border-b border-outline-variant">Field</th>
+<th class="px-md py-xs font-medium border-b border-outline-variant">User</th>
+<th class="px-md py-xs font-medium border-b border-outline-variant">Change</th>
+</tr>
+</thead>
+<tbody class="text-body-sm">
+<tr class="hover:bg-surface-container-lowest">
+<td class="px-md py-sm border-b border-outline-variant whitespace-nowrap">22/08/2025 02:32</td>
+<td class="px-md py-sm border-b border-outline-variant">Work Center</td>
+<td class="px-md py-sm border-b border-outline-variant">UT Integration</td>
+<td class="px-md py-sm border-b border-outline-variant">FM-SKJ → FD-SKJ</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-sm flex justify-center">
+<button class="text-primary font-label-md text-label-md font-bold hover:underline">View Full History</button>
+</div>
+</section>
+</div></div>
+<!-- Col 2: Linked Objects (Scrollable) - 25-30% Width -->
+<div class="overflow-y-auto bg-surface-container-low flex flex-col border-l border-outline-variant">
+<!-- Recommended Mechanic Button -->
+<div class="p-md bg-surface border-b border-outline-variant">
+<button class="w-full py-md bg-blue-600 text-white font-label-md text-label-md font-bold rounded hover:bg-blue-700 transition-all flex items-center justify-center gap-sm shadow-md">
+<span class="material-symbols-outlined" data-icon="stars">stars</span>
+                            REKOMENDASI MEKANIK
+                        </button>
+</div>
+<!-- Knowledge Search -->
+<div class="p-md border-b border-outline-variant bg-surface">
+<div class="flex items-center justify-between mb-sm">
+<h3 class="font-label-md text-label-md font-bold text-on-surface uppercase flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]" data-icon="auto_stories">auto_stories</span>
+                                Knowledge
+                            </h3>
+</div>
+<div class="flex gap-xs">
+<div class="relative flex-1">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-secondary text-[18px]" data-icon="search">search</span>
+<input class="w-full bg-surface-container border border-outline-variant rounded pl-xl py-xs text-body-sm focus:outline-none" placeholder="Search Knowledge..." type="text"/>
+</div>
+<button class="p-xs border border-outline-variant rounded bg-surface hover:bg-surface-container">
+<span class="material-symbols-outlined text-secondary" data-icon="filter_alt">filter_alt</span>
+</button>
+</div>
+</div>
+<!-- Asset Details Card -->
+<div class="m-md p-md bg-surface border border-outline-variant rounded shadow-sm">
+<div class="flex items-center justify-between mb-md">
+<h3 class="font-label-md text-label-md font-bold text-on-surface uppercase flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]" data-icon="precision_manufacturing">precision_manufacturing</span>
+                                Asset Details
+                            </h3>
+<a class="material-symbols-outlined text-primary text-[18px]" data-icon="open_in_new" href="#">open_in_new</a>
+</div>
+<div class="space-y-sm">
+<div class="flex justify-between">
+<span class="text-label-sm text-secondary uppercase">Asset Name</span>
+<span class="text-body-sm font-bold">GD785-7 : BO76</span>
+</div>
+<div class="flex justify-between">
+<span class="text-label-sm text-secondary uppercase">Serial Number</span>
+<span class="text-body-sm">BO76</span>
+</div>
+<div class="flex justify-between">
+<span class="text-label-sm text-secondary uppercase">Unit Model</span>
+<span class="text-body-sm">HD785-7</span>
+</div>
+<div class="flex justify-between">
+<span class="text-label-sm text-secondary uppercase">SMR</span>
+<span class="text-body-sm font-bold text-primary">6006I.0 hm</span>
+</div>
+</div>
+</div>
+<!-- Linked Objects Accordion Stack -->
+<div class="flex flex-col">
+<!-- Object sections -->
+<div class="px-md py-sm border-y border-outline-variant bg-surface flex justify-between items-center cursor-pointer hover:bg-surface-container">
+<span class="font-label-md text-label-md font-bold">Work Plans (0)</span>
+<span class="material-symbols-outlined text-secondary" data-icon="expand_more">expand_more</span>
+</div>
+<div class="px-md py-sm border-b border-outline-variant bg-surface flex justify-between items-center cursor-pointer hover:bg-surface-container">
+<span class="font-label-md text-label-md font-bold">Work Steps (0)</span>
+<span class="material-symbols-outlined text-secondary" data-icon="expand_more">expand_more</span>
+</div>
+<div class="px-md py-sm border-b border-outline-variant bg-surface flex justify-between items-center cursor-pointer hover:bg-surface-container group">
+<span class="font-label-md text-label-md font-bold">Service Appointments (1)</span>
+<span class="material-symbols-outlined text-secondary group-hover:text-primary" data-icon="expand_less">expand_less</span>
+</div>
+<div class="p-md bg-surface-container-lowest border-b border-outline-variant flex flex-col gap-sm">
+<div class="p-sm border border-outline-variant rounded flex flex-col gap-xs">
+<div class="font-bold text-primary text-body-sm">SA-2124973</div>
+<div class="text-body-sm text-secondary">Status: Scheduled</div>
+</div>
+<button class="text-primary text-label-sm font-bold self-start hover:underline">View All</button>
+</div>
+<div class="px-md py-sm border-b border-outline-variant bg-surface flex justify-between items-center cursor-pointer hover:bg-surface-container">
+<span class="font-label-md text-label-md font-bold">Work Order Line Items (3+)</span>
+<span class="material-symbols-outlined text-secondary" data-icon="expand_more">expand_more</span>
+</div>
+<div class="px-md py-sm border-b border-outline-variant bg-surface flex justify-between items-center cursor-pointer hover:bg-surface-container">
+<span class="font-label-md text-label-md font-bold">Files (0)</span>
+<span class="material-symbols-outlined text-secondary" data-icon="expand_more">expand_more</span>
+</div>
+<div class="px-md py-sm border-b border-outline-variant bg-surface flex justify-between items-center cursor-pointer hover:bg-surface-container">
+<span class="font-label-md text-label-md font-bold">Articles (0)</span>
+<span class="material-symbols-outlined text-secondary" data-icon="expand_more">expand_more</span>
+</div>
+<div class="px-md py-sm border-b border-outline-variant bg-surface flex justify-between items-center cursor-pointer hover:bg-surface-container">
+<span class="font-label-md text-label-md font-bold">Service Reports (0)</span>
+<span class="material-symbols-outlined text-secondary" data-icon="expand_more">expand_more</span>
+</div>
+<div class="px-md py-sm border-b border-outline-variant bg-surface flex justify-between items-center cursor-pointer hover:bg-surface-container">
+<span class="font-label-md text-label-md font-bold">Task Lists (3+)</span>
+<span class="material-symbols-outlined text-secondary" data-icon="expand_more">expand_more</span>
+</div>
+<div class="px-md py-sm border-b border-outline-variant bg-surface flex justify-between items-center cursor-pointer hover:bg-surface-container">
+<span class="font-label-md text-label-md font-bold">Time Sheet Entries (0)</span>
+<span class="material-symbols-outlined text-secondary" data-icon="expand_more">expand_more</span>
+</div>
+<div class="px-md py-sm border-b border-outline-variant bg-surface flex justify-between items-center cursor-pointer hover:bg-surface-container">
+<span class="font-label-md text-label-md font-bold">Problems (0)</span>
+<span class="material-symbols-outlined text-secondary" data-icon="expand_more">expand_more</span>
+</div>
+<div class="px-md py-sm border-b border-outline-variant bg-surface flex justify-between items-center cursor-pointer hover:bg-surface-container">
+<span class="font-label-md text-label-md font-bold">Service Products (0)</span>
+<span class="material-symbols-outlined text-secondary" data-icon="expand_more">expand_more</span>
+</div>
+<div class="px-md py-sm border-b border-outline-variant bg-surface flex justify-between items-center cursor-pointer hover:bg-surface-container">
+<span class="font-label-md text-label-md font-bold">Parts Requests (0)</span>
+<span class="material-symbols-outlined text-secondary" data-icon="expand_more">expand_more</span>
+</div>
+<div class="px-md py-sm border-b border-outline-variant bg-surface flex justify-between items-center cursor-pointer hover:bg-surface-container">
+<span class="font-label-md text-label-md font-bold text-primary">Work Order History (3+)</span>
+<span class="material-symbols-outlined text-secondary" data-icon="expand_more">expand_more</span>
+</div>
+<div class="px-md py-sm border-b border-outline-variant bg-surface flex justify-between items-center cursor-pointer hover:bg-surface-container">
+<span class="font-label-md text-label-md font-bold">Opportunities (0)</span>
+<span class="material-symbols-outlined text-secondary" data-icon="expand_more">expand_more</span>
+</div>
+<div class="px-md py-sm border-b border-outline-variant bg-surface flex justify-between items-center cursor-pointer hover:bg-surface-container">
+<span class="font-label-md text-label-md font-bold">EMR (0)</span>
+<span class="material-symbols-outlined text-secondary" data-icon="expand_more">expand_more</span>
+</div>
+<div class="px-md py-sm border-b border-outline-variant bg-surface flex justify-between items-center cursor-pointer hover:bg-surface-container">
+<span class="font-label-md text-label-md font-bold">PCVs (0)</span>
+<span class="material-symbols-outlined text-secondary" data-icon="expand_more">expand_more</span>
+</div>
+<div class="px-md py-sm border-b border-outline-variant bg-surface flex justify-between items-center cursor-pointer hover:bg-surface-container">
+<span class="font-label-md text-label-md font-bold">Competitor Info (0)</span>
+<span class="material-symbols-outlined text-secondary" data-icon="expand_more">expand_more</span>
+</div>
+<div class="px-md py-sm border-b border-outline-variant bg-surface flex justify-between items-center cursor-pointer hover:bg-surface-container">
+<span class="font-label-md text-label-md font-bold">Parts Supplied (0)</span>
+<span class="material-symbols-outlined text-secondary" data-icon="expand_more">expand_more</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- App Bottom Bar (Layer 6) - Console Utilities -->
+<footer class="h-10 bg-surface-container-highest border-t border-outline-variant flex items-center px-gutter justify-between shrink-0">
+<div class="flex items-center gap-margin">
+<div class="flex items-center gap-xs font-label-sm text-label-sm text-on-surface-variant cursor-pointer">
+<span class="material-symbols-outlined text-[16px]" data-icon="list">list</span>
+                    Items
+                </div>
+<div class="flex items-center gap-xs font-label-sm text-label-sm text-on-surface-variant cursor-pointer">
+<span class="material-symbols-outlined text-[16px]" data-icon="history">history</span>
+                    History
+                </div>
+</div>
+<div class="flex items-center gap-margin">
+<div class="flex items-center gap-xs font-label-sm text-label-sm text-on-surface-variant cursor-pointer">
+<span class="material-symbols-outlined text-[16px] text-green-600" data-icon="wifi">wifi</span>
+                    Online
+                </div>
+</div>
+</footer>
+</div>
+</body></html>

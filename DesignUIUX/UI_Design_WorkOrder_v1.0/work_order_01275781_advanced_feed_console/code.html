@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Work Order Detail View - Enhanced 3-Column</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "outline": "#7f7660",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed": "#1c1b1b",
+                        "on-background": "#1a1c1c",
+                        "primary": "#725c00",
+                        "inverse-surface": "#2f3131",
+                        "tertiary-fixed": "#e2e2e2",
+                        "tertiary-container": "#cdcdcd",
+                        "on-surface": "#1a1c1c",
+                        "surface-container-highest": "#e2e2e2",
+                        "surface-container-low": "#f3f3f3",
+                        "outline-variant": "#d1c6ab",
+                        "surface-container-high": "#e8e8e8",
+                        "surface-tint": "#725c00",
+                        "on-tertiary-fixed-variant": "#454747",
+                        "surface-variant": "#e2e2e2",
+                        "secondary-fixed-dim": "#c8c6c5",
+                        "surface-dim": "#dadada",
+                        "on-primary-fixed-variant": "#564500",
+                        "tertiary-fixed-dim": "#c6c6c6",
+                        "on-secondary": "#ffffff",
+                        "background": "#f9f9f9",
+                        "tertiary": "#5d5f5f",
+                        "on-error-container": "#93000a",
+                        "surface-container": "#eeeeee",
+                        "surface": "#f9f9f9",
+                        "on-tertiary-container": "#555757",
+                        "error": "#ba1a1a",
+                        "secondary": "#5f5e5e",
+                        "primary-container": "#f5c800",
+                        "on-primary-container": "#695400",
+                        "inverse-on-surface": "#f1f1f1",
+                        "on-secondary-fixed-variant": "#474646",
+                        "primary-fixed": "#ffe081",
+                        "on-error": "#ffffff",
+                        "primary-fixed-dim": "#eec200",
+                        "inverse-primary": "#eec200",
+                        "secondary-fixed": "#e5e2e1",
+                        "on-primary-fixed": "#231b00",
+                        "on-secondary-container": "#656464",
+                        "surface-bright": "#f9f9f9",
+                        "on-tertiary-fixed": "#1a1c1c",
+                        "on-surface-variant": "#4d4632",
+                        "on-primary": "#ffffff",
+                        "secondary-container": "#e5e2e1"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "sm": "8px",
+                        "margin": "24px",
+                        "lg": "24px",
+                        "base": "8px",
+                        "xs": "4px",
+                        "xl": "32px",
+                        "md": "16px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "label-md": ["JetBrains Mono"],
+                        "body-sm": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "label-sm": ["JetBrains Mono"],
+                        "headline-sm": ["Hanken Grotesk"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"],
+                        "body-md": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "label-md": ["14px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-sm": ["12px", { "lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #d1c6ab; border-radius: 2px; }
+    </style>
+</head>
+<body class="bg-surface font-body-md text-body-md text-on-surface antialiased min-h-screen flex flex-col overflow-hidden">
+<!-- Top Nav Bar -->
+<nav class="flex justify-between items-center w-full px-gutter h-14 bg-surface-container-lowest z-50 border-b border-outline-variant shrink-0">
+<div class="flex items-center gap-gutter">
+<span class="material-symbols-outlined text-primary hover:bg-surface-container-high p-xs rounded transition-colors cursor-pointer" data-icon="apps">apps</span>
+<div class="font-headline-md text-headline-md font-bold text-on-surface">UT Service Console</div>
+</div>
+<div class="flex-1 flex justify-center max-w-md mx-gutter hidden md:block">
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-secondary" data-icon="search">search</span>
+<input class="w-full bg-surface border border-outline-variant rounded pl-xl py-xs text-body-sm font-body-sm focus:outline-none focus:border-primary-container transition-all" placeholder="Search..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-secondary hover:bg-surface-container-high p-xs rounded transition-colors cursor-pointer" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined text-secondary hover:bg-surface-container-high p-xs rounded transition-colors cursor-pointer" data-icon="help">help</span>
+<span class="material-symbols-outlined text-secondary hover:bg-surface-container-high p-xs rounded transition-colors cursor-pointer" data-icon="settings">settings</span>
+<img alt="User Profile" class="w-8 h-8 rounded-full border border-outline-variant cursor-pointer" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBLSCYw1f9YbaBzsxX3Bqon1DAB_dgIFRnKTVzjc5_CjUTgi8GzyhNEkZIc591Tys7bK5b8kvRi1IHxVNJWou-uFO2uUU2C4-ODezn0s4_6gOvtBZVWOZsCO4N_KiTdocjE0cT9CthGEH-zU2v3upT9yf0jx6TudnX76vBE1Y-hkgjHgSvneaxb4OHEz5bXwHqWKxCB7te3D9UP30mKXEcbf5s3nyCdrNNr9YH7KWlzn8DEkPrja1pSvb6fB7GcWOv7FcCRj5DB4IZY"/>
+</div>
+</nav>
+<!-- App Bar (Layer 2) Tabs -->
+<div class="bg-surface-container-low px-margin h-12 flex items-end border-b border-outline-variant gap-margin shrink-0">
+<div class="pb-sm font-label-md text-label-md text-secondary cursor-pointer hover:text-on-surface transition-colors">Home</div>
+<div class="pb-sm font-label-md text-label-md text-primary border-b-2 border-primary-container font-bold flex items-center gap-xs">01175-1508 (WO)</div>
+<div class="pb-sm font-label-md text-label-md text-secondary cursor-pointer hover:text-on-surface transition-colors flex items-center gap-xs">
+            Case 01532785
+            <span class="material-symbols-outlined text-label-sm" data-icon="close">close</span>
+</div>
+</div>
+<div class="flex-1 flex overflow-hidden">
+<!-- 1. Persistent Sidebar (5%) -->
+<aside class="w-16 bg-surface-container-highest border-r border-outline-variant flex flex-col items-center py-md gap-md shrink-0">
+<button class="p-xs hover:bg-surface-container-high rounded transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="menu">menu</span>
+</button>
+<div class="flex flex-col gap-sm items-center w-full">
+<div class="w-full flex justify-center border-l-4 border-primary py-xs bg-primary-container/10">
+<span class="material-symbols-outlined text-primary" data-icon="push_pin" style="font-variation-settings: 'FILL' 1;">push_pin</span>
+</div>
+<button class="p-xs hover:bg-surface-container-high rounded transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="assignment">assignment</span>
+</button>
+<button class="p-xs hover:bg-surface-container-high rounded transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="analytics">analytics</span>
+</button>
+<button class="p-xs hover:bg-surface-container-high rounded transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="trending_up">trending_up</span>
+</button>
+</div>
+<div class="mt-auto flex flex-col gap-sm items-center">
+<button class="p-xs hover:bg-surface-container-high rounded transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="settings">settings</span>
+</button>
+<button class="p-xs hover:bg-surface-container-high rounded transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="help">help</span>
+</button>
+<button class="p-xs hover:bg-surface-container-high rounded transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="language">language</span>
+</button>
+<button class="p-xs hover:bg-surface-container-high rounded transition-colors text-error">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+</button>
+</div>
+</aside>
+<!-- Main Content Area Wrapper (70% Main + 25% Right Panel) -->
+<main class="flex-1 flex overflow-hidden">
+<!-- 2. Main Content Area (70%) -->
+<div class="flex-[7] flex flex-col bg-surface border-r border-outline-variant overflow-hidden">
+<!-- Header -->
+<header class="p-margin border-b border-outline-variant shrink-0">
+<div class="flex justify-between items-start mb-md">
+<div class="flex flex-col gap-xs">
+<div class="flex items-center gap-sm">
+<h1 class="font-headline-lg text-headline-lg text-on-surface">Work Order #01175-1508</h1>
+<span class="bg-error-container text-on-error-container font-label-sm text-label-sm px-sm py-xs rounded uppercase border border-error/20 font-bold">Cancelled</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface-variant uppercase">TRS HYDRAULIK SYSTEM HO785</h2>
+<p class="text-body-sm text-secondary">Case: 01532785 • Owner: System</p>
+</div>
+<div class="flex gap-xs">
+<button class="p-sm text-secondary hover:bg-surface-container rounded border border-outline-variant">
+<span class="material-symbols-outlined" data-icon="more_horiz">more_horiz</span>
+</button>
+</div>
+</div>
+<!-- Action Toolbar -->
+<div class="flex flex-wrap gap-xs">
+<button class="px-md py-sm bg-surface border border-outline text-on-surface font-label-md text-label-md rounded hover:bg-surface-container transition-colors">Book Appointment</button>
+<button class="px-md py-sm bg-surface border border-outline text-on-surface font-label-md text-label-md rounded hover:bg-surface-container transition-colors">Approve/Reject WO</button>
+<button class="px-md py-sm bg-surface border border-outline text-on-surface font-label-md text-label-md rounded hover:bg-surface-container transition-colors">Generate PDF</button>
+<button class="px-md py-sm bg-primary-container text-on-primary-container font-label-md text-label-md font-bold rounded hover:brightness-95 transition-all shadow-sm">Send Job Data to SAP</button>
+<button class="px-md py-sm bg-blue-600 text-white font-label-md text-label-md font-bold rounded hover:bg-blue-700 transition-all flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]" data-icon="stars">stars</span>
+                            Recommend Mechanic
+                        </button>
+</div>
+</header>
+<!-- Tab Navigation -->
+<div class="px-margin h-12 bg-surface border-b border-outline-variant flex gap-margin shrink-0"><button class="h-full flex items-center text-secondary font-medium hover:text-primary transition-colors border-b-2 border-transparent">
+<span class="font-label-md text-label-md">Details</span>
+</button>
+<button class="h-full flex items-center text-primary font-bold border-b-2 border-primary">
+<span class="font-label-md text-label-md">Feed</span>
+</button>
+<button class="h-full flex items-center text-secondary font-medium hover:text-primary transition-colors border-b-2 border-transparent">
+<span class="font-label-md text-label-md">Related</span>
+</button>
+<button class="h-full flex items-center text-secondary font-medium hover:text-primary transition-colors border-b-2 border-transparent">
+<span class="font-label-md text-label-md">Log</span>
+</button></div><div class="bg-surface-container-low border-b border-outline-variant p-sm">
+<div class="flex flex-wrap gap-xs overflow-hidden transition-all duration-300" id="action-button-strip" style="max-height: 40px;">
+<button class="px-sm py-1 border border-outline-variant rounded text-label-sm text-secondary hover:border-primary hover:text-primary bg-surface transition-colors">Book Appointment</button>
+<button class="px-sm py-1 border border-outline-variant rounded text-label-sm text-secondary hover:border-primary hover:text-primary bg-surface transition-colors">Approve / Reject Work Order</button>
+<button class="px-sm py-1 border border-outline-variant rounded text-label-sm text-secondary hover:border-primary hover:text-primary bg-surface transition-colors">Generate PDF</button>
+<button class="px-sm py-1 border border-outline-variant rounded text-label-sm text-secondary hover:border-primary hover:text-primary bg-surface transition-colors">Enrich Parts Request</button>
+<button class="px-sm py-1 border border-outline-variant rounded text-label-sm text-secondary hover:border-primary hover:text-primary bg-surface transition-colors">Send Job Data to SAP</button>
+<button class="px-sm py-1 border border-outline-variant rounded text-label-sm text-secondary hover:border-primary hover:text-primary bg-surface transition-colors">Timesheet Approval</button>
+<button class="px-sm py-1 border border-outline-variant rounded text-label-sm text-secondary hover:border-primary hover:text-primary bg-surface transition-colors">Validate Checksheet</button>
+<button class="px-sm py-1 border border-outline-variant rounded text-label-sm text-secondary hover:border-primary hover:text-primary bg-surface transition-colors">Update TSR Score</button>
+<button class="px-sm py-1 border border-outline-variant rounded text-label-sm text-secondary hover:border-primary hover:text-primary bg-surface transition-colors">Post</button>
+<button class="px-sm py-1 border border-outline-variant rounded text-label-sm text-secondary hover:border-primary hover:text-primary bg-surface transition-colors">Debug EMR</button>
+<button class="px-sm py-1 border border-outline-variant rounded text-label-sm text-secondary hover:border-primary hover:text-primary bg-surface transition-colors">Debug DO</button>
+<button class="flex items-center gap-xs px-sm py-1 text-primary font-bold text-label-sm hover:underline">
+            Expand
+            <span class="material-symbols-outlined text-[16px]">expand_more</span>
+</button>
+</div>
+</div>
+<!-- Feed Content (Scrollable Timeline) -->
+<div class="flex-1 overflow-y-auto p-margin bg-surface-container-low custom-scrollbar"><div class="max-w-3xl mx-auto flex flex-col gap-sm">
+<!-- Post Input Section -->
+<div class="bg-surface border border-outline-variant rounded p-sm flex items-center gap-sm shadow-sm">
+<div class="flex-1 bg-surface-container-low border border-outline-variant rounded px-md py-sm text-secondary text-body-sm">
+            Create new...
+        </div>
+<button class="bg-primary text-on-primary p-sm rounded shadow-sm hover:brightness-95 flex items-center gap-xs font-bold text-label-sm">
+            Add
+            <span class="material-symbols-outlined text-[18px]">add</span>
+</button>
+</div>
+<!-- Sort/Filter Bar -->
+<div class="flex justify-between items-center px-xs py-base">
+<div class="flex items-center gap-xs text-secondary">
+<span class="text-label-sm">Sort by:</span>
+<button class="flex items-center gap-xs font-bold text-on-surface text-label-sm">
+                Most Recent Activity
+                <span class="material-symbols-outlined text-[16px]">expand_more</span>
+</button>
+</div>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-secondary text-[18px]">search</span>
+<input class="bg-surface border border-outline-variant rounded pl-xl pr-sm py-1 text-label-sm focus:outline-none focus:border-primary w-48" placeholder="Search this feed..." type="text"/>
+</div>
+</div>
+<!-- Entry 1 -->
+<div class="bg-surface border border-outline-variant rounded p-md flex gap-md shadow-sm">
+<div class="w-10 h-10 rounded bg-tertiary-container flex items-center justify-center text-on-surface font-bold shrink-0">MA</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<p class="text-body-sm"><span class="font-bold text-on-surface">M. Thoriqul Anwar Hidayat</span> <span class="text-secondary">created a work order line item.</span></p>
+<span class="text-label-sm text-secondary">2h ago</span>
+</div>
+<p class="mt-xs text-body-sm font-label-md text-primary">Reference: 00000019</p>
+<div class="mt-md pt-sm border-t border-outline-variant flex gap-md">
+<button class="text-label-sm text-secondary hover:text-primary font-bold">Like</button>
+<button class="text-label-sm text-secondary hover:text-primary font-bold">Comment</button>
+<button class="text-label-sm text-primary hover:underline font-bold ml-auto">Expand</button>
+</div>
+</div>
+</div>
+<!-- Entry 2 -->
+<div class="bg-surface border border-outline-variant rounded p-md flex gap-md shadow-sm">
+<div class="w-10 h-10 rounded bg-primary-container flex items-center justify-center text-on-primary-container font-bold shrink-0">TI</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<p class="text-body-sm"><span class="font-bold text-on-surface">Tegar Alnu Indrawan</span> <span class="text-secondary">created this Work Order.</span></p>
+<span class="text-label-sm text-secondary font-label-sm">Oct 12, 14:32</span>
+</div>
+<p class="mt-xs text-body-sm text-on-surface-variant">Initial creation from Case 01532785 regarding GD825A-2 hydraulic pressure drop.</p>
+<div class="mt-md flex flex-wrap gap-xs">
+<div class="flex items-center gap-xs px-sm py-1 border border-outline-variant rounded bg-surface-container-low text-label-sm cursor-pointer hover:bg-surface-container">
+<span class="material-symbols-outlined text-[16px] text-primary">image</span>
+                    pump_wear_01.jpg
+                </div>
+<div class="flex items-center gap-xs px-sm py-1 border border-outline-variant rounded bg-surface-container-low text-label-sm cursor-pointer hover:bg-surface-container">
+<span class="material-symbols-outlined text-[16px] text-error">picture_as_pdf</span>
+                    diagnostic_report.pdf
+                </div>
+</div>
+<div class="mt-md pt-sm border-t border-outline-variant flex gap-md">
+<button class="text-label-sm text-secondary hover:text-primary font-bold">Like</button>
+<button class="text-label-sm text-secondary hover:text-primary font-bold">Comment</button>
+<button class="text-label-sm text-primary hover:underline font-bold ml-auto">Expand</button>
+</div>
+</div>
+</div>
+<!-- Entry 3 (System Event) -->
+<div class="flex items-center gap-md px-md">
+<div class="w-10 flex justify-center shrink-0">
+<span class="material-symbols-outlined text-secondary">sync</span>
+</div>
+<div class="flex-1 py-sm">
+<p class="text-body-sm"><span class="font-bold text-on-surface">Status changed</span> from <span class="bg-surface-container-highest px-xs rounded">New</span> to <span class="bg-primary-container/20 px-xs rounded text-primary font-bold">In Progress</span></p>
+</div>
+</div>
+<!-- Entry 4 -->
+<div class="bg-surface border border-outline-variant rounded p-md flex gap-md shadow-sm">
+<div class="w-10 h-10 rounded bg-primary-container flex items-center justify-center text-on-primary-container font-bold shrink-0">TI</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<p class="text-body-sm"><span class="font-bold text-on-surface">Tegar Alnu Indrawan</span> <span class="text-secondary">added Approval Notes.</span></p>
+<span class="text-label-sm text-secondary font-label-sm">Oct 13, 09:15</span>
+</div>
+<p class="mt-xs text-body-sm text-on-surface-variant">Inspected the main pump. Found significant wear on the thrust plate. Requires immediate replacement before further operation to prevent catastrophic failure.</p>
+<div class="mt-md pt-sm border-t border-outline-variant flex gap-md">
+<button class="text-label-sm text-secondary hover:text-primary font-bold">Like</button>
+<button class="text-label-sm text-secondary hover:text-primary font-bold">Comment</button>
+<button class="text-label-sm text-primary hover:underline font-bold ml-auto">Expand</button>
+</div>
+</div>
+</div>
+</div></div>
+</div>
+<!-- 3. Right Panel (25%) -->
+<div class="flex-[2.5] bg-surface-container-low flex flex-col overflow-hidden">
+<!-- Recommended Mechanic Button -->
+<div class="p-md bg-surface border-b border-outline-variant">
+<button class="w-full py-md bg-blue-600 text-white font-label-md text-label-md font-bold rounded hover:bg-blue-700 transition-all flex items-center justify-center gap-sm shadow-md">
+<span class="material-symbols-outlined" data-icon="stars">stars</span>
+                        REKOMENDASI MEKANIK
+                    </button>
+</div>
+<div class="flex-1 overflow-y-auto custom-scrollbar">
+<!-- Knowledge Search -->
+<div class="p-md border-b border-outline-variant bg-surface">
+<div class="flex items-center justify-between mb-sm">
+<h3 class="font-label-md text-label-md font-bold text-on-surface uppercase flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]" data-icon="auto_stories">auto_stories</span>
+                                Suggested Knowledge
+                            </h3>
+<a class="material-symbols-outlined text-primary text-[18px]" data-icon="search" href="#">search</a>
+</div>
+<div class="flex gap-xs mb-md">
+<input class="flex-1 bg-surface-container border border-outline-variant rounded pl-sm py-xs text-body-sm focus:outline-none" placeholder="Search Knowledge..." type="text"/>
+<button class="p-xs border border-outline-variant rounded bg-surface hover:bg-surface-container">
+<span class="material-symbols-outlined text-secondary" data-icon="filter_alt">filter_alt</span>
+</button>
+</div>
+<div class="space-y-md">
+<div class="p-sm bg-surface-container-lowest border border-outline-variant rounded hover:shadow-sm transition-all cursor-pointer">
+<div class="flex justify-between">
+<h4 class="font-bold text-primary text-body-sm">GD825A Hydraulic Pump Replacement Proc...</h4>
+<span class="text-label-sm text-primary">85% ⭐</span>
+</div>
+<p class="text-label-sm text-secondary mt-xs uppercase">Article - KN-0921</p>
+</div>
+<div class="p-sm bg-surface-container-lowest border border-outline-variant rounded hover:shadow-sm transition-all cursor-pointer">
+<div class="flex justify-between">
+<h4 class="font-bold text-primary text-body-sm">Troubleshooting Thrust Plate Wear</h4>
+<span class="text-label-sm text-primary">78% ⭐</span>
+</div>
+<p class="text-label-sm text-secondary mt-xs uppercase">Bulletin - TB-1184</p>
+</div>
+</div>
+</div>
+<!-- Asset Details Card -->
+<div class="m-md p-md bg-surface border border-outline-variant rounded shadow-sm">
+<div class="flex items-center justify-between mb-md">
+<h3 class="font-label-md text-label-md font-bold text-on-surface uppercase flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]" data-icon="precision_manufacturing">precision_manufacturing</span>
+                                Asset Details
+                            </h3>
+<a class="material-symbols-outlined text-primary text-[18px]" data-icon="open_in_new" href="#">open_in_new</a>
+</div>
+<div class="space-y-sm">
+<div class="flex justify-between">
+<span class="text-label-sm text-secondary uppercase">Asset Name</span>
+<span class="text-body-sm font-bold">GD825A-2</span>
+</div>
+<div class="flex justify-between">
+<span class="text-label-sm text-secondary uppercase">Type</span>
+<span class="text-body-sm">Motor Grader</span>
+</div>
+<div class="flex justify-between">
+<span class="text-label-sm text-secondary uppercase">Serial Number</span>
+<span class="text-body-sm">120948A</span>
+</div>
+<div class="flex justify-between">
+<span class="text-label-sm text-secondary uppercase">Unit Model</span>
+<span class="text-body-sm">HD785-7</span>
+</div>
+<div class="flex justify-between">
+<span class="text-label-sm text-secondary uppercase">SMR</span>
+<span class="text-body-sm font-bold text-primary">4,520.0 hrs</span>
+</div>
+</div>
+<button class="w-full mt-md py-xs text-primary font-bold text-label-sm border border-primary/20 rounded hover:bg-primary/5 transition-colors">More Details</button>
+</div>
+<!-- Linked Objects Accordion Stack (Scrollable) -->
+<div class="flex flex-col border-t border-outline-variant">
+<div class="px-md py-sm border-b border-outline-variant bg-surface flex justify-between items-center cursor-pointer hover:bg-surface-container">
+<span class="font-label-md text-label-md font-bold">Work Plans (0)</span>
+<span class="material-symbols-outlined text-secondary" data-icon="expand_more">expand_more</span>
+</div>
+<div class="px-md py-sm border-b border-outline-variant bg-surface flex justify-between items-center cursor-pointer hover:bg-surface-container">
+<span class="font-label-md text-label-md font-bold">Work Steps (0)</span>
+<span class="material-symbols-outlined text-secondary" data-icon="expand_more">expand_more</span>
+</div>
+<div class="px-md py-sm border-b border-outline-variant bg-surface-container flex justify-between items-center cursor-pointer">
+<span class="font-label-md text-label-md font-bold text-primary">Service Appointments (1)</span>
+<span class="material-symbols-outlined text-primary" data-icon="expand_less">expand_less</span>
+</div>
+<div class="p-md bg-surface-container-lowest border-b border-outline-variant flex flex-col gap-sm">
+<div class="p-sm border border-outline-variant rounded flex flex-col gap-xs">
+<div class="font-bold text-primary text-body-sm">SA-2124973</div>
+<div class="text-body-sm text-secondary">Status: Scheduled</div>
+</div>
+<button class="text-primary text-label-sm font-bold self-start hover:underline">View All</button>
+</div>
+<div class="px-md py-sm border-b border-outline-variant bg-surface flex justify-between items-center cursor-pointer hover:bg-surface-container">
+<span class="font-label-md text-label-md font-bold">Work Order Line Items (3+)</span>
+<span class="material-symbols-outlined text-secondary" data-icon="expand_more">expand_more</span>
+</div>
+<div class="px-md py-sm border-b border-outline-variant bg-surface flex justify-between items-center cursor-pointer hover:bg-surface-container">
+<span class="font-label-md text-label-md font-bold">Files (0)</span>
+<span class="material-symbols-outlined text-secondary" data-icon="expand_more">expand_more</span>
+</div>
+<div class="px-md py-sm border-b border-outline-variant bg-surface flex justify-between items-center cursor-pointer hover:bg-surface-container">
+<span class="font-label-md text-label-md font-bold">Articles (0)</span>
+<span class="material-symbols-outlined text-secondary" data-icon="expand_more">expand_more</span>
+</div>
+<div class="px-md py-sm border-b border-outline-variant bg-surface flex justify-between items-center cursor-pointer hover:bg-surface-container">
+<span class="font-label-md text-label-md font-bold">Service Reports (0)</span>
+<span class="material-symbols-outlined text-secondary" data-icon="expand_more">expand_more</span>
+</div>
+<div class="px-md py-sm border-b border-outline-variant bg-surface flex justify-between items-center cursor-pointer hover:bg-surface-container">
+<span class="font-label-md text-label-md font-bold">Task Lists (3+)</span>
+<span class="material-symbols-outlined text-secondary" data-icon="expand_more">expand_more</span>
+</div>
+<div class="px-md py-sm border-b border-outline-variant bg-surface flex justify-between items-center cursor-pointer hover:bg-surface-container">
+<span class="font-label-md text-label-md font-bold text-primary">Work Order History (3+)</span>
+<span class="material-symbols-outlined text-secondary" data-icon="expand_more">expand_more</span>
+</div>
+<!-- Extended list as per doc -->
+<div class="px-md py-sm border-b border-outline-variant bg-surface flex justify-between items-center cursor-pointer hover:bg-surface-container">
+<span class="font-label-md text-label-md font-bold">Opportunities (0)</span>
+<span class="material-symbols-outlined text-secondary" data-icon="expand_more">expand_more</span>
+</div>
+<div class="px-md py-sm border-b border-outline-variant bg-surface flex justify-between items-center cursor-pointer hover:bg-surface-container">
+<span class="font-label-md text-label-md font-bold">EMR (0)</span>
+<span class="material-symbols-outlined text-secondary" data-icon="expand_more">expand_more</span>
+</div>
+<div class="px-md py-sm border-b border-outline-variant bg-surface flex justify-between items-center cursor-pointer hover:bg-surface-container">
+<span class="font-label-md text-label-md font-bold">PCVs (0)</span>
+<span class="material-symbols-outlined text-secondary" data-icon="expand_more">expand_more</span>
+</div>
+<div class="px-md py-sm border-b border-outline-variant bg-surface flex justify-between items-center cursor-pointer hover:bg-surface-container">
+<span class="font-label-md text-label-md font-bold">Competitor Info (0)</span>
+<span class="material-symbols-outlined text-secondary" data-icon="expand_more">expand_more</span>
+</div>
+<div class="px-md py-sm border-b border-outline-variant bg-surface flex justify-between items-center cursor-pointer hover:bg-surface-container">
+<span class="font-label-md text-label-md font-bold text-secondary">Parts Supplied (0)</span>
+<span class="material-symbols-outlined text-secondary" data-icon="expand_more">expand_more</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- App Bottom Bar (Layer 6) - Console Utilities -->
+<footer class="h-10 bg-surface-container-highest border-t border-outline-variant flex items-center px-gutter justify-between shrink-0 z-50">
+<div class="flex items-center gap-margin">
+<div class="flex items-center gap-xs font-label-sm text-label-sm text-on-surface-variant cursor-pointer">
+<span class="material-symbols-outlined text-[16px]" data-icon="list">list</span>
+                Items
+            </div>
+<div class="flex items-center gap-xs font-label-sm text-label-sm text-on-surface-variant cursor-pointer">
+<span class="material-symbols-outlined text-[16px]" data-icon="history">history</span>
+                History
+            </div>
+</div>
+<div class="flex items-center gap-margin">
+<div class="flex items-center gap-xs font-label-sm text-label-sm text-on-surface-variant cursor-pointer">
+<span class="material-symbols-outlined text-[16px] text-green-600" data-icon="wifi">wifi</span>
+                Online
+            </div>
+</div>
+</footer>
+</body></html>

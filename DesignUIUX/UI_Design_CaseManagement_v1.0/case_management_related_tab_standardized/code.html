@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>UT Service Console - Case Related</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary-fixed": "#ffe081",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-bright": "#f9f9f9",
+                    "on-primary": "#ffffff",
+                    "on-secondary-container": "#656464",
+                    "on-primary-fixed": "#231b00",
+                    "on-primary-container": "#695400",
+                    "on-secondary-fixed": "#1c1b1b",
+                    "surface": "#f9f9f9",
+                    "primary-fixed-dim": "#eec200",
+                    "secondary-fixed-dim": "#c8c6c5",
+                    "on-tertiary-fixed-variant": "#454747",
+                    "surface-container-low": "#f3f3f3",
+                    "surface-tint": "#725c00",
+                    "primary-container": "#f5c800",
+                    "on-tertiary-fixed": "#1a1c1c",
+                    "on-secondary-fixed-variant": "#474646",
+                    "tertiary-fixed-dim": "#c6c6c6",
+                    "on-surface-variant": "#4d4632",
+                    "error-container": "#ffdad6",
+                    "surface-container-highest": "#e2e2e2",
+                    "outline": "#7f7660",
+                    "secondary": "#5f5e5e",
+                    "surface-variant": "#e2e2e2",
+                    "secondary-container": "#e5e2e1",
+                    "on-tertiary-container": "#555757",
+                    "surface-dim": "#dadada",
+                    "surface-container": "#eeeeee",
+                    "on-error": "#ffffff",
+                    "error": "#ba1a1a",
+                    "tertiary": "#5d5f5f",
+                    "primary": "#725c00",
+                    "tertiary-container": "#cdcdcd",
+                    "on-primary-fixed-variant": "#564500",
+                    "on-error-container": "#93000a",
+                    "tertiary-fixed": "#e2e2e2",
+                    "inverse-primary": "#eec200",
+                    "on-background": "#1a1c1c",
+                    "surface-container-high": "#e8e8e8",
+                    "background": "#f9f9f9",
+                    "secondary-fixed": "#e5e2e1",
+                    "inverse-on-surface": "#f1f1f1",
+                    "on-surface": "#1a1c1c",
+                    "on-secondary": "#ffffff",
+                    "inverse-surface": "#2f3131",
+                    "on-tertiary": "#ffffff",
+                    "outline-variant": "#d1c6ab"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "md": "16px",
+                    "base": "8px",
+                    "margin": "24px",
+                    "lg": "24px",
+                    "xs": "4px",
+                    "xl": "32px",
+                    "sm": "8px",
+                    "gutter": "16px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Hanken Grotesk"],
+                    "headline-sm": ["Hanken Grotesk"],
+                    "body-md": ["Hanken Grotesk"],
+                    "headline-md": ["Hanken Grotesk"],
+                    "headline-lg-mobile": ["Hanken Grotesk"],
+                    "label-md": ["JetBrains Mono"],
+                    "label-sm": ["JetBrains Mono"],
+                    "headline-lg": ["Hanken Grotesk"],
+                    "body-sm": ["Hanken Grotesk"]
+            },
+            "fontSize": {
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "label-md": ["14px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "label-sm": ["12px", {"lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        /* Custom scrollbar for a more technical feel */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f9f9f9; }
+        ::-webkit-scrollbar-thumb { background: #d1c6ab; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #7f7660; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface flex flex-col min-h-screen font-body-md antialiased">
+<!-- HEADER LAYER 1: Global -->
+<header class="bg-surface-container-lowest border-b border-surface-variant flex items-center justify-between px-margin h-16 w-full shrink-0">
+<!-- Branding -->
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">build_circle</span>
+<span class="font-headline-md text-headline-md font-bold text-on-surface tracking-tight">UT Service Console</span>
+</div>
+<!-- Global Search -->
+<div class="hidden md:flex relative w-[300px]">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
+<input class="w-full h-10 pl-10 pr-4 bg-surface border border-surface-variant rounded-DEFAULT font-body-md text-on-surface placeholder-on-surface-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" placeholder="Search knowledge, records..." type="text"/>
+<div class="absolute right-3 top-1/2 -translate-y-1/2 border border-surface-variant rounded px-1 text-[10px] font-label-sm text-on-surface-variant bg-surface-container-low">⌘K</div>
+</div>
+<!-- Utility Icons -->
+<div class="flex items-center gap-sm text-on-surface-variant">
+<button aria-label="Notifications" class="p-2 hover:bg-surface-container-low hover:text-on-surface rounded transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button aria-label="Settings" class="p-2 hover:bg-surface-container-low hover:text-on-surface rounded transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="w-8 h-8 rounded bg-primary-container text-on-primary-container flex items-center justify-center font-label-md ml-sm cursor-pointer border border-surface-variant shadow-sm">
+                JD
+            </div>
+</div>
+</header>
+<!-- HEADER LAYER 2: Module Context -->
+<div class="bg-surface-container-low border-b border-surface-variant flex items-center px-margin h-12 w-full shrink-0 gap-md">
+<!-- Module Combobox -->
+<button class="flex items-center gap-xs bg-surface-container-lowest border border-surface-variant rounded px-3 py-1.5 hover:bg-surface-bright transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[18px] text-primary">assignment</span>
+<span class="font-label-md text-label-md text-on-surface font-bold">Cases</span>
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant">arrow_drop_down</span>
+</button>
+<!-- Divider -->
+<div class="w-px h-6 bg-surface-variant"></div>
+<!-- Breadcrumb -->
+<nav class="flex items-center gap-2 font-label-sm text-label-sm text-secondary">
+<a class="hover:text-primary hover:underline underline-offset-2" href="#">All Active Cases</a>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-on-surface font-bold">Case #01532785</span>
+</nav>
+<!-- Context Actions -->
+<div class="ml-auto flex items-center gap-sm">
+<span class="px-2 py-0.5 bg-error-container text-on-error-container border border-error rounded-DEFAULT font-label-sm uppercase tracking-wider">Escalated</span>
+<button class="bg-surface-container-lowest border border-surface-variant hover:bg-surface-bright text-on-surface font-label-md text-label-md px-3 py-1.5 rounded-DEFAULT shadow-sm flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">edit</span> Edit
+            </button>
+</div>
+</div>
+<!-- SUB-TAB BAR -->
+<div class="bg-surface-container-lowest border-b border-surface-variant px-margin h-12 flex items-end shrink-0 gap-lg overflow-x-auto no-scrollbar">
+<a class="h-full flex items-center px-1 border-b-2 border-transparent font-label-md text-label-md text-secondary hover:text-on-surface transition-colors pb-1" href="#">Details</a>
+<a class="h-full flex items-center px-1 border-b-2 border-transparent font-label-md text-label-md text-secondary hover:text-on-surface transition-colors pb-1" href="#">Feed</a>
+<!-- ACTIVE TAB -->
+<a class="h-full flex items-center px-1 border-b-2 border-primary-container text-on-surface font-bold font-label-md text-label-md pb-1 relative" href="#">
+            Related
+            <span class="absolute top-2 -right-3 w-2 h-2 rounded-full bg-primary-container"></span>
+</a>
+<a class="h-full flex items-center px-1 border-b-2 border-transparent font-label-md text-label-md text-secondary hover:text-on-surface transition-colors pb-1" href="#">Log</a>
+</div>
+<!-- MAIN CONTENT -->
+<main class="flex-1 px-margin py-margin w-full max-w-[1600px] mx-auto grid grid-cols-1 md:grid-cols-12 gap-gutter items-start">
+<!-- LEFT COLUMN: Context (Col 3) -->
+<div class="col-span-1 md:col-span-3 flex flex-col gap-gutter">
+<!-- Fleet Unit Card -->
+<section class="bg-surface-container-lowest border border-surface-variant rounded-lg p-md">
+<div class="flex items-center gap-xs mb-sm pb-sm border-b border-surface-variant">
+<span class="material-symbols-outlined text-primary text-[20px]">precision_manufacturing</span>
+<h3 class="font-label-md text-label-md font-bold uppercase text-on-surface">Affected Unit</h3>
+</div>
+<div class="space-y-3">
+<div>
+<div class="font-label-sm text-secondary uppercase mb-xs">Asset ID</div>
+<div class="font-label-md text-on-surface bg-surface-container-low inline-block px-2 py-1 rounded border border-surface-variant">EQ-HT-9942</div>
+</div>
+<div>
+<div class="font-label-sm text-secondary uppercase mb-xs">Model</div>
+<div class="font-body-sm text-on-surface">Centrifugal Compressor X-100</div>
+</div>
+<div>
+<div class="font-label-sm text-secondary uppercase mb-xs">Location</div>
+<div class="font-body-sm text-on-surface flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-secondary">location_on</span> Facility B, Sector 4
+                        </div>
+</div>
+</div>
+</section>
+<!-- Account Context Card -->
+<section class="bg-surface-container-lowest border border-surface-variant rounded-lg p-md">
+<div class="flex items-center gap-xs mb-sm pb-sm border-b border-surface-variant">
+<span class="material-symbols-outlined text-secondary text-[20px]">domain</span>
+<h3 class="font-label-md text-label-md font-bold uppercase text-on-surface">Account Details</h3>
+</div>
+<div class="space-y-3">
+<div>
+<div class="font-body-md font-bold text-on-surface">Apex Industrial Corp</div>
+<div class="font-label-sm text-secondary">Tier 1 Enterprise</div>
+</div>
+<div class="pt-sm border-t border-surface-variant">
+<div class="font-label-sm text-secondary uppercase mb-xs">Primary Contact</div>
+<div class="font-body-sm text-on-surface flex items-center justify-between">
+                            Sarah Jenkins
+                            <button class="text-primary hover:bg-surface-container-low p-1 rounded transition-colors"><span class="material-symbols-outlined text-[16px]">mail</span></button>
+</div>
+<div class="font-label-sm text-secondary mt-1">+1 (555) 019-2834</div>
+</div>
+</div>
+</section>
+</div>
+<!-- CENTER COLUMN: Related Lists (Col 6) -->
+<div class="col-span-1 md:col-span-6 flex flex-col gap-gutter">
+<!-- Work Orders List -->
+<section class="bg-surface-container-lowest border border-surface-variant rounded-lg overflow-hidden flex flex-col">
+<div class="bg-surface-bright border-b border-surface-variant px-md py-sm flex justify-between items-center">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-[20px] text-on-surface-variant">build</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface m-0">Work Orders <span class="text-secondary font-body-sm">(2)</span></h2>
+</div>
+<button class="bg-primary-container text-on-primary-container font-label-md text-label-md px-3 py-1 rounded hover:bg-primary-fixed-dim transition-colors border border-surface-tint shadow-sm">
+                        + New WO
+                    </button>
+</div>
+<div class="flex flex-col">
+<!-- Row 1 -->
+<div class="px-md py-sm border-b border-surface-variant hover:bg-surface-bright transition-colors flex items-center justify-between group cursor-pointer">
+<div>
+<div class="flex items-center gap-sm mb-1">
+<span class="font-label-md font-bold text-on-surface hover:underline">WO-88392</span>
+<span class="px-2 py-0.5 rounded text-[10px] font-label-sm uppercase bg-surface-container-high border border-surface-variant text-on-surface">In Progress</span>
+</div>
+<div class="font-body-sm text-secondary">Replace impeller seals and recalibrate sensors.</div>
+</div>
+<div class="text-right">
+<div class="font-label-sm text-on-surface">Tech: M. Rivera</div>
+<div class="font-label-sm text-secondary mt-1">Due: Today</div>
+</div>
+</div>
+<!-- Row 2 -->
+<div class="px-md py-sm hover:bg-surface-bright transition-colors flex items-center justify-between group cursor-pointer">
+<div>
+<div class="flex items-center gap-sm mb-1">
+<span class="font-label-md font-bold text-on-surface hover:underline">WO-88340</span>
+<span class="px-2 py-0.5 rounded text-[10px] font-label-sm uppercase bg-surface-container-highest border border-outline-variant text-on-surface-variant">Closed</span>
+</div>
+<div class="font-body-sm text-secondary">Initial diagnostic inspection.</div>
+</div>
+<div class="text-right">
+<div class="font-label-sm text-on-surface">Tech: A. Chen</div>
+<div class="font-label-sm text-secondary mt-1">Completed: 2d ago</div>
+</div>
+</div>
+</div>
+<div class="bg-surface-bright border-t border-surface-variant px-md py-2 text-center">
+<button class="font-label-sm text-primary hover:underline">View All</button>
+</div>
+</section>
+<!-- Parts Requests List -->
+<section class="bg-surface-container-lowest border border-surface-variant rounded-lg overflow-hidden flex flex-col">
+<div class="bg-surface-bright border-b border-surface-variant px-md py-sm flex justify-between items-center">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-[20px] text-on-surface-variant">inventory_2</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface m-0">Parts Requests <span class="text-secondary font-body-sm">(1)</span></h2>
+</div>
+<button class="bg-surface-container border border-surface-variant text-on-surface font-label-md text-label-md px-3 py-1 rounded hover:bg-surface-container-high transition-colors">
+                        Request Part
+                    </button>
+</div>
+<div class="flex flex-col">
+<div class="px-md py-sm hover:bg-surface-bright transition-colors flex items-center justify-between">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 bg-surface-container rounded border border-surface-variant flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+</div>
+<div>
+<div class="font-label-md font-bold text-on-surface">Seal Kit - High Temp</div>
+<div class="font-label-sm text-secondary font-mono">PRT-992-B</div>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<div class="text-right">
+<div class="font-label-sm text-secondary">Qty: 2</div>
+<div class="font-label-sm text-primary-container font-bold flex items-center gap-1 justify-end mt-1">
+<span class="material-symbols-outlined text-[14px]">local_shipping</span> In Transit
+                                </div>
+</div>
+<button class="material-symbols-outlined text-secondary hover:text-on-surface">more_vert</button>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- RIGHT COLUMN: Alerts & Flow (Col 3) -->
+<div class="col-span-1 md:col-span-3 flex flex-col gap-gutter">
+<!-- SLA Alert -->
+<div class="bg-error-container border border-error rounded-lg p-md relative overflow-hidden">
+<div class="absolute top-0 right-0 p-2 opacity-20">
+<span class="material-symbols-outlined text-[64px] text-error">warning</span>
+</div>
+<div class="relative z-10">
+<div class="flex items-center gap-xs text-on-error-container font-label-md font-bold uppercase mb-2">
+<span class="material-symbols-outlined text-[18px]">timer</span>
+                        SLA Breached
+                    </div>
+<p class="font-body-sm text-on-error-container mb-3">Resolution time exceeded 48h limit for Tier 1 Enterprise account.</p>
+<button class="bg-surface-container-lowest text-error font-label-md border border-error px-3 py-1 rounded hover:bg-surface transition-colors shadow-sm w-full">
+                        Acknowledge Breach
+                    </button>
+</div>
+</div>
+<!-- Timeline / Flow Widget -->
+<section class="bg-surface-container-lowest border border-surface-variant rounded-lg p-md">
+<h3 class="font-label-md text-label-md font-bold uppercase text-on-surface mb-md pb-sm border-b border-surface-variant">Lifecycle Timeline</h3>
+<div class="relative pl-4 space-y-6 before:absolute before:inset-y-0 before:left-[7px] before:w-px before:bg-surface-variant">
+<!-- Item 1 (Past) -->
+<div class="relative">
+<div class="absolute -left-6 w-3 h-3 bg-surface-variant rounded-full border-2 border-surface-container-lowest"></div>
+<div class="font-label-sm text-secondary mb-1">Oct 24, 08:15 AM</div>
+<div class="font-label-md text-on-surface">Case Created</div>
+<div class="font-body-sm text-secondary mt-1">System generated via Telemetry alert (Vibration high).</div>
+</div>
+<!-- Item 2 (Past) -->
+<div class="relative">
+<div class="absolute -left-6 w-3 h-3 bg-surface-variant rounded-full border-2 border-surface-container-lowest"></div>
+<div class="font-label-sm text-secondary mb-1">Oct 24, 09:30 AM</div>
+<div class="font-label-md text-on-surface">Diagnostic WO Created</div>
+<div class="font-body-sm text-secondary mt-1">Assigned to A. Chen.</div>
+</div>
+<!-- Item 3 (Current) -->
+<div class="relative">
+<div class="absolute -left-[27px] w-4 h-4 bg-primary-container rounded-full border-2 border-surface-container-lowest flex items-center justify-center shadow-[0_0_0_2px_#f5c80040]">
+<div class="w-1.5 h-1.5 bg-surface-container-lowest rounded-full"></div>
+</div>
+<div class="font-label-sm text-primary mb-1 font-bold">Oct 25, 11:00 AM</div>
+<div class="font-label-md text-on-surface font-bold">Repair WO In Progress</div>
+<div class="font-body-sm text-secondary mt-1 bg-surface-container-low p-2 rounded border border-surface-variant mt-2 text-xs font-mono">
+                            &gt; Awaiting Part: PRT-992-B<br/>
+                            &gt; Tech on site
+                        </div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- FOOTER: Standardized 3-Column -->
+<footer class="bg-surface-container border-t border-surface-variant mt-auto py-8 px-margin w-full shrink-0">
+<div class="max-w-[1600px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Col 1: Corporate / System -->
+<div class="flex flex-col gap-2">
+<div class="flex items-center gap-xs text-on-surface mb-2">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">build_circle</span>
+<span class="font-label-md font-bold">UT Industrial Solutions</span>
+</div>
+<p class="font-body-sm text-secondary">Service Console v4.2.0-stable</p>
+<div class="flex gap-4 mt-2">
+<a class="font-label-sm text-secondary hover:text-primary transition-colors" href="#">Privacy</a>
+<a class="font-label-sm text-secondary hover:text-primary transition-colors" href="#">Terms</a>
+<a class="font-label-sm text-secondary hover:text-primary transition-colors" href="#">Support Portal</a>
+</div>
+</div>
+<!-- Col 2: System Info -->
+<div class="flex flex-col gap-2">
+<h4 class="font-label-sm uppercase text-on-surface-variant font-bold mb-1">Environment Connection</h4>
+<div class="flex items-center gap-2 font-label-sm font-mono text-secondary">
+<span class="w-2 h-2 rounded-full bg-primary-container inline-block"></span> Main DB Connected (12ms ping)
+                </div>
+<div class="flex items-center gap-2 font-label-sm font-mono text-secondary">
+<span class="w-2 h-2 rounded-full bg-primary-container inline-block"></span> Telemetry Stream Active
+                </div>
+<div class="flex items-center gap-2 font-label-sm font-mono text-secondary">
+<span class="w-2 h-2 rounded-full bg-surface-variant inline-block"></span> SAP Sync (Last: 2h ago)
+                </div>
+</div>
+<!-- Col 3: Operational Metrics (Contextual to Region/User) -->
+<div class="flex flex-col gap-2 md:items-end">
+<h4 class="font-label-sm uppercase text-on-surface-variant font-bold mb-1">Session Metrics</h4>
+<div class="text-right">
+<div class="font-label-sm text-secondary">Active Shift: <span class="text-on-surface font-mono">0800 - 1600 PST</span></div>
+<div class="font-label-sm text-secondary mt-1">Pending approvals: <span class="text-on-surface font-bold bg-surface-variant px-1 rounded">3</span></div>
+</div>
+<button class="mt-2 font-label-sm text-primary border border-surface-variant px-3 py-1 rounded bg-surface hover:bg-surface-bright transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">bug_report</span> Report Issue
+                </button>
+</div>
+</div>
+</footer>
+</body></html>

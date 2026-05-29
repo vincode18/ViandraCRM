@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "t4Yqd63oNt0dGEdH8kFEMZ5akCS1uda3OChVbHppk+A=",
+  "Source": "UT.ServiceConsole.API",
+  "BasePath": "_content/UT.ServiceConsole.API",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
