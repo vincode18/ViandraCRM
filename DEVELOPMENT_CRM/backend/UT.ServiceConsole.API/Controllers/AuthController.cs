@@ -103,6 +103,36 @@ namespace UT.ServiceConsole.API.Controllers
                 "If that email is registered you will receive a reset link shortly."));
         }
 
+        /// <summary>
+        /// Registers a new user account. Password is hashed server-side; never stored in plain text.
+        /// </summary>
+        /// <param name="request">Registration details: username, email, password, optional profile fields.</param>
+        /// <returns>201 Created with new user info on success; 409 Conflict if email/username taken; 400 on validation error.</returns>
+        [HttpPost("register")]
+        [AllowAnonymous]
+        [ProducesResponseType(typeof(ApiResponse<RegisterResponse>), 201)]
+        [ProducesResponseType(typeof(ApiResponse<object>), 400)]
+        [ProducesResponseType(typeof(ApiResponse<object>), 409)]
+        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ApiResponse<object>.Fail("Validation failed.",
+                    ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList()));
+
+            var result = await _authService.RegisterAsync(request);
+
+            if (!result.Success)
+            {
+                _logger.LogWarning("Registration failed: {Message}", result.Message);
+                return Conflict(ApiResponse<RegisterResponse>.Fail(result.Message));
+            }
+
+            return StatusCode(201, ApiResponse<RegisterResponse>.Ok(result, result.Message));
+        }
+
         /// <summary>Returns information about the currently authenticated user.</summary>
         [HttpGet("me")]
         [Authorize]

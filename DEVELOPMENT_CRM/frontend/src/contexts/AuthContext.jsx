@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import api from '../utils/api';
+import { syncUserToSupabase } from '../utils/supabase';
 
 const AuthContext = createContext(null);
 
@@ -28,6 +29,9 @@ export function AuthProvider({ children }) {
 
       setToken(data.token);
       setUser(data.user);
+
+      // Sync to Supabase app_users table (fire-and-forget)
+      syncUserToSupabase(data.user, new Date().toISOString());
 
       return { success: true, user: data.user };
     } catch (err) {

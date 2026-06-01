@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interlocking Chevron Milestone Tracker</title>
+  <style>
+    :root {
+      /* ── Tune these two values to adjust the whole component ── */
+      --tip:    20px;   /* depth of arrow + notch — increase for sharper, decrease for gentler */
+      --chev-h: 56px;   /* uniform height for all segments */
+
+      --green:    #2bbb4e;
+      --blue:     #1d7ed8;
+      --gray-bg:  #e9ecef;
+      --gray-text:#98a2ad;
+      --gold:     #FFD700;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #f4f6f8;
+      padding: 40px 24px;
+      color: #2b3a4a;
+    }
+
+    .page-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #1a1a1a;
+    }
+
+    .description {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 36px;
+      line-height: 1.6;
+    }
+
+    /* ── Demo section wrapper ── */
+    .demo-section { margin-bottom: 48px; }
+
+    .demo-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #444;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── Case header (mimics screenshot) ── */
+    .case-header { margin-bottom: 12px; }
+    .case-title  { font-size: 18px; font-weight: 700; }
+    .badges      { margin-top: 8px; display: flex; gap: 8px; }
+    .badge {
+      font-size: 12px; padding: 3px 9px; border-radius: 4px; font-weight: 600;
+    }
+    .badge.priority { background: #fff3cd; color: #b8860b; border: 1px solid #f0d98c; }
+    .badge.status   { background: #eef1f4; color: #5a6b7b; border: 1px solid #d6dde4; }
+
+    /* ══════════════════════════════════════
+       CHEVRON MILESTONE — from sample.html
+       ══════════════════════════════════════ */
+    .milestones {
+      display: flex;
+      width: 100%;
+      align-items: stretch;
+      padding-left: 2px;  /* prevents first segment from being clipped at the edge */
+    }
+
+    .chevron {
+      flex: 1;
+      height: var(--chev-h);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      white-space: nowrap;
+      position: relative;
+      transition: filter 0.2s ease, box-shadow 0.2s ease;
+      user-select: none;
+
+      /* Arrow right + V-notch left */
+      clip-path: polygon(
+        0 0,
+        calc(100% - var(--tip)) 0,
+        100% 50%,
+        calc(100% - var(--tip)) 100%,
+        0 100%,
+        var(--tip) 50%
+      );
+
+      /* Negative margin creates the interlocking overlap */
+      margin-left: calc(var(--tip) * -1 + 2px);
+
+      /* Compensate text for the V-notch indent */
+      padding-left: var(--tip);
+    }
+
+    /* First segment: straight left edge, no notch */
+    .chevron:first-child {
+      margin-left: 0;
+      padding-left: 8px;
+      clip-path: polygon(
+        0 0,
+        calc(100% - var(--tip)) 0,
+        100% 50%,
+        calc(100% - var(--tip)) 100%,
+        0 100%
+      );
+    }
+
+    .chevron .check { margin-right: 6px; font-weight: 700; }
+
+    /* ── Colour states ── */
+    .chevron.done    { background: var(--green); }
+    .chevron.current { background: var(--blue);  }
+    .chevron.todo    { background: var(--gray-bg); color: var(--gray-text); }
+
+    /* ── Interactive ── */
+    .chevron.todo    { cursor: pointer; }
+    .chevron.todo:hover { filter: brightness(0.93); }
+    .chevron.todo.selected { box-shadow: inset 0 0 0 3px var(--gold); }
+    .chevron.done:hover,
+    .chevron.current:hover { filter: brightness(1.08); }
+
+    /* Subtle separator between adjacent filled segments */
+    .chevron.done + .chevron.done,
+    .chevron.done + .chevron.current { filter: brightness(0.99); }
+
+    /* ── Control panel ── */
+    .control-panel {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .control-btn {
+      padding: 8px 18px;
+      background: var(--blue);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    .control-btn:hover  { background: #1566b5; transform: translateY(-1px); }
+    .control-btn:active { transform: translateY(0); }
+
+    /* ── Explanation box ── */
+    .explanation {
+      background: #f9f9f9;
+      border-left: 4px solid var(--blue);
+      padding: 16px 20px;
+      margin-top: 36px;
+      border-radius: 4px;
+      font-size: 13px;
+      line-height: 1.7;
+      color: #333;
+    }
+
+    .explanation code {
+      background: #e8e8e8;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+    }
+
+    .explanation strong { color: var(--blue); }
+
+    table { border-collapse: collapse; margin-top: 8px; font-size: 12px; }
+    td, th { padding: 5px 10px; border: 1px solid #ddd; }
+    th { background: #eef1f4; font-weight: 600; }
+  </style>
+</head>
+<body>
+<div class="page-container">
+  <h1>Interlocking Chevron Milestone Tracker</h1>
+  <p class="description">
+    Each segment shares the same <code>--tip</code> depth for arrow and notch, overlapping via
+    <code>margin-left: calc(var(--tip) * -1 + 2px)</code> so the shapes lock seamlessly without gaps.
+  </p>
+
+  <!-- ── Demo 1: Screenshot replica ── -->
+  <div class="demo-section">
+    <div class="demo-title">Demo 1 — Case Status (matches reference screenshot)</div>
+    <div class="case-header">
+      <div class="case-title">Case #: CASE-20260526-00101</div>
+      <div class="badges">
+        <span class="badge priority">Medium Priority</span>
+        <span class="badge status">Closed</span>
+      </div>
+    </div>
+    <div class="milestones" id="tracker1">
+      <div class="chevron done"><span class="check">✓</span>Open</div>
+      <div class="chevron done"><span class="check">✓</span>Assigned</div>
+      <div class="chevron done"><span class="check">✓</span>In Progress</div>
+      <div class="chevron done"><span class="check">✓</span>Resolved</div>
+      <div class="chevron current"><span class="check">✓</span>Closed</div>
+      <div class="chevron todo">Select a Milestone</div>
+    </div>
+  </div>
+
+  <!-- ── Demo 2: Mid-workflow ── -->
+  <div class="demo-section">
+    <div class="demo-title">Demo 2 — Mid-Workflow State</div>
+    <div class="milestones" id="tracker2">
+      <div class="chevron done"><span class="check">✓</span>Open</div>
+      <div class="chevron done"><span class="check">✓</span>Assigned</div>
+      <div class="chevron current"><span class="check">✓</span>In Progress</div>
+      <div class="chevron todo">Resolved</div>
+      <div class="chevron todo">Closed</div>
+    </div>
+  </div>
+
+  <!-- ── Demo 3: Interactive ── -->
+  <div class="demo-section">
+    <div class="demo-title">Demo 3 — Interactive (click a future step, then advance)</div>
+    <div class="milestones" id="tracker3">
+      <div class="chevron done"><span class="check">✓</span>Open</div>
+      <div class="chevron current"><span class="check">✓</span>Assigned</div>
+      <div class="chevron todo" onclick="selectStep(this, 'tracker3')">In Progress</div>
+      <div class="chevron todo" onclick="selectStep(this, 'tracker3')">Resolved</div>
+      <div class="chevron todo" onclick="selectStep(this, 'tracker3')">Closed</div>
+    </div>
+    <div class="control-panel">
+      <button class="control-btn" onclick="advanceStep('tracker3')">Mark Status ↗</button>
+      <button class="control-btn" style="background:#6c757d;" onclick="resetTracker('tracker3')">Reset</button>
+    </div>
+  </div>
+
+  <!-- ── Explanation ── -->
+  <div class="explanation">
+    <strong>Clip-path geometry</strong><br><br>
+
+    <strong>First segment</strong> (straight left edge, no notch):<br>
+    <code>polygon(0 0, calc(100% - var(--tip)) 0, 100% 50%, calc(100% - var(--tip)) 100%, 0 100%)</code><br><br>
+
+    <strong>All other segments</strong> (arrow right + V-notch left):<br>
+    <code>polygon(0 0, calc(100% - var(--tip)) 0, 100% 50%, calc(100% - var(--tip)) 100%, 0 100%, var(--tip) 50%)</code><br><br>
+
+    <strong>The 6th point <code>var(--tip) 50%</code> is the V-notch tip.</strong> Move it to change notch depth:<br>
+    <table>
+      <tr><th>Change</th><th>Effect</th></tr>
+      <tr><td><code>--tip: 14px</code></td><td>Shallower notch, gentler arrow (less overlap)</td></tr>
+      <tr><td><code>--tip: 20px</code></td><td>Default — balanced shape</td></tr>
+      <tr><td><code>--tip: 28px</code></td><td>Deeper notch, sharper arrow (more overlap)</td></tr>
+    </table><br>
+
+    <strong>Overlap formula:</strong> <code>margin-left: calc(var(--tip) * -1 + 2px)</code><br>
+    The <code>+2px</code> keeps a hairline of the previous color visible so adjacent same-color segments don't merge into one blob.
+  </div>
+</div>
+
+<script>
+  function selectStep(el, trackerId) {
+    document.querySelectorAll(`#${trackerId} .chevron.todo`).forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function advanceStep(trackerId) {
+    const tracker  = document.getElementById(trackerId);
+    const selected = tracker.querySelector('.chevron.todo.selected');
+    if (!selected) { alert('Click a future step first.'); return; }
+
+    const all = Array.from(tracker.querySelectorAll('.chevron'));
+    const idx = all.indexOf(selected);
+
+    /* Only allow advancing exactly ONE step from current */
+    const currentIdx = all.findIndex(c => c.classList.contains('current'));
+    if (idx !== currentIdx + 1) {
+      alert('You can only advance one step at a time.');
+      return;
+    }
+
+    all.forEach((c, i) => {
+      const label = c.textContent.replace('✓', '').trim();
+      if (i < idx) {
+        c.className = 'chevron done';
+        c.innerHTML = `<span class="check">✓</span>${label}`;
+      } else if (i === idx) {
+        c.className = 'chevron current';
+        c.innerHTML = `<span class="check">✓</span>${label}`;
+      } else {
+        c.className = 'chevron todo';
+        c.textContent = label;
+        c.onclick = function() { selectStep(this, trackerId); };
+      }
+    });
+  }
+
+  function resetTracker(trackerId) {
+    const tracker = document.getElementById(trackerId);
+    const labels  = ['Open', 'Assigned', 'In Progress', 'Resolved', 'Closed'];
+    const all     = Array.from(tracker.querySelectorAll('.chevron'));
+
+    all.forEach((c, i) => {
+      if (i === 0) {
+        c.className = 'chevron done';
+        c.innerHTML = `<span class="check">✓</span>${labels[i]}`;
+        c.onclick   = null;
+      } else if (i === 1) {
+        c.className = 'chevron current';
+        c.innerHTML = `<span class="check">✓</span>${labels[i]}`;
+        c.onclick   = null;
+      } else {
+        c.className = 'chevron todo';
+        c.textContent = labels[i];
+        c.onclick = function() { selectStep(this, trackerId); };
+      }
+    });
+  }
+</script>
+</body>
+</html>

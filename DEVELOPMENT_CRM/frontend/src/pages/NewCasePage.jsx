@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Bold, Italic, List, Link as LinkIcon, MoreHorizontal,
-  Save, Plus, X, ChevronDown
+  Save, Plus, X, ChevronDown, Loader2, AlertCircle, CheckCircle
 } from 'lucide-react';
+import SearchableSelect from '../components/SearchableSelect';
+import CommandPalette from '../components/CommandPalette';
+import api from '../utils/api';
 
 export default function NewCasePage() {
   const navigate = useNavigate();
@@ -14,61 +17,134 @@ export default function NewCasePage() {
     priority: '',
     category: '',
     subCategory: '',
-    account: '',
-    contact: '',
-    asset: '',
+    account: null,
+    contact: null,
+    asset: null,
     owner: 'Current User'
   });
+  const [errors, setErrors] = useState({});
+  const [saving, setSaving] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  const [submitSuccess, setSubmitSuccess] = useState('');
   const [showMoreOptions, setShowMoreOptions] = useState(false);
 
   const handleFieldChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleCancel = () => navigate('/cases');
-  const handleSaveCase = () => {
-    // API call to save case
-    console.log('Saving case:', formData);
-    navigate('/cases');
+  const emptyForm = {
+    subject: '',
+    description: '',
+    caseType: '',
+    priority: '',
+    category: '',
+    subCategory: '',
+    account: null,
+    contact: null,
+    asset: null,
+    owner: 'Current User'
   };
 
-  const handleSaveAndNew = () => {
-    // API call to save case
-    console.log('Saving case:', formData);
-    setFormData({
-      subject: '',
-      description: '',
-      caseType: '',
-      priority: '',
-      category: '',
-      subCategory: '',
-      account: '',
-      contact: '',
-      asset: '',
-      owner: 'Current User'
-    });
+  const validate = () => {
+    const e = {};
+    if (!formData.subject.trim())   e.subject   = 'Subject is required.';
+    if (!formData.description.trim()) e.description = 'Description is required.';
+    if (!formData.caseType)         e.caseType  = 'Case Type is required.';
+    if (!formData.priority)         e.priority  = 'Priority is required.';
+    if (!formData.account)          e.account   = 'Account is required.';
+    if (!formData.contact)          e.contact   = 'Contact is required.';
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  };
+
+  const buildPayload = () => ({
+    subject:     formData.subject.trim(),
+    description: formData.description.trim() || null,
+    caseType:    formData.caseType,
+    priority:    formData.priority,
+    category:    formData.category  || null,
+    subCategory: formData.subCategory || null,
+    accountID:   formData.account?.id ?? null,
+    contactID:   formData.contact?.id ?? null,
+    assetID:     formData.asset?.id ?? null,
+  });
+
+  const handleCancel = () => navigate('/cases');
+
+  const handleSaveCase = async () => {
+    if (!validate()) return;
+    setSaving(true);
+    setSubmitError('');
+    try {
+      const res = await api.post('/cases', buildPayload());
+      const created = res.data?.data;
+      setSubmitSuccess(`Case ${created?.caseNumber || ''} created successfully!`);
+      setTimeout(() => navigate(`/cases/${created?.caseID || ''}`), 1500);
+    } catch (err) {
+      const msg = err.response?.data?.message
+        || err.response?.data?.Message
+        || 'Failed to create case. Please try again.';
+      setSubmitError(msg);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSaveAndNew = async () => {
+    if (!validate()) return;
+    setSaving(true);
+    setSubmitError('');
+    try {
+      await api.post('/cases', buildPayload());
+      setFormData(emptyForm);
+      setErrors({});
+      setSubmitSuccess('Case created! Form cleared for a new entry.');
+      setTimeout(() => setSubmitSuccess(''), 3000);
+    } catch (err) {
+      const msg = err.response?.data?.message
+        || err.response?.data?.Message
+        || 'Failed to create case. Please try again.';
+      setSubmitError(msg);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const caseTypes = [
-    { value: 'request', label: 'Request' },
-    { value: 'incident', label: 'Incident' },
-    { value: 'problem', label: 'Problem' },
-    { value: 'change', label: 'Change Request' },
+    { value: 'Request', label: 'Request' },
+    { value: 'Incident', label: 'Incident' },
+    { value: 'Problem', label: 'Problem' },
+    { value: 'Change', label: 'Change Request' },
   ];
 
   const priorities = [
-    { value: 'critical', label: 'Critical' },
-    { value: 'high', label: 'High' },
-    { value: 'medium', label: 'Medium' },
-    { value: 'low', label: 'Low' },
+    { value: 'Critical', label: 'Critical' },
+    { value: 'High', label: 'High' },
+    { value: 'Medium', label: 'Medium' },
+    { value: 'Low', label: 'Low' },
   ];
 
   const categories = [
-    { value: 'hydraulic', label: 'Hydraulic' },
-    { value: 'electrical', label: 'Electrical' },
-    { value: 'mechanical', label: 'Mechanical' },
-    { value: 'engine', label: 'Engine' },
+    { value: 'Technical', label: 'Technical' },
+    { value: 'Billing', label: 'Billing' },
+    { value: 'Emergency', label: 'Emergency' },
+    { value: 'Hydraulic', label: 'Hydraulic' },
+    { value: 'Electrical', label: 'Electrical' },
+    { value: 'Mechanical', label: 'Mechanical' },
+    { value: 'Engine', label: 'Engine' },
+    { value: 'General', label: 'General' },
   ];
+
+  const subCategories = {
+    Technical:   ['Software Bug', 'Hardware Failure', 'Configuration', 'Integration'],
+    Billing:     ['Invoice Dispute', 'Overcharge', 'Payment Issue', 'Refund'],
+    Emergency:   ['Equipment Down', 'Safety Risk', 'Production Halt'],
+    Hydraulic:   ['Leak', 'Seal Failure', 'Pump Issue', 'Cylinder Damage'],
+    Electrical:  ['Wiring', 'Sensor Fault', 'Short Circuit', 'Battery'],
+    Mechanical:  ['Wear & Tear', 'Alignment', 'Vibration', 'Bearing Failure'],
+    Engine:      ['Overheat', 'Oil Leak', 'Starter Fault', 'Exhaust'],
+    General:     ['Other', 'Inquiry', 'Feedback'],
+  };
 
   return (
     <div className="h-full flex flex-col" style={{ backgroundColor: 'var(--bg-base)', color: 'var(--text-main)' }}>
@@ -92,6 +168,23 @@ export default function NewCasePage() {
             <p className="text-sm" style={{ color: 'var(--text-muted)' }}>System Status: Nominal</p>
           </div>
 
+          {/* Success Banner */}
+          {submitSuccess && (
+            <div className="mb-4 flex items-center gap-3 px-4 py-3 rounded-lg" style={{ background: '#ECFDF5', border: '1px solid #6EE7B7', color: '#065F46' }}>
+              <CheckCircle size={16} />
+              <span className="text-sm font-medium">{submitSuccess}</span>
+            </div>
+          )}
+
+          {/* Error Banner */}
+          {submitError && (
+            <div className="mb-4 flex items-center gap-3 px-4 py-3 rounded-lg" style={{ background: '#FEF2F2', border: '1px solid #FECACA', color: '#991B1B' }}>
+              <AlertCircle size={16} />
+              <span className="text-sm font-medium">{submitError}</span>
+              <button onClick={() => setSubmitError('')} className="ml-auto" style={{ color: '#991B1B' }}><X size={14} /></button>
+            </div>
+          )}
+
           {/* Case Details Section */}
           <div className="mb-4 rounded-lg p-5" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}>
             <h3 className="text-sm font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>
@@ -110,13 +203,14 @@ export default function NewCasePage() {
                 type="text"
                 placeholder="E.g., Centrifuge calibration error"
                 value={formData.subject}
-                onChange={(e) => handleFieldChange('subject', e.target.value)}
+                onChange={(e) => { handleFieldChange('subject', e.target.value); if (errors.subject) setErrors(p => ({ ...p, subject: '' })); }}
                 maxLength={200}
                 className="w-full px-4 py-2 rounded-lg text-sm"
-                style={{ backgroundColor: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-main)' }}
+                style={{ backgroundColor: 'var(--bg-base)', border: `1px solid ${errors.subject ? '#C0392B' : 'var(--border)'}`, color: 'var(--text-main)' }}
               />
-              <div className="text-right text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
-                {formData.subject.length}/200
+              <div className="flex justify-between mt-1">
+                {errors.subject && <span className="text-xs" style={{ color: '#C0392B' }}>{errors.subject}</span>}
+                <span className="text-xs ml-auto" style={{ color: 'var(--text-muted)' }}>{formData.subject.length}/200</span>
               </div>
             </div>
 
@@ -150,12 +244,13 @@ export default function NewCasePage() {
                 <textarea
                   placeholder="Provide detailed steps to reproduce or observed symptoms..."
                   value={formData.description}
-                  onChange={(e) => handleFieldChange('description', e.target.value)}
+                  onChange={(e) => { handleFieldChange('description', e.target.value); if (errors.description) setErrors(p => ({ ...p, description: '' })); }}
                   rows={8}
                   className="w-full px-4 py-3 text-sm resize-none"
                   style={{ backgroundColor: 'var(--bg-base)', border: 'none', color: 'var(--text-main)' }}
                 />
               </div>
+              {errors.description && <p className="text-xs mt-1" style={{ color: '#C0392B' }}>{errors.description}</p>}
             </div>
           </div>
 
@@ -179,9 +274,9 @@ export default function NewCasePage() {
                   <div className="relative">
                     <select
                       value={formData.caseType}
-                      onChange={(e) => handleFieldChange('caseType', e.target.value)}
+                      onChange={(e) => { handleFieldChange('caseType', e.target.value); if (errors.caseType) setErrors(p => ({ ...p, caseType: '' })); }}
                       className="w-full px-4 py-2.5 rounded-lg text-sm appearance-none cursor-pointer"
-                      style={{ backgroundColor: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-main)' }}
+                      style={{ backgroundColor: 'var(--bg-base)', border: `1px solid ${errors.caseType ? '#C0392B' : 'var(--border)'}`, color: 'var(--text-main)' }}
                     >
                       <option value="">Select Type</option>
                       {caseTypes.map(type => (
@@ -190,6 +285,7 @@ export default function NewCasePage() {
                     </select>
                     <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--text-muted)' }} />
                   </div>
+                  {errors.caseType && <p className="text-xs mt-1" style={{ color: '#C0392B' }}>{errors.caseType}</p>}
                 </div>
 
                 {/* Priority */}
@@ -200,9 +296,9 @@ export default function NewCasePage() {
                   <div className="relative">
                     <select
                       value={formData.priority}
-                      onChange={(e) => handleFieldChange('priority', e.target.value)}
+                      onChange={(e) => { handleFieldChange('priority', e.target.value); if (errors.priority) setErrors(p => ({ ...p, priority: '' })); }}
                       className="w-full px-4 py-2.5 rounded-lg text-sm appearance-none cursor-pointer"
-                      style={{ backgroundColor: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-main)' }}
+                      style={{ backgroundColor: 'var(--bg-base)', border: `1px solid ${errors.priority ? '#C0392B' : 'var(--border)'}`, color: 'var(--text-main)' }}
                     >
                       <option value="">Select Priority</option>
                       {priorities.map(prio => (
@@ -211,6 +307,7 @@ export default function NewCasePage() {
                     </select>
                     <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--text-muted)' }} />
                   </div>
+                  {errors.priority && <p className="text-xs mt-1" style={{ color: '#C0392B' }}>{errors.priority}</p>}
                 </div>
 
                 {/* Category */}
@@ -247,7 +344,10 @@ export default function NewCasePage() {
                       className="w-full px-4 py-2.5 rounded-lg text-sm appearance-none cursor-pointer disabled:opacity-50"
                       style={{ backgroundColor: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-main)' }}
                     >
-                      <option value="">Select Category first</option>
+                      <option value="">{formData.category ? 'Select Sub-Category' : 'Select Category first'}</option>
+                      {(subCategories[formData.category] || []).map(sub => (
+                        <option key={sub} value={sub}>{sub}</option>
+                      ))}
                     </select>
                     <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--text-muted)' }} />
                   </div>
@@ -266,50 +366,98 @@ export default function NewCasePage() {
 
               <div className="space-y-4">
                 {/* Account */}
-                <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-main)' }}>
-                    Account <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Search Accounts..."
-                    value={formData.account}
-                    onChange={(e) => handleFieldChange('account', e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-lg text-sm"
-                    style={{ backgroundColor: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-main)' }}
-                  />
-                </div>
+                <SearchableSelect
+                  label="Account"
+                  placeholder="Search Accounts..."
+                  endpoint="/search/accounts"
+                  value={formData.account}
+                  onChange={(item) => {
+                    handleFieldChange('account', item);
+                    handleFieldChange('contact', null);
+                    handleFieldChange('asset', null);
+                    setErrors(prev => ({ ...prev, account: '' }));
+                  }}
+                  onClear={() => {
+                    handleFieldChange('account', null);
+                    handleFieldChange('contact', null);
+                    handleFieldChange('asset', null);
+                  }}
+                  required
+                  error={errors.account}
+                  renderValue={(item) => `${item.name} (${item.type})`}
+                  renderOption={(item) => (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: 500, fontSize: 14 }}>{item.name}</div>
+                        <div style={{ fontSize: 12, color: '#999', marginTop: 2 }}>
+                          {item.type} • {item.city}
+                        </div>
+                      </div>
+                      <span style={{ fontSize: 11, padding: '2px 6px', background: '#E8F1FF', color: '#0070D2', borderRadius: 3, whiteSpace: 'nowrap' }}>
+                        {item.status}
+                      </span>
+                    </div>
+                  )}
+                />
 
                 {/* Contact */}
-                <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-main)' }}>
-                    Contact <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Search Contacts..."
-                    value={formData.contact}
-                    onChange={(e) => handleFieldChange('contact', e.target.value)}
-                    disabled={!formData.account}
-                    className="w-full px-4 py-2.5 rounded-lg text-sm disabled:opacity-50"
-                    style={{ backgroundColor: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-main)' }}
-                  />
-                </div>
+                <SearchableSelect
+                  label="Contact"
+                  placeholder="Search Contacts..."
+                  endpoint="/search/contacts"
+                  value={formData.contact}
+                  onChange={(item) => {
+                    handleFieldChange('contact', item);
+                    setErrors(prev => ({ ...prev, contact: '' }));
+                  }}
+                  onClear={() => handleFieldChange('contact', null)}
+                  disabled={!formData.account}
+                  required
+                  error={errors.contact}
+                  dependentValue={formData.account?.id}
+                  renderValue={(item) => `${item.name} (${item.email})`}
+                  renderOption={(item) => (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: 500, fontSize: 14 }}>{item.name}</div>
+                        <div style={{ fontSize: 12, color: '#999', marginTop: 2 }}>
+                          {item.email} • {item.title || 'No title'}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                />
 
                 {/* Related Asset */}
-                <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-main)' }}>
-                    Related Asset
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Search Assets..."
-                    value={formData.asset}
-                    onChange={(e) => handleFieldChange('asset', e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-lg text-sm"
-                    style={{ backgroundColor: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-main)' }}
-                  />
-                </div>
+                <SearchableSelect
+                  label="Related Asset"
+                  placeholder="Search Assets..."
+                  endpoint="/search/assets"
+                  value={formData.asset}
+                  onChange={(item) => {
+                    handleFieldChange('asset', item);
+                    setErrors(prev => ({ ...prev, asset: '' }));
+                  }}
+                  onClear={() => handleFieldChange('asset', null)}
+                  disabled={!formData.account}
+                  required={false}
+                  error={errors.asset}
+                  dependentValue={formData.account?.id}
+                  renderValue={(item) => `${item.name} [${item.status}]`}
+                  renderOption={(item) => (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: 500, fontSize: 14 }}>{item.name}</div>
+                        <div style={{ fontSize: 12, color: '#999', marginTop: 2 }}>
+                          {item.equipmentNumber} • {item.model}
+                        </div>
+                      </div>
+                      <span style={{ fontSize: 11, padding: '2px 6px', background: '#E8FFF0', color: '#0B7F3D', borderRadius: 3, whiteSpace: 'nowrap' }}>
+                        {item.status}
+                      </span>
+                    </div>
+                  )}
+                />
 
                 {/* Owner */}
                 <div>
@@ -363,22 +511,39 @@ export default function NewCasePage() {
               </button>
               <button
                 onClick={handleSaveAndNew}
-                className="px-5 py-2.5 rounded-lg text-sm font-medium transition-colors"
+                disabled={saving}
+                className="px-5 py-2.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
                 style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-main)' }}
               >
                 Save & New
               </button>
               <button
                 onClick={handleSaveCase}
-                className="px-5 py-2.5 rounded-lg text-sm font-medium flex items-center gap-2 bg-brand-blue hover:bg-brand-blueDark text-white transition-colors"
+                disabled={saving}
+                className="px-5 py-2.5 rounded-lg text-sm font-medium flex items-center gap-2 bg-brand-blue hover:bg-brand-blueDark text-white transition-colors disabled:opacity-60"
               >
-                <Save size={14} />
-                Save Case
+                {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+                {saving ? 'Saving...' : 'Save Case'}
               </button>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Command Palette */}
+      <CommandPalette
+        onSelectAccount={(item) => {
+          handleFieldChange('account', item);
+          handleFieldChange('contact', null);
+          handleFieldChange('asset', null);
+        }}
+        onSelectContact={(item) => {
+          handleFieldChange('contact', item);
+        }}
+        onSelectAsset={(item) => {
+          handleFieldChange('asset', item);
+        }}
+      />
     </div>
   );
 }

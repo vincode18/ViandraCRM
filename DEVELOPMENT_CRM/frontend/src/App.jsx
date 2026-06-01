@@ -3,11 +3,13 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 import ConsolePage from './pages/ConsolePage';
 import CasesPage from './pages/CasesPage';
 import CaseDetailPage from './pages/CaseDetailPage';
 import NewCasePage from './pages/NewCasePage';
 import WorkOrdersPage from './pages/WorkOrdersPage';
+import WorkOrderDetailPage from './pages/WorkOrderDetailPage';
 import AppLayout from './components/layout/AppLayout';
 
 function ProtectedRoute({ children }) {
@@ -38,6 +40,15 @@ export default function App() {
           />
 
           <Route
+            path="/register"
+            element={
+              <GuestRoute>
+                <RegisterPage />
+              </GuestRoute>
+            }
+          />
+
+          <Route
             element={
               <ProtectedRoute>
                 <AppLayout />
@@ -49,6 +60,7 @@ export default function App() {
             <Route path="/cases/new"   element={<NewCasePage />} />
             <Route path="/cases/:id"   element={<CaseDetailPage />} />
             <Route path="/workorders"  element={<WorkOrdersPage />} />
+            <Route path="/workorders/:id" element={<WorkOrderDetailPage />} />
             <Route path="*"            element={<Navigate to="/dashboard" replace />} />
           </Route>
         </Routes>

@@ -7,6 +7,8 @@ export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const location = useLocation();
   const isCaseDetail = /^\/cases\/[^/]+$/.test(location.pathname) && location.pathname !== '/cases/new';
+  const isWorkOrderDetail = /^\/workorders\/[^/]+$/.test(location.pathname) && location.pathname !== '/workorders/new';
+  const isDetailPage = isCaseDetail || isWorkOrderDetail;
 
   return (
     <div className="flex flex-col min-h-screen" style={{ backgroundColor: 'var(--bg-base)', color: 'var(--text-main)' }}>
@@ -21,7 +23,7 @@ export default function AppLayout() {
             ${sidebarOpen ? 'md:ml-60' : 'md:ml-0'}`}
           tabIndex={-1}
         >
-          <div className={`animate-fadeIn ${isCaseDetail ? 'h-full' : 'p-6 max-w-screen-2xl mx-auto'}`}>
+          <div className={`animate-fadeIn ${isDetailPage ? 'h-full' : 'p-6 max-w-screen-2xl mx-auto'}`}>
             <Outlet />
           </div>
         </main>

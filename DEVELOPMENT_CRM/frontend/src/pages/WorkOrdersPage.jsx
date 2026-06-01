@@ -1,30 +1,52 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Search, Plus, RefreshCw, ChevronLeft, ChevronRight, Wrench } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Search, Plus, RefreshCw, ChevronLeft, ChevronRight, Wrench, Filter } from 'lucide-react';
 import api from '../utils/api';
 
-const STATUSES = ['', 'New', 'InProgress', 'OnHold', 'Completed', 'Cancelled'];
+const STATUSES = ['', 'Open', 'In Progress', 'Completed', 'Cancelled', 'On Hold'];
+const PRIORITIES = ['', 'Critical', 'High', 'Medium', 'Low'];
+
+// Work Order Status Mapping (UIC-001)
+const WO_STATUS_MAPPING = {
+  Open: { color: '#4A90E2', bg: 'rgba(74, 144, 226, 0.1)' },
+  'In Progress': { color: '#FFB81C', bg: 'rgba(255, 184, 28, 0.1)' },
+  Completed: { color: '#34C759', bg: 'rgba(52, 199, 89, 0.1)' },
+  Cancelled: { color: '#6C7681', bg: 'rgba(108, 118, 129, 0.1)' },
+  'On Hold': { color: '#FF9F0A', bg: 'rgba(255, 159, 10, 0.1)' },
+};
+
+function PriorityBadge({ value }) {
+  const map = { 
+    Critical: 'badge-critical', 
+    High: 'badge-high', 
+    Medium: 'badge-medium', 
+    Low: 'badge-low' 
+  };
+  return <span className={map[value] ?? 'badge badge-medium'}>{value}</span>;
+}
 
 function StatusBadge({ value }) {
-  const map = {
-    New:        'badge bg-blue-500/20 text-blue-300',
-    InProgress: 'badge-inprogress',
-    OnHold:     'badge bg-yellow-500/20 text-yellow-300',
-    Completed:  'badge bg-green-500/20 text-green-300',
-    Cancelled:  'badge-closed',
-  };
-  return <span className={map[value] ?? 'badge badge-open'}>{value}</span>;
+  const mapping = WO_STATUS_MAPPING[value];
+  if (!mapping) return <span className="badge badge-open">{value}</span>;
+  return (
+    <span style={{ backgroundColor: mapping.bg, color: mapping.color, border: `1px solid ${mapping.color}` }} className="px-2 py-0.5 rounded text-xs font-medium">
+      {value}
+    </span>
+  );
 }
 
 export default function WorkOrdersPage() {
+  const navigate = useNavigate();
   const [workOrders, setWorkOrders] = useState([]);
-  const [total, setTotal]           = useState(0);
-  const [page, setPage]             = useState(1);
-  const [pageSize]                  = useState(20);
-  const [loading, setLoading]       = useState(true);
-  const [error, setError]           = useState('');
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(20);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [searchInput, setSearchInput] = useState('');
-  const [search, setSearch]           = useState('');
+  const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [priorityFilter, setPriorityFilter] = useState('');
 
   const totalPages = Math.ceil(total / pageSize);
 
@@ -33,8 +55,9 @@ export default function WorkOrdersPage() {
     setError('');
     try {
       const params = new URLSearchParams({ page, pageSize });
-      if (search)       params.set('search', search);
+      if (search) params.set('search', search);
       if (statusFilter) params.set('status', statusFilter);
+      if (priorityFilter) params.set('priority', priorityFilter);
       const res = await api.get(`/workorders?${params}`);
       const d = res.data?.data;
       setWorkOrders(d?.items ?? []);
@@ -44,7 +67,7 @@ export default function WorkOrdersPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize, search, statusFilter]);
+  }, [page, pageSize, search, statusFilter, priorityFilter]);
 
   useEffect(() => { fetchWOs(); }, [fetchWOs]);
 
@@ -54,13 +77,18 @@ export default function WorkOrdersPage() {
     setSearch(searchInput);
   };
 
+  const handleFilterChange = (setter) => (e) => {
+    setter(e.target.value);
+    setPage(1);
+  };
+
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* Page header */}
       <header className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">Work Orders</h1>
-          <p className="text-brand-muted text-sm mt-0.5">
+          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-main)' }}>Work Orders</h1>
+          <p className="text-sm mt-0.5" style={{ color: 'var(--text-tertiary)' }}>
             {total} work order{total !== 1 ? 's' : ''} found
           </p>
         </div>
@@ -75,7 +103,11 @@ export default function WorkOrdersPage() {
             <RefreshCw size={15} className={loading ? 'animate-spin' : ''} aria-hidden="true" />
             Refresh
           </button>
-          <button type="button" className="btn-primary" disabled>
+          <button
+            type="button"
+            onClick={() => navigate('/workorders/new')}
+            className="btn-primary"
+          >
             <Plus size={15} aria-hidden="true" />
             New Work Order
           </button>
@@ -88,7 +120,7 @@ export default function WorkOrdersPage() {
           <form onSubmit={handleSearch} className="flex gap-2 flex-1 min-w-[220px]">
             <label htmlFor="wo-search" className="sr-only">Search work orders</label>
             <div className="relative flex-1">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-muted pointer-events-none">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--text-muted)' }}>
                 <Search size={14} aria-hidden="true" />
               </span>
               <input
@@ -106,23 +138,36 @@ export default function WorkOrdersPage() {
           </form>
 
           <div className="flex flex-col gap-1 min-w-[140px]">
-            <label htmlFor="wo-status-filter" className="text-xs text-brand-muted">Status</label>
+            <label htmlFor="wo-status-filter" className="text-xs" style={{ color: 'var(--text-muted)' }}>Status</label>
             <select
               id="wo-status-filter"
               value={statusFilter}
-              onChange={e => { setStatusFilter(e.target.value); setPage(1); }}
+              onChange={handleFilterChange(setStatusFilter)}
               className="input-field text-sm"
             >
               {STATUSES.map(s => <option key={s} value={s}>{s || 'All Statuses'}</option>)}
             </select>
           </div>
 
-          {(search || statusFilter) && (
+          <div className="flex flex-col gap-1 min-w-[140px]">
+            <label htmlFor="wo-priority-filter" className="text-xs" style={{ color: 'var(--text-muted)' }}>Priority</label>
+            <select
+              id="wo-priority-filter"
+              value={priorityFilter}
+              onChange={handleFilterChange(setPriorityFilter)}
+              className="input-field text-sm"
+            >
+              {PRIORITIES.map(p => <option key={p} value={p}>{p || 'All Priorities'}</option>)}
+            </select>
+          </div>
+
+          {(search || statusFilter || priorityFilter) && (
             <button
               type="button"
-              onClick={() => { setSearch(''); setSearchInput(''); setStatusFilter(''); setPage(1); }}
+              onClick={() => { setSearch(''); setSearchInput(''); setStatusFilter(''); setPriorityFilter(''); setPage(1); }}
               className="btn-secondary text-xs"
             >
+              <Filter size={13} aria-hidden="true" />
               Clear filters
             </button>
           )}
@@ -131,7 +176,7 @@ export default function WorkOrdersPage() {
 
       {/* Error */}
       {error && (
-        <div role="alert" className="card border-brand-error/40 bg-red-500/10 text-brand-error text-sm">
+        <div role="alert" className="card text-sm" style={{ borderColor: 'rgba(231, 76, 60, 0.4)', backgroundColor: 'rgba(231, 76, 60, 0.1)', color: '#E74C3C' }}>
           {error}
         </div>
       )}
@@ -140,8 +185,8 @@ export default function WorkOrdersPage() {
       <div className="card overflow-x-auto p-0">
         <table className="w-full text-sm" aria-label="Work orders list">
           <thead>
-            <tr className="border-b border-brand-border text-brand-muted text-xs uppercase tracking-wider">
-              {['WO #', 'Subject', 'Case #', 'Account', 'Asset', 'Mechanic', 'Status', 'Start Date'].map(h => (
+            <tr className="border-b text-xs uppercase tracking-wider" style={{ borderColor: 'var(--border)', color: 'var(--text-tertiary)' }}>
+              {['WO #', 'Subject', 'Account', 'Asset', 'Technician', 'Priority', 'Status', 'Created'].map(h => (
                 <th key={h} scope="col" className="px-4 py-3 text-left font-medium whitespace-nowrap">{h}</th>
               ))}
             </tr>
@@ -149,19 +194,19 @@ export default function WorkOrdersPage() {
           <tbody>
             {loading ? (
               Array.from({ length: 5 }).map((_, i) => (
-                <tr key={i} className="border-b border-brand-border/30">
+                <tr key={i} className="border-b" style={{ borderColor: 'var(--border)/0.3' }}>
                   {Array.from({ length: 8 }).map((_, j) => (
                     <td key={j} className="px-4 py-3">
-                      <div className="h-4 bg-brand-card rounded animate-pulse w-full max-w-[110px]" />
+                      <div className="h-4 rounded animate-pulse w-full max-w-[110px]" style={{ backgroundColor: 'var(--bg-card)' }} />
                     </td>
                   ))}
                 </tr>
               ))
             ) : workOrders.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-4 py-12 text-center text-brand-muted">
+                <td colSpan={8} className="px-4 py-12 text-center" style={{ color: 'var(--text-muted)' }}>
                   <div className="flex flex-col items-center gap-3">
-                    <Wrench size={32} className="text-brand-border" aria-hidden="true" />
+                    <Wrench size={32} style={{ color: 'var(--border)' }} aria-hidden="true" />
                     <span>No work orders match your filters.</span>
                   </div>
                 </td>
@@ -170,23 +215,29 @@ export default function WorkOrdersPage() {
               workOrders.map(wo => (
                 <tr
                   key={wo.workOrderID}
-                  className="border-b border-brand-border/50 hover:bg-brand-card/50 transition-colors"
+                  className="border-b hover:transition-colors" style={{ borderColor: 'var(--border)/0.5' }}
                 >
-                  <td className="px-4 py-3 font-mono text-xs text-brand-blue whitespace-nowrap">
-                    {wo.workOrderNumber}
+                  <td className="px-4 py-3 font-mono text-xs whitespace-nowrap" style={{ color: 'var(--accent)' }}>
+                    <button
+                      type="button"
+                      onClick={() => navigate(`/workorders/${encodeURIComponent(wo.workOrderNumber)}`)}
+                      className="text-left hover:underline focus:outline-none focus:underline"
+                      aria-label={`Open work order ${wo.workOrderNumber}`}
+                      title="Open work order detail"
+                    >
+                      {wo.workOrderNumber}
+                    </button>
                   </td>
-                  <td className="px-4 py-3 text-gray-300 max-w-[200px]">
+                  <td className="px-4 py-3 max-w-[200px]" style={{ color: 'var(--text-secondary)' }}>
                     <span className="line-clamp-1" title={wo.subject}>{wo.subject}</span>
                   </td>
-                  <td className="px-4 py-3 font-mono text-xs text-purple-400 whitespace-nowrap">
-                    {wo.caseNumber}
-                  </td>
-                  <td className="px-4 py-3 text-gray-400 whitespace-nowrap">{wo.accountName ?? '—'}</td>
-                  <td className="px-4 py-3 text-gray-400 whitespace-nowrap">{wo.assetName ?? '—'}</td>
-                  <td className="px-4 py-3 text-gray-400 whitespace-nowrap">{wo.assignedMechanicName ?? '—'}</td>
+                  <td className="px-4 py-3 whitespace-nowrap" style={{ color: 'var(--text-tertiary)' }}>{wo.accountName ?? '—'}</td>
+                  <td className="px-4 py-3 whitespace-nowrap" style={{ color: 'var(--text-tertiary)' }}>{wo.assetName ?? '—'}</td>
+                  <td className="px-4 py-3 whitespace-nowrap" style={{ color: 'var(--text-tertiary)' }}>{wo.assignedMechanicName ?? '—'}</td>
+                  <td className="px-4 py-3 whitespace-nowrap"><PriorityBadge value={wo.priority} /></td>
                   <td className="px-4 py-3 whitespace-nowrap"><StatusBadge value={wo.status} /></td>
-                  <td className="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">
-                    {wo.startDate ? new Date(wo.startDate).toLocaleDateString('en-GB') : '—'}
+                  <td className="px-4 py-3 text-xs whitespace-nowrap" style={{ color: 'var(--text-tertiary)' }}>
+                    {wo.createdDate ? new Date(wo.createdDate).toLocaleDateString('en-GB') : '—'}
                   </td>
                 </tr>
               ))
@@ -195,7 +246,7 @@ export default function WorkOrdersPage() {
         </table>
 
         {totalPages > 1 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-brand-border text-sm text-brand-muted">
+          <div className="flex items-center justify-between px-4 py-3 border-t text-sm" style={{ borderColor: 'var(--border)', color: 'var(--text-muted)' }}>
             <span>Page {page} of {totalPages}</span>
             <div className="flex gap-2">
               <button

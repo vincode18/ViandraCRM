@@ -17,5 +17,8 @@ namespace UT.ServiceConsole.API.Services.Interfaces
 
         /// <summary>Resets password with a valid reset token.</summary>
         Task<bool> ResetPasswordAsync(string email, string token, string newPassword);
+
+        /// <summary>Registers a new user, hashes the password, and persists to DB.</summary>
+        Task<RegisterResponse> RegisterAsync(RegisterRequest request);
     }
 }
