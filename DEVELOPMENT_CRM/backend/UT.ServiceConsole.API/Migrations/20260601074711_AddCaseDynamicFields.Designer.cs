@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using UT.ServiceConsole.API.Data;
 
@@ -10,9 +11,11 @@ using UT.ServiceConsole.API.Data;
 namespace UT.ServiceConsole.API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260601074711_AddCaseDynamicFields")]
+    partial class AddCaseDynamicFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.0");
@@ -359,55 +362,14 @@ namespace UT.ServiceConsole.API.Migrations
                     b.Property<int?>("AccountID")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("ApprovalStatus")
-                        .HasMaxLength(50)
-                        .HasColumnType("TEXT");
-
                     b.Property<int?>("AssetID")
                         .HasColumnType("INTEGER");
 
                     b.Property<int?>("AssignedOwnerID")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime?>("BackdateMech")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("BackdateSol")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("BillingAccount")
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("BillingContactName")
-                        .HasMaxLength(200)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("BillingDivision")
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("BillingSalesOffice")
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("BillingSalesOfficeCode")
-                        .HasMaxLength(50)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("CallType")
-                        .HasMaxLength(50)
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("CaseCancel")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("CaseNumber")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("CaseOrigin")
                         .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
@@ -417,14 +379,6 @@ namespace UT.ServiceConsole.API.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Category")
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Cause")
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("CloseReason")
                         .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
@@ -446,53 +400,7 @@ namespace UT.ServiceConsole.API.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("CsRating")
-                        .HasMaxLength(50)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Damage")
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("DateTimeOpened")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Description")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("DescriptionUpdate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Direction")
-                        .HasMaxLength(50)
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("DtAssigned")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("DtInProgress")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("DtResolved")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("DtSupervisorApprove")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Emr")
-                        .HasMaxLength(50)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("InformantEmail")
-                        .HasMaxLength(150)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("InformantName")
-                        .HasMaxLength(200)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("InformantPosition")
-                        .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
                     b.Property<int?>("LastModifiedBy")
@@ -501,90 +409,13 @@ namespace UT.ServiceConsole.API.Migrations
                     b.Property<DateTime>("LastModifiedDate")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Location")
-                        .HasMaxLength(200)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("MilestoneStatus")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("NeedManPower")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("NotOtifMech")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("NotOtifMechReason")
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("NotOtifSol")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("NotOtifSolReason")
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ObjectPart")
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("OmCompensation")
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("OtifMechStart")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("OtifMechStatus")
-                        .HasMaxLength(50)
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("OtifMechTarget")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("OtifSolStart")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("OtifSolStatus")
-                        .HasMaxLength(50)
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("OtifSolTarget")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ParentCaseID")
-                        .HasMaxLength(50)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Plant")
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Priority")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("ReasonBackdate")
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ReasonOthers")
-                        .HasColumnType("TEXT");
-
                     b.Property<bool>("SLABreached")
                         .HasColumnType("INTEGER");
-
-                    b.Property<string>("SapStatus")
-                        .HasMaxLength(50)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ServiceArea")
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("SlaResolutionTarget")
                         .HasColumnType("TEXT");
@@ -595,14 +426,6 @@ namespace UT.ServiceConsole.API.Migrations
                     b.Property<string>("SlaStatus")
                         .IsRequired()
                         .HasMaxLength(20)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("SmrProblem")
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("SpecificObjectPart")
-                        .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("StartDate")
@@ -617,32 +440,12 @@ namespace UT.ServiceConsole.API.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("SubcallType")
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Subject")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("TargetResolutionDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("TroubleDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("WaClosingUpdate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("WaDescription")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("WaNumber")
-                        .HasMaxLength(50)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("WaUpdateProgress")
                         .HasColumnType("TEXT");
 
                     b.HasKey("CaseID");
@@ -681,7 +484,6 @@ namespace UT.ServiceConsole.API.Migrations
                             AccountID = 1,
                             AssetID = 1,
                             AssignedOwnerID = 2,
-                            CaseCancel = false,
                             CaseNumber = "CASE-20260526-00101",
                             CaseType = "Request",
                             ContactID = 1,
@@ -689,10 +491,6 @@ namespace UT.ServiceConsole.API.Migrations
                             CreatedDate = new DateTime(2026, 5, 26, 7, 31, 0, 0, DateTimeKind.Unspecified),
                             Description = "Operator reported significant hydraulic fluid leakage near right cylinder. Equipment grounded pending repair.",
                             LastModifiedDate = new DateTime(2026, 5, 26, 7, 31, 0, 0, DateTimeKind.Unspecified),
-                            MilestoneStatus = "Open",
-                            NeedManPower = false,
-                            NotOtifMech = false,
-                            NotOtifSol = false,
                             Priority = "Medium",
                             SLABreached = false,
                             SlaStatus = "OnTrack",
@@ -706,7 +504,6 @@ namespace UT.ServiceConsole.API.Migrations
                             AccountID = 1,
                             AssetID = 2,
                             AssignedOwnerID = 2,
-                            CaseCancel = false,
                             CaseNumber = "CASE-20260525-00100",
                             CaseType = "Incident",
                             ContactID = 1,
@@ -714,10 +511,6 @@ namespace UT.ServiceConsole.API.Migrations
                             CreatedDate = new DateTime(2026, 5, 25, 10, 15, 0, 0, DateTimeKind.Unspecified),
                             Description = "Unit GD-830 experiencing elevated coolant temperatures. Initial diagnostics show potential radiator blockage or fan malfunction.",
                             LastModifiedDate = new DateTime(2026, 5, 25, 10, 15, 0, 0, DateTimeKind.Unspecified),
-                            MilestoneStatus = "Open",
-                            NeedManPower = false,
-                            NotOtifMech = false,
-                            NotOtifSol = false,
                             Priority = "High",
                             SLABreached = false,
                             SlaStatus = "OnTrack",
@@ -731,7 +524,6 @@ namespace UT.ServiceConsole.API.Migrations
                             AccountID = 2,
                             AssetID = 3,
                             AssignedOwnerID = 4,
-                            CaseCancel = false,
                             CaseNumber = "CASE-20260524-00099",
                             CaseType = "Problem",
                             ContactID = 3,
@@ -739,10 +531,6 @@ namespace UT.ServiceConsole.API.Migrations
                             CreatedDate = new DateTime(2026, 5, 24, 8, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Complete transmission failure reported during operation. Unit HD785 unable to shift gears. Requires major overhaul or replacement.",
                             LastModifiedDate = new DateTime(2026, 5, 24, 8, 0, 0, 0, DateTimeKind.Unspecified),
-                            MilestoneStatus = "Open",
-                            NeedManPower = false,
-                            NotOtifMech = false,
-                            NotOtifSol = false,
                             Priority = "Critical",
                             SLABreached = false,
                             SlaStatus = "OnTrack",

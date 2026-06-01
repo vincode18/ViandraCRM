@@ -1,6 +1,5 @@
-import React, { useState, useCallback, useRef, useEffect, useId } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Mail, Lock, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 /* ─── Validation helpers ──────────────────────────────────────── */
@@ -18,453 +17,463 @@ function validatePassword(val) {
   return '';
 }
 
-/* ─── Spinner ─────────────────────────────────────────────────── */
-function Spinner() {
-  return (
-    <Loader2
-      size={18}
-      className="animate-spin"
-      aria-hidden="true"
-    />
-  );
-}
+/* ─── Inline CSS ─────────────────────────────────────────────── */
+const STYLES = `
+  @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Manrope:wght@400;500;600;700&display=swap');
+
+  .lp-root {
+    --ink: #1A1A1A; --ink-2: #5C5C5C; --line: #E4E4E4;
+    --surface: #FFFFFF; --surface-2: #F7F7F5;
+    --accent: #FFC400; --accent-press: #E6B000;
+    --cover-dark: #16181D; --danger: #C0392B; --ok: #3FB950;
+    --r: 10px;
+    font-family: 'Manrope', system-ui, sans-serif;
+    color: var(--ink);
+    background: var(--surface);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .lp-form-col {
+    display: flex; flex-direction: column;
+    padding: 40px clamp(24px, 6vw, 80px);
+  }
+  .lp-brand {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 700; font-size: 15px; margin-bottom: auto;
+  }
+  .lp-glyph {
+    width: 34px; height: 34px; border-radius: 8px;
+    display: grid; place-items: center;
+    font-family: 'Archivo', sans-serif; font-weight: 800; font-size: 14px;
+    background: var(--ink); color: #fff; letter-spacing: .5px;
+  }
+  .lp-wrap {
+    flex: 1; display: flex; flex-direction: column;
+    justify-content: center; max-width: 400px; width: 100%; margin: 0 auto;
+    padding: 40px 0;
+  }
+  .lp-h1 {
+    font-family: 'Archivo', sans-serif; font-weight: 800;
+    font-size: 30px; letter-spacing: -.02em; margin-bottom: 6px;
+  }
+  .lp-sub { color: var(--ink-2); font-size: 15px; margin-bottom: 32px; }
+  .lp-label {
+    display: block; font-size: 13px; font-weight: 600;
+    letter-spacing: .01em; margin-bottom: 8px; color: var(--ink);
+  }
+  .lp-field { position: relative; margin-bottom: 18px; }
+  .lp-field-ic {
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    color: var(--ink-2); pointer-events: none; display: flex;
+  }
+  .lp-input {
+    width: 100%; height: 48px; border: 1px solid var(--line);
+    border-radius: var(--r); padding: 0 44px 0 42px;
+    font-family: inherit; font-size: 15px; color: var(--ink);
+    background: var(--surface); transition: border-color .15s, box-shadow .15s;
+  }
+  .lp-input::placeholder { color: #A6A6A6; }
+  .lp-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255,196,0,.28); }
+  .lp-input.invalid { border-color: var(--danger); box-shadow: 0 0 0 3px rgba(192,57,43,.15); }
+  .lp-eye {
+    position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+    background: none; border: 0; cursor: pointer; color: var(--ink-2);
+    width: 34px; height: 34px; border-radius: 7px; display: grid; place-items: center;
+  }
+  .lp-eye:hover { background: var(--surface-2); }
+  .lp-row-between {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;
+  }
+  .lp-link {
+    color: var(--ink); font-size: 13px; font-weight: 600;
+    text-decoration: none; border-bottom: 1px solid transparent; background: none; border-top: none; border-left: none; border-right: none;
+    cursor: pointer; font-family: inherit;
+  }
+  .lp-link:hover { border-bottom-color: var(--ink); }
+  .lp-err {
+    display: flex; align-items: center; gap: 6px;
+    color: var(--danger); font-size: 12.5px; margin-top: -10px; margin-bottom: 16px;
+  }
+  .lp-remember {
+    display: flex; align-items: center; gap: 9px;
+    font-size: 14px; color: var(--ink-2); margin: 4px 0 22px; cursor: pointer;
+  }
+  .lp-remember input { width: 17px; height: 17px; accent-color: var(--ink); cursor: pointer; }
+  .lp-btn {
+    width: 100%; height: 48px; border: 0; border-radius: var(--r);
+    font-family: inherit; font-weight: 700; font-size: 15px; cursor: pointer;
+    transition: transform .12s, background .15s, box-shadow .15s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .lp-btn-primary { background: var(--accent); color: var(--ink); box-shadow: 0 1px 0 rgba(0,0,0,.04); }
+  .lp-btn-primary:hover { background: #FFCD1F; transform: translateY(-1px); box-shadow: 0 6px 16px rgba(255,196,0,.35); }
+  .lp-btn-primary:active { background: var(--accent-press); transform: translateY(0); }
+  .lp-btn-primary:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+  .lp-divider {
+    display: flex; align-items: center; gap: 14px;
+    color: var(--ink-2); font-size: 12.5px; margin: 24px 0;
+  }
+  .lp-divider::before, .lp-divider::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+  .lp-sso {
+    width: 100%; height: 48px; border: 1px solid var(--line); border-radius: var(--r);
+    background: var(--surface-2); font-family: inherit; font-weight: 600;
+    font-size: 14.5px; color: var(--ink);
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    cursor: pointer; transition: border-color .15s, background .15s; margin-bottom: 12px;
+  }
+  .lp-sso:hover { border-color: #C9C9C9; background: #fff; }
+  .lp-ut-mark {
+    width: 20px; height: 18px; border-radius: 4px;
+    background: var(--ink); color: #fff; font-family: 'Archivo', sans-serif;
+    font-weight: 800; font-size: 9px; display: grid; place-items: center;
+  }
+  .lp-footer { margin-top: 34px; text-align: center; color: #9A9A9A; font-size: 12px; }
+  .lp-server-err {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(192,57,43,.08); border: 1px solid rgba(192,57,43,.3);
+    color: var(--danger); border-radius: var(--r);
+    padding: 10px 14px; font-size: 13px; margin-bottom: 20px;
+  }
+
+  /* cover */
+  .lp-cover {
+    position: relative; overflow: hidden;
+    background:
+      url('/hero.jpg') center/cover no-repeat,
+      radial-gradient(120% 80% at 80% 10%, rgba(255,196,0,.12), transparent 60%),
+      linear-gradient(160deg, #23262E 0%, #16181D 55%, #0E0F13 100%);
+    color: #fff; display: flex; flex-direction: column;
+    justify-content: space-between; padding: 48px;
+  }
+  .lp-cover::before {
+    content: ''; position: absolute; inset: 0;
+    background: rgba(0,0,0,.8);
+    z-index: 0;
+  }
+  .lp-cover::after {
+    content: ''; position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(120% 100% at 70% 30%, #000 30%, transparent 80%);
+    z-index: 1;
+  }
+  .lp-machine {
+    position: absolute; right: -40px; bottom: -30px; width: 520px; opacity: .16;
+    color: #FFC400; pointer-events: none;
+  }
+  .lp-cover-top, .lp-cover-mid, .lp-cover-bot { position: relative; z-index: 2; }
+  .lp-cover-mid { max-width: 420px; }
+  .lp-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
+    padding: 6px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; letter-spacing: .02em;
+  }
+  .lp-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--ok); box-shadow: 0 0 0 3px rgba(63,185,80,.25); flex-shrink: 0;
+  }
+  .lp-cover-h2 {
+    font-family: 'Archivo', sans-serif; font-weight: 800;
+    font-size: 36px; line-height: 1.08; letter-spacing: -.02em; margin: 18px 0 14px;
+  }
+  .lp-cover-h2 span { color: var(--accent); }
+  .lp-cover-p { color: #B9BCC4; font-size: 15px; line-height: 1.6; max-width: 380px; }
+  .lp-feats { list-style: none; display: grid; gap: 14px; margin-top: 30px; padding: 0; }
+  .lp-feats li { display: flex; align-items: center; gap: 13px; font-size: 14.5px; font-weight: 500; }
+  .lp-tile {
+    width: 34px; height: 34px; border-radius: 9px; flex: none; display: grid; place-items: center;
+    background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); color: var(--accent);
+  }
+  .lp-cover-bot-text { font-size: 13px; color: #8A8D96; }
+
+  /* stagger animation */
+  @keyframes lp-rise { to { opacity: 1; transform: none; } }
+  .lp-s { opacity: 0; transform: translateY(8px); animation: lp-rise .5s ease forwards; }
+  .lp-s:nth-child(1){animation-delay:.05s} .lp-s:nth-child(2){animation-delay:.11s}
+  .lp-s:nth-child(3){animation-delay:.17s} .lp-s:nth-child(4){animation-delay:.23s}
+  .lp-s:nth-child(5){animation-delay:.29s} .lp-s:nth-child(6){animation-delay:.35s}
+  .lp-s:nth-child(7){animation-delay:.41s} .lp-s:nth-child(8){animation-delay:.47s}
+
+  /* jiggle */
+  @keyframes lp-jiggle { 0%,100%{transform:none} 20%,60%{transform:translateX(-6px)} 40%,80%{transform:translateX(6px)} }
+  .lp-jiggle { animation: lp-jiggle .35s ease; }
+
+  /* responsive */
+  @media (max-width: 1024px) {
+    .lp-root { grid-template-columns: 1fr; }
+    .lp-cover { display: none; }
+    .lp-mobile-tag { display: block !important; color: var(--ink-2); font-size: 13.5px; margin-top: 4px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .lp-s { animation: none; opacity: 1; transform: none; }
+    .lp-btn-primary:hover { transform: none; }
+  }
+`;
 
 /* ─── LoginPage ───────────────────────────────────────────────── */
 export default function LoginPage() {
-  const { login } = useAuth();
-  const navigate  = useNavigate();
+  const { login }  = useAuth();
+  const navigate   = useNavigate();
 
-  const emailId    = useId();
-  const passwordId = useId();
+  const [email, setEmail]         = useState('');
+  const [password, setPassword]   = useState('');
+  const [remember, setRemember]   = useState(false);
+  const [showPw, setShowPw]       = useState(false);
+  const [emailErr, setEmailErr]   = useState('');
+  const [passErr, setPassErr]     = useState('');
+  const [serverErr, setServerErr] = useState('');
+  const [loading, setLoading]     = useState(false);
+  const [success, setSuccess]     = useState(false);
+  const [jiggle, setJiggle]       = useState(false);
 
-  const [formState, setFormState] = useState({
-    email: '',
-    password: '',
-    rememberMe: false,
-  });
-  const [errors, setErrors] = useState({ email: '', password: '' });
-  const [touched, setTouched] = useState({ email: false, password: false });
-  const [showPassword, setShowPassword] = useState(false);
-  const [submitState, setSubmitState] = useState('idle'); // idle | loading | success | error
-  const [serverError, setServerError] = useState('');
-  const [jiggle, setJiggle] = useState(false);
+  const emailRef = useRef(null);
+  const passRef  = useRef(null);
 
-  const emailRef    = useRef(null);
-  const passwordRef = useRef(null);
-  const formRef     = useRef(null);
-
-  // Auto-focus email on mount
   useEffect(() => { emailRef.current?.focus(); }, []);
 
-  // ── Field change ────────────────────────────────────────────────
-  const handleChange = useCallback((e) => {
-    const { name, value, type, checked } = e.target;
-    const newVal = type === 'checkbox' ? checked : value;
-    setFormState(prev => ({ ...prev, [name]: newVal }));
-
-    // Real-time validation after first touch
-    if (touched[name]) {
-      if (name === 'email')    setErrors(prev => ({ ...prev, email: validateEmail(value) }));
-      if (name === 'password') setErrors(prev => ({ ...prev, password: validatePassword(value) }));
-    }
-    if (serverError) setServerError('');
-  }, [touched, serverError]);
-
-  const handleBlur = useCallback((e) => {
-    const { name, value } = e.target;
-    setTouched(prev => ({ ...prev, [name]: true }));
-    if (name === 'email')    setErrors(prev => ({ ...prev, email: validateEmail(value) }));
-    if (name === 'password') setErrors(prev => ({ ...prev, password: validatePassword(value) }));
-  }, []);
-
-  // ── Submit ───────────────────────────────────────────────────────
-  const handleSubmit = useCallback(async (e) => {
-    e.preventDefault();
-    if (submitState === 'loading') return;
-
-    const emailErr = validateEmail(formState.email);
-    const passErr  = validatePassword(formState.password);
-    setTouched({ email: true, password: true });
-    setErrors({ email: emailErr, password: passErr });
-
-    if (emailErr || passErr) {
-      setJiggle(true);
-      setTimeout(() => setJiggle(false), 400);
-      emailErr ? emailRef.current?.focus() : passwordRef.current?.focus();
-      return;
-    }
-
-    setSubmitState('loading');
-    setServerError('');
-
-    const result = await login(formState.email, formState.password, formState.rememberMe);
-
-    if (result.success) {
-      setSubmitState('success');
-      setTimeout(() => navigate('/console', { replace: true }), 900);
-    } else {
-      setSubmitState('error');
-      setServerError(result.message);
-      setJiggle(true);
-      setTimeout(() => { setJiggle(false); setSubmitState('idle'); }, 400);
-      passwordRef.current?.focus();
-    }
-  }, [formState, submitState, login, navigate]);
-
-  // ── OAuth (placeholder – PKCE flow Phase 2) ─────────────────────
-  const handleOAuth = (provider) => {
-    alert(`${provider} OAuth with PKCE flow will be implemented in Phase 2.`);
+  const clearErr = (field) => {
+    if (field === 'email') setEmailErr('');
+    if (field === 'password') setPassErr('');
+    if (serverErr) setServerErr('');
   };
 
-  const isLoading = submitState === 'loading';
-  const isSuccess = submitState === 'success';
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (loading) return;
+    const eErr = validateEmail(email);
+    const pErr = validatePassword(password);
+    setEmailErr(eErr);
+    setPassErr(pErr);
+    if (eErr || pErr) {
+      setJiggle(true);
+      setTimeout(() => setJiggle(false), 400);
+      eErr ? emailRef.current?.focus() : passRef.current?.focus();
+      return;
+    }
+    setLoading(true);
+    setServerErr('');
+    const result = await login(email, password, remember);
+    if (result.success) {
+      setSuccess(true);
+      setTimeout(() => navigate('/console', { replace: true }), 900);
+    } else {
+      setServerErr(result.message || 'Invalid credentials. Please try again.');
+      setJiggle(true);
+      setTimeout(() => setJiggle(false), 400);
+      setLoading(false);
+      passRef.current?.focus();
+    }
+  };
 
   return (
-    <div className="min-h-screen flex" role="main">
-      {/* ── Left: Form panel (45%) ─────────────────────────────────── */}
-      <section
-        className="relative flex flex-col justify-center w-full md:w-[45%] min-h-screen
-                   bg-brand-dark px-6 py-10 sm:px-12"
-        aria-labelledby="login-heading"
-      >
-        {/* Logo */}
-        <div className="mb-8 flex items-center gap-3">
-          <div
-            className="w-9 h-9 rounded-lg bg-brand-blue flex items-center justify-center
-                       text-white font-bold text-sm select-none"
-            aria-hidden="true"
-          >
-            UT
-          </div>
-          <span className="font-bold text-white text-sm tracking-wide">
+    <>
+      <style>{STYLES}</style>
+      <main className="lp-root">
+
+        {/* ── LEFT: FORM ── */}
+        <section className="lp-form-col" aria-labelledby="lp-heading">
+          {/* Brand mark */}
+          <div className="lp-brand lp-s">
+            <span className="lp-glyph" aria-hidden="true">UT</span>
             UT Service Console
-          </span>
-        </div>
-
-        {/* Heading */}
-        <header className="mb-8">
-          <h1
-            id="login-heading"
-            className="text-3xl font-bold text-white mb-2 animate-fadeIn"
-          >
-            Welcome back
-          </h1>
-          <p className="text-brand-muted text-sm">
-            Sign in to your account to continue.
-          </p>
-        </header>
-
-        {/* Server-level error banner */}
-        {serverError && (
-          <div
-            role="alert"
-            aria-live="assertive"
-            className="mb-5 flex items-start gap-3 bg-red-500/10 border border-brand-error/40
-                       text-brand-error rounded-lg px-4 py-3 text-sm animate-fadeIn"
-          >
-            <AlertCircle size={16} className="mt-0.5 shrink-0" aria-hidden="true" />
-            <span>{serverError}</span>
           </div>
-        )}
 
-        {/* Success banner */}
-        {isSuccess && (
-          <div
-            role="status"
-            aria-live="polite"
-            className="mb-5 flex items-center gap-3 bg-green-500/10 border border-brand-success/40
-                       text-brand-success rounded-lg px-4 py-3 text-sm animate-fadeIn"
-          >
-            <CheckCircle size={16} aria-hidden="true" />
-            <span>Login successful! Redirecting…</span>
-          </div>
-        )}
+          <div className="lp-wrap">
+            <h1 className="lp-h1 lp-s" id="lp-heading">Welcome back</h1>
+            <p className="lp-sub lp-s">Sign in to your account to continue.</p>
+            <p className="lp-mobile-tag lp-s" style={{ display: 'none' }}>Enterprise Service Management — cases, work orders &amp; assets in one place.</p>
 
-        {/* Form */}
-        <form
-          ref={formRef}
-          onSubmit={handleSubmit}
-          noValidate
-          aria-label="Sign in form"
-          className={jiggle ? 'animate-jiggle' : ''}
-        >
-          {/* Email */}
-          <div className="mb-5">
-            <label
-              htmlFor={emailId}
-              className="block text-sm font-medium text-gray-300 mb-1.5"
-            >
-              Email address
-            </label>
-            <div className="relative">
-              <span
-                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-muted pointer-events-none"
-                aria-hidden="true"
-              >
-                <Mail size={16} />
-              </span>
-              <input
-                ref={emailRef}
-                id={emailId}
-                name="email"
-                type="email"
-                autoComplete="email"
-                autoCapitalize="none"
-                autoCorrect="off"
-                spellCheck="false"
-                value={formState.email}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                placeholder="you@example.com"
-                aria-required="true"
-                aria-invalid={Boolean(errors.email && touched.email)}
-                aria-describedby={errors.email && touched.email ? `${emailId}-error` : undefined}
-                disabled={isLoading || isSuccess}
-                className={`input-field pl-10 ${errors.email && touched.email ? 'error' : ''}`}
-              />
-            </div>
-            {errors.email && touched.email && (
-              <p
-                id={`${emailId}-error`}
-                role="alert"
-                className="mt-1.5 text-xs text-brand-error flex items-center gap-1 animate-fadeIn"
-              >
-                <AlertCircle size={12} aria-hidden="true" />
-                {errors.email}
-              </p>
+            {/* Server error */}
+            {serverErr && (
+              <div role="alert" aria-live="assertive" className="lp-server-err">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+                {serverErr}
+              </div>
             )}
-          </div>
 
-          {/* Password */}
-          <div className="mb-5">
-            <div className="flex items-center justify-between mb-1.5">
-              <label
-                htmlFor={passwordId}
-                className="text-sm font-medium text-gray-300"
-              >
-                Password
+            {/* Success */}
+            {success && (
+              <div role="status" style={{ display:'flex',alignItems:'center',gap:8,background:'rgba(63,185,80,.1)',border:'1px solid rgba(63,185,80,.3)',color:'#3FB950',borderRadius:10,padding:'10px 14px',fontSize:13,marginBottom:20 }}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+                Login successful! Redirecting…
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} noValidate className={jiggle ? 'lp-jiggle' : ''}>
+
+              {/* Email */}
+              <div className="lp-s">
+                <label htmlFor="lp-email" className="lp-label">Email address</label>
+                <div className="lp-field">
+                  <span className="lp-field-ic" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+                  </span>
+                  <input
+                    ref={emailRef}
+                    id="lp-email"
+                    type="email"
+                    name="email"
+                    autoComplete="email"
+                    placeholder="you@example.com"
+                    value={email}
+                    onChange={e => { setEmail(e.target.value); clearErr('email'); }}
+                    className={`lp-input${emailErr ? ' invalid' : ''}`}
+                    aria-required="true"
+                    aria-invalid={!!emailErr}
+                    aria-describedby={emailErr ? 'lp-email-err' : undefined}
+                    disabled={loading || success}
+                  />
+                </div>
+                {emailErr && (
+                  <p id="lp-email-err" className="lp-err" role="alert">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+                    {emailErr}
+                  </p>
+                )}
+              </div>
+
+              {/* Password */}
+              <div className="lp-s">
+                <div className="lp-row-between">
+                  <label htmlFor="lp-password" className="lp-label" style={{ marginBottom: 0 }}>Password</label>
+                  <button type="button" className="lp-link" onClick={() => alert('Forgot password — Phase 2.')}>Forgot password?</button>
+                </div>
+                <div className="lp-field" style={{ marginTop: 8 }}>
+                  <span className="lp-field-ic" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+                  </span>
+                  <input
+                    ref={passRef}
+                    id="lp-password"
+                    type={showPw ? 'text' : 'password'}
+                    name="password"
+                    autoComplete="current-password"
+                    placeholder="Min. 8 characters"
+                    value={password}
+                    onChange={e => { setPassword(e.target.value); clearErr('password'); }}
+                    className={`lp-input${passErr ? ' invalid' : ''}`}
+                    aria-required="true"
+                    aria-invalid={!!passErr}
+                    aria-describedby={passErr ? 'lp-pass-err' : undefined}
+                    disabled={loading || success}
+                  />
+                  <button
+                    type="button"
+                    className="lp-eye"
+                    onClick={() => setShowPw(v => !v)}
+                    aria-label={showPw ? 'Hide password' : 'Show password'}
+                    disabled={loading || success}
+                  >
+                    {showPw
+                      ? <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                      : <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                    }
+                  </button>
+                </div>
+                {passErr && (
+                  <p id="lp-pass-err" className="lp-err" role="alert">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+                    {passErr}
+                  </p>
+                )}
+              </div>
+
+              {/* Remember */}
+              <label className="lp-remember lp-s">
+                <input type="checkbox" name="remember" checked={remember} onChange={e => setRemember(e.target.checked)} disabled={loading || success} />
+                Remember me for 30 days
               </label>
-              <button
-                type="button"
-                className="text-xs text-brand-blue hover:text-brand-blueDark
-                           transition-colors duration-150 underline-offset-2 hover:underline
-                           focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand-blue rounded"
-                tabIndex={0}
-                onClick={() => alert('Forgot password flow coming in Phase 2.')}
-              >
-                Forgot password?
+
+              {/* Submit */}
+              <button type="submit" className="lp-btn lp-btn-primary lp-s" disabled={loading || success} aria-busy={loading}>
+                {loading && (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true" style={{ animation: 'spin 1s linear infinite' }}>
+                    <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+                    <path d="M12 2a10 10 0 0 1 10 10" strokeLinecap="round"/>
+                  </svg>
+                )}
+                {loading ? 'Signing in…' : success ? 'Success!' : 'Sign in'}
               </button>
-            </div>
-            <div className="relative">
-              <span
-                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-muted pointer-events-none"
-                aria-hidden="true"
-              >
-                <Lock size={16} />
-              </span>
-              <input
-                ref={passwordRef}
-                id={passwordId}
-                name="password"
-                type={showPassword ? 'text' : 'password'}
-                autoComplete="current-password"
-                value={formState.password}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                placeholder="Min. 8 characters"
-                aria-required="true"
-                aria-invalid={Boolean(errors.password && touched.password)}
-                aria-describedby={errors.password && touched.password ? `${passwordId}-error` : undefined}
-                disabled={isLoading || isSuccess}
-                className={`input-field pl-10 pr-11 ${errors.password && touched.password ? 'error' : ''}`}
-              />
-              <button
-                type="button"
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
-                onClick={() => setShowPassword(v => !v)}
-                disabled={isLoading || isSuccess}
-                className="absolute right-3 top-1/2 -translate-y-1/2
-                           text-brand-muted hover:text-gray-300
-                           transition-colors duration-150
-                           min-w-[44px] min-h-[44px] flex items-center justify-center -mr-1"
-              >
-                {showPassword ? <EyeOff size={16} aria-hidden="true" /> : <Eye size={16} aria-hidden="true" />}
+
+              {/* Divider */}
+              <div className="lp-divider lp-s">or continue with</div>
+
+              {/* SSO */}
+              <button type="button" className="lp-sso lp-s" onClick={() => alert('UT SSO — Phase 2.')}>
+                <span className="lp-ut-mark" aria-hidden="true">UT</span>
+                Sign in with UT Account
               </button>
-            </div>
-            {errors.password && touched.password && (
-              <p
-                id={`${passwordId}-error`}
-                role="alert"
-                className="mt-1.5 text-xs text-brand-error flex items-center gap-1 animate-fadeIn"
-              >
-                <AlertCircle size={12} aria-hidden="true" />
-                {errors.password}
-              </p>
-            )}
+              <button type="button" className="lp-sso lp-s" onClick={() => alert('Microsoft SSO — Phase 2.')}>
+                <svg width="17" height="17" viewBox="0 0 23 23" aria-hidden="true">
+                  <path fill="#F25022" d="M0 0h11v11H0z"/>
+                  <path fill="#7FBA00" d="M12 0h11v11H12z"/>
+                  <path fill="#00A4EF" d="M0 12h11v11H0z"/>
+                  <path fill="#FFB900" d="M12 12h11v11H12z"/>
+                </svg>
+                Sign in with Microsoft
+              </button>
+            </form>
+
+            <p className="lp-s" style={{ textAlign: 'center', fontSize: 14, color: 'var(--ink-2)', margin: '16px 0 0' }}>
+              Don't have an account? <Link to="/register" style={{ color: 'var(--ink)', fontWeight: 700, textDecoration: 'none', borderBottom: '1px solid transparent' }} onMouseOver={e => e.currentTarget.style.borderBottomColor = 'var(--ink)'} onMouseOut={e => e.currentTarget.style.borderBottomColor = 'transparent'}>Create one</Link>
+            </p>
+            <footer className="lp-footer lp-s">© 2026 United Tractors. All rights reserved.</footer>
+          </div>
+        </section>
+
+        {/* ── RIGHT: COVER ── */}
+        <aside className="lp-cover" aria-hidden="true">
+          {/* Equipment silhouette */}
+          <svg className="lp-machine" viewBox="0 0 200 120" fill="currentColor">
+            <rect x="40" y="60" width="90" height="30" rx="4"/>
+            <path d="M30 90h150l-10 18H40z"/>
+            <rect x="130" y="40" width="36" height="30" rx="3"/>
+            <path d="M166 48l28-18v8l-22 14z"/>
+            <circle cx="60" cy="112" r="9"/>
+            <circle cx="95" cy="112" r="9"/>
+            <circle cx="150" cy="112" r="9"/>
+          </svg>
+
+          <div className="lp-cover-top">
+            <span className="lp-pill">UT Service Console</span>
           </div>
 
-          {/* Remember me */}
-          <div className="flex items-center gap-3 mb-7">
-            <input
-              id="remember-me"
-              name="rememberMe"
-              type="checkbox"
-              checked={formState.rememberMe}
-              onChange={handleChange}
-              disabled={isLoading || isSuccess}
-              className="w-4 h-4 rounded border-brand-border bg-brand-card
-                         accent-brand-blue cursor-pointer"
-            />
-            <label
-              htmlFor="remember-me"
-              className="text-sm text-gray-400 cursor-pointer select-none"
-            >
-              Remember me for 30 days
-            </label>
-          </div>
-
-          {/* Submit */}
-          <button
-            type="submit"
-            disabled={isLoading || isSuccess}
-            aria-busy={isLoading}
-            className="btn-primary w-full mb-5"
-          >
-            {isLoading && <Spinner />}
-            {isSuccess && <CheckCircle size={18} aria-hidden="true" />}
-            {isLoading ? 'Signing in…' : isSuccess ? 'Success!' : 'Sign in'}
-          </button>
-        </form>
-
-        {/* Divider */}
-        <div className="flex items-center gap-3 mb-5" aria-hidden="true">
-          <hr className="flex-1 border-brand-border" />
-          <span className="text-xs text-brand-muted">or continue with</span>
-          <hr className="flex-1 border-brand-border" />
-        </div>
-
-        {/* OAuth buttons */}
-        <div className="flex flex-col gap-3">
-          <button
-            type="button"
-            onClick={() => handleOAuth('UT SSO')}
-            className="btn-secondary w-full"
-            aria-label="Sign in with UT Single Sign-On"
-          >
-            <span
-              className="w-5 h-5 rounded bg-brand-blue text-white text-[10px] font-bold
-                         flex items-center justify-center"
-              aria-hidden="true"
-            >
-              UT
-            </span>
-            Sign in with UT Account
-          </button>
-          <button
-            type="button"
-            onClick={() => handleOAuth('Microsoft')}
-            className="btn-secondary w-full"
-            aria-label="Sign in with Microsoft Account"
-          >
-            <svg
-              width="18" height="18" viewBox="0 0 21 21"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-hidden="true"
-            >
-              <rect x="1"  y="1"  width="9" height="9" fill="#F25022"/>
-              <rect x="11" y="1"  width="9" height="9" fill="#7FBA00"/>
-              <rect x="1"  y="11" width="9" height="9" fill="#00A4EF"/>
-              <rect x="11" y="11" width="9" height="9" fill="#FFB900"/>
-            </svg>
-            Sign in with Microsoft
-          </button>
-        </div>
-
-        {/* Footer */}
-        <p className="mt-8 text-xs text-brand-muted text-center">
-          © 2026 United Tractors. All rights reserved.
-        </p>
-      </section>
-
-      {/* ── Right: Brand panel (55%) – hidden on mobile ────────────── */}
-      <aside
-        className="hidden md:flex md:w-[55%] flex-col items-center justify-center
-                   relative overflow-hidden bg-brand-panel"
-        aria-hidden="true"
-      >
-        {/* Decorative gradient blobs */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div
-            className="absolute -top-32 -right-32 w-96 h-96 rounded-full
-                       bg-brand-blue/20 blur-3xl"
-          />
-          <div
-            className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full
-                       bg-brand-blue/10 blur-3xl"
-          />
-          <div
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
-                       w-64 h-64 rounded-full bg-brand-blue/5 blur-2xl"
-          />
-          {/* Grid pattern */}
-          <div
-            className="absolute inset-0 opacity-[0.03]"
-            style={{
-              backgroundImage: `linear-gradient(#fff 1px, transparent 1px),
-                                linear-gradient(90deg, #fff 1px, transparent 1px)`,
-              backgroundSize: '48px 48px',
-            }}
-          />
-        </div>
-
-        {/* Content */}
-        <div className="relative z-10 max-w-sm text-center px-8 animate-fadeIn">
-          <div
-            className="w-20 h-20 rounded-2xl bg-brand-blue/20 border border-brand-blue/30
-                       flex items-center justify-center mx-auto mb-8"
-          >
-            <span className="text-4xl font-bold text-brand-blue">UT</span>
-          </div>
-
-          <h2 className="text-2xl font-bold text-white mb-4">
-            Enterprise Service Management
-          </h2>
-          <p className="text-brand-muted text-sm leading-relaxed mb-8">
-            Manage cases, work orders, and service resources all in one place.
-            Built for field operations teams at scale.
-          </p>
-
-          {/* Feature list */}
-          <ul className="space-y-3 text-left" aria-label="Platform features">
-            {[
-              { icon: '📋', label: 'Case Management' },
-              { icon: '🔧', label: 'Work Order Tracking' },
-              { icon: '📊', label: 'SLA Monitoring' },
-              { icon: '🏭', label: 'Asset Management' },
-            ].map(({ icon, label }) => (
-              <li
-                key={label}
-                className="flex items-center gap-3 text-sm text-gray-400"
-              >
-                <span
-                  className="w-8 h-8 rounded-lg bg-brand-blue/10 flex items-center
-                             justify-center text-base shrink-0"
-                >
-                  {icon}
-                </span>
-                {label}
+          <div className="lp-cover-mid">
+            <h2 className="lp-cover-h2">Enterprise <span>Service</span><br/>Management</h2>
+            <p className="lp-cover-p">Manage cases, work orders, and service resources all in one place. Built for field operations teams at scale.</p>
+            <ul className="lp-feats" aria-label="Platform features">
+              <li>
+                <span className="lp-tile"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M4 4h16v12H5l-1 4z"/></svg></span>
+                Case Management
               </li>
-            ))}
-          </ul>
-
-          {/* Version badge */}
-          <div className="mt-10 inline-flex items-center gap-2 px-3 py-1.5
-                          bg-brand-blue/10 border border-brand-blue/20 rounded-full">
-            <span className="w-2 h-2 rounded-full bg-brand-success animate-pulse" />
-            <span className="text-xs text-brand-muted">MVP v1.0 — All Systems Operational</span>
+              <li>
+                <span className="lp-tile"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M14 3l7 7-9 9-7 1 1-7z"/></svg></span>
+                Work Order Tracking
+              </li>
+              <li>
+                <span className="lp-tile"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>
+                SLA Monitoring
+              </li>
+              <li>
+                <span className="lp-tile"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 10h16M10 4v16"/></svg></span>
+                Asset Management
+              </li>
+            </ul>
           </div>
-        </div>
-      </aside>
-    </div>
+
+          <div className="lp-cover-bot">
+            <span className="lp-pill lp-cover-bot-text">
+              <span className="lp-dot" />
+              <strong style={{ color: '#fff', fontWeight: 600 }}>MVP v1.0</strong> — All Systems Operational
+            </span>
+          </div>
+        </aside>
+
+      </main>
+    </>
   );
 }

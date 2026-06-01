@@ -223,6 +223,83 @@ namespace UT.ServiceConsole.API.Services
             await _db.SaveChangesAsync();
         }
 
+        /// <summary>
+        /// Registers a new user: validates uniqueness, enforces password strength,
+        /// hashes password with salt, and persists the user to the database.
+        /// </summary>
+        public async Task<RegisterResponse> RegisterAsync(RegisterRequest request)
+        {
+            try
+            {
+                // Check email uniqueness
+                var emailExists = await _db.Users
+                    .AnyAsync(u => u.Email.ToLower() == request.Email.ToLower());
+                if (emailExists)
+                    return new RegisterResponse { Success = false, Message = "An account with that email already exists." };
+
+                // Check username uniqueness
+                var usernameExists = await _db.Users
+                    .AnyAsync(u => u.Username.ToLower() == request.Username.ToLower());
+                if (usernameExists)
+                    return new RegisterResponse { Success = false, Message = "That username is already taken." };
+
+                // Validate password strength
+                var (isValid, strengthMsg) = PasswordHasher.ValidateStrength(request.Password);
+                if (!isValid)
+                    return new RegisterResponse { Success = false, Message = strengthMsg };
+
+                // Hash password
+                var passwordHash = PasswordHasher.HashPassword(request.Password);
+
+                // Sanitise role — only allow known roles
+                var allowedRoles = new[] { "Admin", "Manager", "ServiceAdvisor", "Mechanic" };
+                var role = allowedRoles.Contains(request.Role) ? request.Role : "ServiceAdvisor";
+
+                var user = new User
+                {
+                    Username     = request.Username.Trim(),
+                    Email        = request.Email.Trim().ToLower(),
+                    PasswordHash = passwordHash,
+                    FirstName    = request.FirstName?.Trim(),
+                    LastName     = request.LastName?.Trim(),
+                    Role         = role,
+                    Department   = request.Department?.Trim(),
+                    PhoneNumber  = request.PhoneNumber?.Trim(),
+                    IsActive     = true,
+                    CreatedDate  = DateTime.UtcNow,
+                    LastModifiedDate = DateTime.UtcNow,
+                };
+
+                _db.Users.Add(user);
+                await _db.SaveChangesAsync();
+
+                _logger.LogInformation("New user registered. UserID={UserId} Email={Email} Role={Role}",
+                    user.UserID, user.Email, user.Role);
+
+                return new RegisterResponse
+                {
+                    Success = true,
+                    Message = "Account created successfully.",
+                    User = new UserDto
+                    {
+                        UserId      = user.UserID,
+                        Username    = user.Username,
+                        Email       = user.Email,
+                        FirstName   = user.FirstName ?? string.Empty,
+                        LastName    = user.LastName ?? string.Empty,
+                        Role        = user.Role,
+                        Department  = user.Department,
+                        PhoneNumber = user.PhoneNumber,
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error during registration for email: {Email}", request.Email);
+                return new RegisterResponse { Success = false, Message = "An unexpected error occurred. Please try again." };
+            }
+        }
+
         private static LoginResponse Fail(string message) =>
             new() { Success = false, Message = message };
     }

@@ -1,0 +1,22 @@
+# ── Environment / Secrets ────────────────────────────
+.env
+.env.local
+.env.*.local
+
+# ── Node / Frontend ──────────────────────────────────
+DEVELOPMENT_CRM/frontend/node_modules/
+DEVELOPMENT_CRM/frontend/dist/
+DEVELOPMENT_CRM/frontend/.vite/
+
+# ── .NET Backend ─────────────────────────────────────
+DEVELOPMENT_CRM/backend/**/bin/
+DEVELOPMENT_CRM/backend/**/obj/
+DEVELOPMENT_CRM/backend/**/*.db
+DEVELOPMENT_CRM/backend/**/*.db-shm
+DEVELOPMENT_CRM/backend/**/*.db-wal
+DEVELOPMENT_CRM/backend/**/Logs/
+
+# ── OS / IDE ──────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.bak

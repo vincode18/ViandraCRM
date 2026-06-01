@@ -203,7 +203,7 @@ export default function CasesPage() {
                   <td className="px-4 py-3 font-mono text-xs text-brand-blue whitespace-nowrap">
                     <button
                       type="button"
-                      onClick={() => navigate(`/cases/${encodeURIComponent(c.caseNumber)}`)}
+                      onClick={() => navigate(`/cases/${c.caseID}`)}
                       className="text-left hover:underline focus:outline-none focus:underline"
                       aria-label={`Open case ${c.caseNumber}`}
                       title="Open case detail"

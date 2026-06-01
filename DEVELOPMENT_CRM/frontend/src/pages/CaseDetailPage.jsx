@@ -1,14 +1,15 @@
 ﻿import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
-  Edit, User, ChevronDown, RefreshCw, MapPin, Phone, Mail,
-  AlertTriangle, CheckCircle, Clock, TrendingUp, Filter,
+  Edit, User, MapPin, Phone, Mail,
+  AlertTriangle, CheckCircle, Clock, TrendingUp,
   History, FileText, AlertCircle, MoreVertical,
   Bold, Italic, AtSign, Paperclip, Heart, MessageSquare,
-  ClipboardList, Package, Download, Search, X, ArrowRight,
-  ChevronRight, Circle, Check, CircleDot, ArrowUpRight
+  ClipboardList, Package, Download, X, ArrowRight,
+  Check
 } from 'lucide-react';
 import api from '../utils/api';
+import EditableField from '../components/EditableField';
 
 /* ── Status Mapping (UIC-001) ────────────────────────────────────────────── */
 const CASE_STATUS_MAPPING = {
@@ -62,158 +63,178 @@ export default function CaseDetailPage() {
     return () => document.removeEventListener('mousedown', handleOutsideClick);
   }, []);
 
-  const fallbackDetail = {
-    caseNumber: '01532785',
-    priority: 'Medium',
-    status: 'Closed',
-    progress: ['Open', 'Assigned', 'In Progress', 'Resolved', 'Closed'],
-    owner: 'System User',
-    startDate: '26/05/2026, 07:31',
-    targetDate: '02/06/2026, 07:31',
-    subject: 'Hydraulic Leak on Right Cylinder',
-    description: 'Operator reported significant hydraulic fluid leak near the right cylinder during morning inspection. Machine grounded pending repair. Suspect blown seal or damaged hose fitting. Requires immediate inspection and replacement parts.',
-    accountName: 'PUTRA PERKASA ABADI',
-    accountTier: 'Tier 1 Enterprise',
-    primaryContact: 'Andi Wijaya',
-    contactPhone: '+62-811-111-2222',
-    contactEmail: 'andi@putraabadi.co.id',
-    assetId: 'EQ-HT-9942',
-    assetModel: 'Komatsu D85ESS-2',
-    location: 'Site B - Pit 4',
-    slaStatus: 'Breached',
-    slaDaysOverdue: 17,
-    slaCompliance: 0,
-    createdDate: '26/05/2026',
-    createdBy: 'System User',
-    lastUpdatedDate: '26/10/2026',
-    lastUpdatedBy: 'System User',
-    targetDateOTF: '26/05/2026, 11:31',
-    startDateSLA: '26/05/2026, 07:31',
-    targetDateSLA: '02/06/2026, 07:31',
-    backdateReason: 'Standard case processing',
-  };
+  const [caseData, setCaseData] = useState(null);
 
-  const [caseData, setCaseData] = useState(fallbackDetail);
+  const fmtDT = (v) => v
+    ? new Date(v).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+    : '';
+  const fmtD = (v) => v ? new Date(v).toLocaleDateString('en-GB') : '';
+
+  const mapApiDto = (dto) => ({
+    // Identity
+    caseID:         dto.caseID,
+    caseNumber:     dto.caseNumber,
+    caseType:       dto.caseType ?? '',
+    priority:       dto.priority ?? '',
+    status:         dto.status ?? 'Open',
+    milestoneStatus: dto.milestoneStatus ?? 'Open',
+    progress:       ['Open', 'Assigned', 'In Progress', 'Resolved', 'Closed'],
+
+    // Section 1: Case Information
+    accountID:      dto.accountID ?? null,
+    accountName:    dto.accountName ?? '',
+    accountTier:    '',
+    contactID:      dto.contactID ?? null,
+    primaryContact: dto.contactName ?? '',
+    contactEmail:   dto.contactEmail ?? '',
+    contactPhone:   '',
+    contactTitle:   dto.contactTitle ?? '',
+    assetID:        dto.assetID ?? null,
+    assetName:      dto.assetName ?? '',
+    assetId:        dto.assetID ?? '',
+    assetModel:     '',
+    location:       dto.location ?? '',
+    plant:          dto.plant ?? '',
+    serviceArea:    dto.serviceArea ?? '',
+    owner:          dto.assignedOwnerName ?? 'Unassigned',
+
+    // Section 2: Case Informant
+    informantName:     dto.informantName ?? '',
+    informantEmail:    dto.informantEmail ?? '',
+    informantPosition: dto.informantPosition ?? '',
+
+    // Section 3: Case Details
+    subject:           dto.subject ?? '',
+    parentCaseID:      dto.parentCaseID ?? '',
+    description:       dto.description ?? '',
+    direction:         dto.direction ?? '',
+    caseOrigin:        dto.caseOrigin ?? '',
+    smrProblem:        dto.smrProblem ?? '',
+    dateTimeOpened:    fmtDT(dto.dateTimeOpened),
+    objectPart:        dto.objectPart ?? '',
+    specificObjectPart: dto.specificObjectPart ?? '',
+    cause:             dto.cause ?? '',
+    callType:          dto.callType ?? '',
+    damage:            dto.damage ?? '',
+    subcallType:       dto.subcallType ?? '',
+    descriptionUpdate: dto.descriptionUpdate ?? '',
+    sapStatus:         dto.sapStatus ?? '',
+    csRating:          dto.csRating ?? '',
+    closeReason:       dto.closeReason ?? '',
+    emr:               dto.emr ?? '',
+    waUpdateProgress:  dto.waUpdateProgress ?? '',
+    troubleDate:       fmtD(dto.troubleDate),
+    waClosingUpdate:   dto.waClosingUpdate ?? '',
+    waNumber:          dto.waNumber ?? '',
+    waDescription:     dto.waDescription ?? '',
+    category:          dto.category ?? '',
+    subCategory:       dto.subCategory ?? '',
+
+    // Section 4: Completion OTIF
+    otifMechStart:  fmtDT(dto.otifMechStart),
+    otifMechTarget: fmtDT(dto.otifMechTarget),
+    otifSolStart:   fmtDT(dto.otifSolStart),
+    otifSolTarget:  fmtDT(dto.otifSolTarget),
+
+    // Section 5: Backdate
+    backdateMech:   fmtDT(dto.backdateMech),
+    backdateSol:    fmtDT(dto.backdateSol),
+    reasonBackdate: dto.reasonBackdate ?? '',
+    reasonOthers:   dto.reasonOthers ?? '',
+
+    // Section 6: OTIF Status
+    otifMechStatus:    dto.otifMechStatus ?? '',
+    notOtifMech:       dto.notOtifMech ?? false,
+    notOtifMechReason: dto.notOtifMechReason ?? '',
+    omCompensation:    dto.omCompensation ?? '',
+    otifSolStatus:     dto.otifSolStatus ?? '',
+    notOtifSol:        dto.notOtifSol ?? false,
+    notOtifSolReason:  dto.notOtifSolReason ?? '',
+
+    // Section 7: Billing
+    billingAccount:         dto.billingAccount ?? '',
+    billingSalesOffice:     dto.billingSalesOffice ?? '',
+    billingDivision:        dto.billingDivision ?? '',
+    billingSalesOfficeCode: dto.billingSalesOfficeCode ?? '',
+    billingContactName:     dto.billingContactName ?? '',
+
+    // Section 8: Additional Info
+    dtAssigned:         fmtDT(dto.dtAssigned),
+    approvalStatus:     dto.approvalStatus ?? '',
+    dtInProgress:       fmtDT(dto.dtInProgress),
+    needManPower:       dto.needManPower ?? false,
+    dtResolved:         fmtDT(dto.dtResolved),
+    caseCancel:         dto.caseCancel ?? false,
+    dtSupervisorApprove: fmtDT(dto.dtSupervisorApprove),
+
+    // Section 9: System
+    createdDate:     fmtD(dto.createdDate),
+    createdBy:       dto.createdBy ? String(dto.createdBy) : 'System',
+    lastUpdatedDate: fmtD(dto.lastModifiedDate),
+    lastUpdatedBy:   dto.lastModifiedBy ? String(dto.lastModifiedBy) : 'System',
+    sfCaseNumber:    dto.caseNumber ?? '',
+
+    // SLA
+    slaStatus:           dto.slaStatus ?? 'OnTrack',
+    slaResponseTarget:   fmtDT(dto.slaResponseTarget),
+    slaResolutionTarget: fmtDT(dto.slaResolutionTarget),
+    slaDaysOverdue:      0,
+    slaCompliance:       dto.complianceScore ?? null,
+    startDate:           fmtDT(dto.startDate),
+    targetDate:          fmtDT(dto.targetResolutionDate),
+    completionNote:      dto.completionNote ?? '',
+    closedDate:          fmtDT(dto.closedDate),
+  });
 
   useEffect(() => {
     let alive = true;
     const loadCaseDetail = async () => {
       setLoading(true);
       setError('');
+
+      // Primary: /cases/{id} using integer caseID
       try {
-        const response = await api.get(`/cases/detail/${encodeURIComponent(id)}`);
-        const payload = response.data?.data;
-        if (!alive) return;
-        if (!payload) {
-          setCaseData(fallbackDetail);
-          setError('Case detail data was empty. Showing fallback layout.');
+        const res = await api.get(`/cases/${id}`);
+        const dto = res.data?.data;
+        if (alive && dto) {
+          setCaseData(mapApiDto(dto));
+          if (alive) setLoading(false);
           return;
         }
-        setCaseData({
-          caseNumber: payload.caseNumber || id,
-          priority: payload.priority || 'Medium',
-          status: payload.status || 'Closed',
-          progress: payload.progressSteps?.length ? payload.progressSteps : fallbackDetail.progress,
-          owner: payload.owner || 'System User',
-          startDate: payload.slaTracking?.startDateOtfMechanic
-            ? new Date(payload.slaTracking.startDateOtfMechanic).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
-            : fallbackDetail.startDate,
-          targetDate: payload.slaTracking?.targetDateSla
-            ? new Date(payload.slaTracking.targetDateSla).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
-            : fallbackDetail.targetDate,
-          subject: payload.subject || fallbackDetail.subject,
-          description: payload.description || fallbackDetail.description,
-          accountName: payload.accountContext?.accountName || fallbackDetail.accountName,
-          accountTier: payload.accountContext?.accountTier || fallbackDetail.accountTier,
-          primaryContact: payload.accountContext?.primaryContactName || fallbackDetail.primaryContact,
-          contactPhone: payload.accountContext?.primaryContactPhone || fallbackDetail.contactPhone,
-          contactEmail: payload.accountContext?.primaryContactEmail || fallbackDetail.contactEmail,
-          assetId: payload.affectedUnit?.assetId || fallbackDetail.assetId,
-          assetModel: payload.affectedUnit?.model || fallbackDetail.assetModel,
-          location: payload.affectedUnit?.location || fallbackDetail.location,
-          slaStatus: payload.slaStatus?.status === 'breached' ? 'Breached' : 'On Track',
-          slaDaysOverdue: payload.slaStatus?.daysOverdue ?? fallbackDetail.slaDaysOverdue,
-          slaCompliance: payload.slaStatus?.complianceScore ?? fallbackDetail.slaCompliance,
-          createdDate: payload.createdDate
-            ? new Date(payload.createdDate).toLocaleDateString('en-GB')
-            : fallbackDetail.createdDate,
-          createdBy: payload.createdBy || fallbackDetail.createdBy,
-          lastUpdatedDate: payload.lastUpdatedDate
-            ? new Date(payload.lastUpdatedDate).toLocaleDateString('en-GB')
-            : fallbackDetail.lastUpdatedDate,
-          lastUpdatedBy: payload.lastUpdatedBy || fallbackDetail.lastUpdatedBy,
-          targetDateOTF: payload.slaTracking?.targetDateOtfMechanic
-            ? new Date(payload.slaTracking.targetDateOtfMechanic).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
-            : fallbackDetail.targetDateOTF,
-          startDateSLA: payload.slaTracking?.startDateSla
-            ? new Date(payload.slaTracking.startDateSla).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
-            : fallbackDetail.startDateSLA,
-          targetDateSLA: payload.slaTracking?.targetDateSla
-            ? new Date(payload.slaTracking.targetDateSla).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
-            : fallbackDetail.targetDateSLA,
-          backdateReason: payload.slaTracking?.backdateValidation?.backdateReason || fallbackDetail.backdateReason,
-        });
-      } catch (fetchError) {
-        if (!alive) return;
-        setError('Unable to load case detail from the backend. Showing fallback dummy UI.');
-        setCaseData(fallbackDetail);
-      } finally {
-        if (alive) setLoading(false);
+      } catch (apiErr) {
+        console.warn('Direct API fetch failed:', apiErr.message);
+      }
+
+      // Fallback: /cases/detail/{id} also accepts case number strings
+      try {
+        const res2 = await api.get(`/cases/detail/${encodeURIComponent(id)}`);
+        const dto2 = res2.data?.data;
+        if (alive && dto2) {
+          setCaseData(mapApiDto(dto2));
+          if (alive) setLoading(false);
+          return;
+        }
+      } catch (apiErr2) {
+        console.warn('Detail endpoint also failed:', apiErr2.message);
+      }
+
+      if (alive) {
+        setError('Case not found.');
+        setLoading(false);
       }
     };
     loadCaseDetail();
     return () => { alive = false; };
   }, [id]);
 
-  /* ── mock data for tabs ───────────────────────────────── */
-  const fleetUnits = [
-    { id: 'GD-829', model: 'Komatsu D85ESS-2', status: 'Active', hours: 14250, location: 'Site 8-Pit 4' },
-    { id: 'GD-830', model: 'PC200-8', status: 'Maint. Req.', hours: 12500, location: 'Site A-Loading' },
-    { id: 'GD-831', model: 'WA200-6', status: 'Operational', hours: 16750, location: 'Transportation' },
-    { id: 'GD-832', model: 'D65EX-12', status: 'In Repair', hours: 11200, location: 'Workshop' },
-  ];
+  /* ── live data (empty until API integration) ─────────── */
+  const feedItems = [];
+  const workOrders = [];
+  const parts = [];
+  const documents = [];
+  const [auditLog, setAuditLog] = useState([]);
 
-  const timeline = [
-    { date: '26/10/2026', time: '14:30', title: 'CASE CLOSED', description: 'System User - SLA review completed.' },
-    { date: '28/05/2026', time: '16:45', title: 'COMPLETION NOTE', description: '"All repairs completed. System tested and verified."' },
-    { date: '27/05/2026', time: '09:00', title: 'PARTS ARRIVED', description: 'Warehouse - Items verified and issued to technician.' },
-    { date: '26/05/2026', time: '07:31', title: 'CASE CREATED', description: 'System User - Automated case creation from inspection.' },
-  ];
-
-  const pastCases = [
-    { id: '01555475', subject: 'Hydraulic Leak', ref: 'HO785:7-BO76', status: 'IN PROGRESS' },
-    { id: '01473917', subject: 'Engine Overheat', ref: 'GD-830', status: 'CLOSED' },
-  ];
-
-  const feedItems = [
-    { id: 1, type: 'status-change', author: 'System Auto-Process', timestamp: '10 mins ago', fromStatus: 'In Progress', toStatus: 'Escalated' },
-    { id: 2, type: 'comment', author: 'Mechanic Rudi', timestamp: '1 hour ago', comment: 'Inspected EX-8902. Found severe scoring on the main hydraulic pump housing. Requires immediate replacement. Cannot patch on site. Awaiting approval for parts order #PO-9921.', likes: 2 },
-    { id: 3, type: 'system', author: 'System', timestamp: '3 hours ago', description: 'Case #01532785 created via Telemetry' },
-  ];
-
-  const workOrders = [
-    { id: 'WO-88392', number: 'WO-88392', status: 'In Progress', description: 'Replace impeller seals and inspect housing.', technician: 'M. Rivera', dueDate: 'Today', progress: 75 },
-    { id: 'WO-88340', number: 'WO-88340', status: 'Closed', description: 'Initial diagnostic inspection.', technician: 'A. Chen', dueDate: '2d ago', progress: 100 },
-  ];
-
-  const parts = [
-    { id: 'PRT-992-B', description: 'Seal Kit - High Temp', partNumber: 'PRT-992-B', quantity: 2, status: 'In Transit' },
-  ];
-
-  const documents = [
-    { id: 1, name: 'Scope of Work.pdf', size: '1.2 MB' },
-    { id: 2, name: 'Technical Specifications.pdf', size: '3.4 MB' },
-    { id: 3, name: 'Service Report.pdf', size: '890 KB' },
-  ];
-
-  const [auditLog, setAuditLog] = useState([
-    { id: 1, timestamp: '2026-10-26T14:30:00', date: 'Oct 26, 2026', time: '14:30', user: 'System User', field: 'Status', type: 'field-update', oldValue: 'In Progress', newValue: 'Closed' },
-    { id: 2, timestamp: '2026-10-26T16:45:00', date: 'Oct 26, 2026', time: '16:45', user: 'System User', field: 'Target Date', type: 'field-update', oldValue: '02/06/2026', newValue: '26/10/2026' },
-    { id: 3, timestamp: '2026-10-25T11:00:00', date: 'Oct 25, 2026', time: '11:00', user: 'Mechanic Rudi', field: 'Description', type: 'text-update', oldValue: 'Operator reported leak...', newValue: 'Inspected EX-8902. Found severe scoring...' },
-    { id: 4, timestamp: '2026-10-24T07:31:00', date: 'Oct 24, 2026', time: '07:31', user: 'System', field: 'Case', type: 'system-event', description: 'Case #01532785 created via Telemetry' },
-  ]);
-
-  const currentStepIndex = caseData.progress.indexOf(caseData.status);
+  const currentStepIndex = caseData ? caseData.progress.indexOf(caseData.status) : -1;
   const effectiveCaseParam = caseParameter !== null ? caseParameter : currentStepIndex + 1;
 
   const handleMilestoneClick = (idx) => {
@@ -269,6 +290,21 @@ export default function CaseDetailPage() {
     selectedMilestone === currentStepIndex + 1;
 
   /* ── render ─────────────────────────────────────────────── */
+  if (loading) {
+    return (
+      <div className="h-full flex items-center justify-center" style={{ backgroundColor: 'var(--bg-base)', color: 'var(--text-muted)' }}>
+        <div className="text-sm animate-pulse">Loading case details…</div>
+      </div>
+    );
+  }
+  if (!caseData) {
+    return (
+      <div className="h-full flex items-center justify-center" style={{ backgroundColor: 'var(--bg-base)', color: 'var(--text-muted)' }}>
+        <div className="text-sm">{error || 'Case not found.'}</div>
+      </div>
+    );
+  }
+
   return (
     <div className="h-full flex flex-col" style={{ backgroundColor: 'var(--bg-base)', color: 'var(--text-main)' }}>
       {/* Error banner */}
@@ -516,79 +552,68 @@ export default function CaseDetailPage() {
 
       {/* ── 3-Column Layout ───────────────────────────────── */}
       <div className="flex-1 overflow-hidden flex">
-        {/* ── Left Panel ────────────────────────────────── */}
+        {/* ── Left Panel (FRD §5: Customer Personal Data) ─ */}
         <div className="w-72 flex-shrink-0 overflow-y-auto p-4 border-r" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--bg-panel)' }}>
-          {/* Fleet Units (UIC-001) */}
-          <Card title={`Fleet Units (${fleetUnits.length})`} icon={<RefreshCw size={14} />}>
-            <div className="space-y-2">
-              {fleetUnits.map(unit => (
-                <div key={unit.id} className="p-3 rounded-md" style={{ backgroundColor: 'var(--bg-base)', border: '1px solid var(--border)' }}>
-                  <div className="flex items-start gap-3">
-                    <input type="checkbox" className="mt-1 rounded" defaultChecked={false} />
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-sm">{unit.id}</span>
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium
-                          ${unit.status === 'Active' ? 'text-green-600' :
-                            unit.status === 'Operational' ? 'text-blue-600' :
-                            unit.status === 'In Repair' ? 'text-orange-600' :
-                            'text-yellow-600'}`}
-                          style={{
-                            backgroundColor: unit.status === 'Active' ? 'rgba(52, 199, 89, 0.1)' :
-                              unit.status === 'Operational' ? 'rgba(74, 144, 226, 0.1)' :
-                              unit.status === 'In Repair' ? 'rgba(255, 159, 10, 0.1)' :
-                              'rgba(255, 184, 28, 0.1)'
-                          }}
-                        >
-                          [{unit.status}]
-                        </span>
-                      </div>
-                      <div className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>{unit.model}</div>
-                      <div className="text-xs mt-1" style={{ color: 'var(--text-tertiary)' }}>HM: {unit.hours.toLocaleString()} hrs</div>
-                      <div className="text-xs flex items-center gap-1 mt-1" style={{ color: 'var(--text-tertiary)' }}>
-                        <MapPin size={10} /> {unit.location}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Card>
-
-          {/* Affected Unit */}
-          <Card title="Affected Unit">
-            <div className="space-y-3">
-              <InfoField label="Asset ID" value={caseData.assetId} />
-              <InfoField label="Model" value={caseData.assetModel} />
-              <InfoField label="Location" value={
-                <span className="flex items-center gap-1"><MapPin size={12} /> {caseData.location}</span>
-              } />
-            </div>
-          </Card>
-
           {/* Account Details */}
-          <Card title="Account Details">
-            <div className="font-medium text-sm mb-1">{caseData.accountName}</div>
-            <span className="text-[11px] px-2 py-0.5 rounded bg-brand-blue/15 text-brand-blue font-medium">
-              {caseData.accountTier}
-            </span>
-            <div className="mt-3 pt-3 space-y-2" style={{ borderTop: '1px solid var(--border)' }}>
-              <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Primary Contact</div>
-              <div className="text-sm">{caseData.primaryContact}</div>
-              <div className="flex items-center gap-2 text-xs" style={{ color: 'var(--text-muted)' }}>
-                <Mail size={12} /> {caseData.contactEmail}
-              </div>
-              <div className="flex items-center gap-2 text-xs" style={{ color: 'var(--text-muted)' }}>
-                <Phone size={12} /> {caseData.contactPhone}
-              </div>
+          <Card title="Account" icon={<User size={14} />}>
+            <div className="font-semibold text-sm mb-1">{caseData.accountName || <span style={{ color: 'var(--text-muted)' }}>—</span>}</div>
+            {caseData.accountTier && (
+              <span className="text-[10px] px-2 py-0.5 rounded font-medium" style={{ backgroundColor: 'rgba(74,144,226,0.12)', color: '#4A90E2' }}>
+                {caseData.accountTier}
+              </span>
+            )}
+            {caseData.serviceArea && (
+              <div className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>Service Area: {caseData.serviceArea}</div>
+            )}
+            {caseData.plant && (
+              <div className="text-xs" style={{ color: 'var(--text-muted)' }}>Plant: {caseData.plant}</div>
+            )}
+          </Card>
+
+          {/* Primary Contact */}
+          <Card title="Primary Contact" icon={<Phone size={14} />}>
+            <div className="text-sm font-semibold">{caseData.primaryContact || <span style={{ color: 'var(--text-muted)' }}>—</span>}</div>
+            {caseData.contactTitle && <div className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{caseData.contactTitle}</div>}
+            <div className="mt-2 space-y-1.5">
+              {caseData.contactEmail && (
+                <div className="flex items-center gap-2 text-xs" style={{ color: 'var(--text-muted)' }}>
+                  <Mail size={11} /> {caseData.contactEmail}
+                </div>
+              )}
+              {caseData.contactPhone && (
+                <div className="flex items-center gap-2 text-xs" style={{ color: 'var(--text-muted)' }}>
+                  <Phone size={11} /> {caseData.contactPhone}
+                </div>
+              )}
             </div>
+          </Card>
+
+          {/* Affected Asset */}
+          {(caseData.assetName || caseData.assetId) && (
+            <Card title="Affected Asset" icon={<ClipboardList size={14} />}>
+              <div className="space-y-2">
+                {caseData.assetName && <InfoField label="Asset" value={caseData.assetName} />}
+                {caseData.assetId && <InfoField label="Asset ID" value={String(caseData.assetId)} />}
+                {caseData.assetModel && <InfoField label="Model" value={caseData.assetModel} />}
+                {caseData.location && (
+                  <div className="flex items-center gap-1 text-xs" style={{ color: 'var(--text-muted)' }}>
+                    <MapPin size={11} /> {caseData.location}
+                  </div>
+                )}
+              </div>
+            </Card>
+          )}
+
+          {/* Mini Work Orders placeholder (FRD LP-2) */}
+          <Card title="Work Orders (0)" icon={<FileText size={14} />}>
+            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>No linked Work Orders yet.</p>
           </Card>
         </div>
 
         {/* ── Center Panel ──────────────────────────────── */}
         <div className="flex-1 overflow-y-auto p-6" style={{ backgroundColor: 'var(--bg-base)' }}>
           <div className="max-w-5xl space-y-5">
-            {activeTab === 'details' && <DetailsTab caseData={caseData} caseParameter={effectiveCaseParam} />}
+            {activeTab === 'details' && <DetailsTab caseData={caseData} caseParameter={effectiveCaseParam} onFieldSaved={(field, val) => setCaseData(prev => ({ ...prev, [field]: val }))} />}
             {activeTab === 'feed' && <FeedTab feedItems={feedItems} />}
             {activeTab === 'related' && <RelatedTab workOrders={workOrders} parts={parts} documents={documents} navigate={navigate} />}
             {activeTab === 'log' && <LogTab auditLog={auditLog} />}
@@ -597,83 +622,128 @@ export default function CaseDetailPage() {
 
         {/* ── Right Panel ───────────────────────────────── */}
         <div className="w-80 flex-shrink-0 overflow-y-auto p-4 border-l" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--bg-panel)' }}>
-          {/* SLA Status (UIC-001) */}
-          <div className="mb-4 rounded-lg p-4 border" style={{ backgroundColor: 'rgba(231, 76, 60, 0.1)', borderColor: '#E74C3C' }}>
-            <div className="flex items-start gap-3 mb-3">
-              <AlertTriangle className="shrink-0" size={24} style={{ color: '#E74C3C' }} />
-              <div>
-                <h3 className="font-bold text-sm" style={{ color: '#E74C3C' }}>OVER SLA - BREACHED</h3>
-                <span className="text-2xl font-bold" style={{ color: '#E74C3C' }}>{caseData.slaDaysOverdue} Days</span>
-              </div>
-            </div>
-            <div className="space-y-2 mb-4">
-              <div className="flex justify-between text-sm">
-                <span style={{ color: 'var(--text-tertiary)' }}>OTF Mechanic:</span>
-                <span className="font-medium" style={{ color: '#E74C3C' }}>FAILED (+6.0d)</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span style={{ color: 'var(--text-tertiary)' }}>OTF Solution:</span>
-                <span className="font-medium" style={{ color: '#FFB81C' }}>PENDING</span>
-              </div>
-            </div>
-            <div className="mb-4">
-              <div className="flex justify-between text-sm mb-1">
-                <span style={{ color: 'var(--text-tertiary)' }}>SLA Compliance Score:</span>
-                <span className="font-medium" style={{ color: '#E74C3C' }}>{caseData.slaCompliance}%</span>
-              </div>
-              <div className="w-full h-2 rounded-full" style={{ backgroundColor: 'var(--border)' }}>
-                <div className="h-full rounded-full" style={{ width: `${caseData.slaCompliance}%`, backgroundColor: '#E74C3C' }} />
-              </div>
-            </div>
-            <button className="w-full py-2 rounded-lg text-sm font-medium transition-colors" style={{ backgroundColor: 'rgba(231, 76, 60, 0.2)', color: '#E74C3C', border: '1px solid #E74C3C' }}>
-              Acknowledge Breach
-            </button>
-          </div>
-
-          {/* Performance Metrics */}
-          <Card title="Performance Metrics" icon={<TrendingUp size={14} />}>
-            <div className="space-y-2">
-              <MetricRow label="1st Response" target="Target: 4h" value="0.5h" status="good" />
-              <MetricRow label="Resolution" target="Target: 5d" value="153d" status="bad" />
-            </div>
-          </Card>
-
-          {/* Timeline Flow */}
-          <Card title="Timeline Flow" icon={<History size={14} />} action={<Filter size={12} />}>
-            <div className="space-y-4">
-              {timeline.map((event, idx) => (
-                <div key={idx} className="relative pl-4 pb-2" style={{ borderLeft: '2px solid var(--border)' }}>
-                  <div className="absolute left-0 top-0 w-2 h-2 rounded-full -translate-x-1/2" style={{ backgroundColor: 'var(--border)' }} />
-                  <div className="text-[11px]" style={{ color: 'var(--text-muted)' }}>{event.date}</div>
-                  <div className="text-xs font-medium">{event.time}</div>
-                  <div className="text-xs font-bold mt-1">{event.title}</div>
-                  <div className="text-[11px] mt-1 leading-relaxed" style={{ color: 'var(--text-muted)' }}>{event.description}</div>
-                </div>
-              ))}
-            </div>
-          </Card>
-
-          {/* Past Cases */}
-          <Card title={`Past Cases for Asset (${pastCases.length})`} icon={<FileText size={14} />}>
-            <div className="space-y-2">
-              {pastCases.map((pastCase, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => navigate(`/cases/${pastCase.id}`)}
-                  className="w-full text-left p-2.5 rounded-md hover:bg-brand-blue/10 transition-colors"
-                  style={{ backgroundColor: 'var(--bg-base)', border: '1px solid var(--border)' }}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium text-sm">{pastCase.id}</span>
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium
-                      ${pastCase.status === 'IN PROGRESS' ? 'bg-yellow-500/15 text-yellow-400' : 'bg-green-500/15 text-green-400'}`}>
-                      {pastCase.status}
+          {/* SLA Status (Dynamic - FRD BR-201-A) */}
+          {(() => {
+            const sla = caseData?.slaStatus || 'OnTrack';
+            const isBreached = sla === 'Breached';
+            const isAtRisk   = sla === 'AtRisk';
+            const slaColor   = isBreached ? '#E74C3C' : isAtRisk ? '#FFB81C' : '#34C759';
+            const slaBg      = isBreached ? 'rgba(231,76,60,0.1)' : isAtRisk ? 'rgba(255,184,28,0.1)' : 'rgba(52,199,89,0.1)';
+            const slaLabel   = isBreached ? 'OVER SLA – BREACHED' : isAtRisk ? 'SLA AT RISK' : 'SLA ON TRACK';
+            const SlaIcon    = isBreached ? AlertTriangle : isAtRisk ? AlertCircle : CheckCircle;
+            return (
+              <div className="mb-4 rounded-lg p-4 border" style={{ backgroundColor: slaBg, borderColor: slaColor }}>
+                <div className="flex items-start gap-3 mb-3">
+                  <SlaIcon className="shrink-0" size={22} style={{ color: slaColor }} />
+                  <div>
+                    <h3 className="font-bold text-sm" style={{ color: slaColor }}>{slaLabel}</h3>
+                    <span className="text-xs mt-1 block" style={{ color: 'var(--text-muted)' }}>
+                      {caseData?.priority ? `Priority: ${caseData.priority}` : ''}
+                      {caseData?.category ? ` · ${caseData.category}` : ''}
                     </span>
                   </div>
-                  <div className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>{pastCase.subject}</div>
-                  <div className="text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>{pastCase.ref}</div>
-                </button>
-              ))}
+                </div>
+                <div className="space-y-2 mb-3 text-sm">
+                  {caseData?.slaResponseTarget && (
+                    <div className="flex justify-between">
+                      <span style={{ color: 'var(--text-tertiary)' }}>Response Target:</span>
+                      <span className="font-medium text-xs" style={{ color: slaColor }}>{caseData.slaResponseTarget}</span>
+                    </div>
+                  )}
+                  {caseData?.slaResolutionTarget && (
+                    <div className="flex justify-between">
+                      <span style={{ color: 'var(--text-tertiary)' }}>Resolution Target:</span>
+                      <span className="font-medium text-xs" style={{ color: slaColor }}>{caseData.slaResolutionTarget}</span>
+                    </div>
+                  )}
+                  {caseData?.slaDaysOverdue > 0 && (
+                    <div className="flex justify-between">
+                      <span style={{ color: 'var(--text-tertiary)' }}>Overdue:</span>
+                      <span className="font-medium" style={{ color: '#E74C3C' }}>{caseData.slaDaysOverdue} Days</span>
+                    </div>
+                  )}
+                </div>
+                {caseData?.slaCompliance != null && (
+                  <div className="mb-3">
+                    <div className="flex justify-between text-sm mb-1">
+                      <span style={{ color: 'var(--text-tertiary)' }}>SLA Compliance:</span>
+                      <span className="font-medium" style={{ color: slaColor }}>{caseData.slaCompliance}%</span>
+                    </div>
+                    <div className="w-full h-2 rounded-full" style={{ backgroundColor: 'var(--border)' }}>
+                      <div className="h-full rounded-full" style={{ width: `${caseData.slaCompliance}%`, backgroundColor: slaColor }} />
+                    </div>
+                  </div>
+                )}
+                {isBreached && (
+                  <button className="w-full py-2 rounded-lg text-sm font-medium transition-colors" style={{ backgroundColor: 'rgba(231,76,60,0.2)', color: '#E74C3C', border: '1px solid #E74C3C' }}>
+                    Acknowledge Breach
+                  </button>
+                )}
+              </div>
+            );
+          })()}
+
+          {/* Performance Metrics */}
+          {(caseData.slaResponseTarget || caseData.slaResolutionTarget) && (
+            <Card title="Performance Metrics" icon={<TrendingUp size={14} />}>
+              <div className="space-y-2">
+                {caseData.slaResponseTarget && (
+                  <div className="grid grid-cols-2 gap-2 text-xs p-2.5 rounded-md" style={{ backgroundColor: 'var(--bg-base)', border: '1px solid var(--border)' }}>
+                    <span style={{ color: 'var(--text-tertiary)' }}>Response Target</span>
+                    <span className="font-medium text-right" style={{ color: 'var(--text-main)' }}>{caseData.slaResponseTarget}</span>
+                  </div>
+                )}
+                {caseData.slaResolutionTarget && (
+                  <div className="grid grid-cols-2 gap-2 text-xs p-2.5 rounded-md" style={{ backgroundColor: 'var(--bg-base)', border: '1px solid var(--border)' }}>
+                    <span style={{ color: 'var(--text-tertiary)' }}>Resolution Target</span>
+                    <span className="font-medium text-right" style={{ color: 'var(--text-main)' }}>{caseData.slaResolutionTarget}</span>
+                  </div>
+                )}
+              </div>
+            </Card>
+          )}
+
+          {/* Case History (FRD RP-1) */}
+          <Card title="Case History" icon={<History size={14} />}>
+            <div className="space-y-3">
+              {caseData.createdDate && (
+                <div className="relative pl-4" style={{ borderLeft: '2px solid var(--border)' }}>
+                  <div className="absolute left-0 top-1 w-2 h-2 rounded-full -translate-x-1/2" style={{ backgroundColor: 'var(--accent)' }} />
+                  <div className="text-[11px] font-bold">CASE CREATED</div>
+                  <div className="text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>{caseData.createdDate}</div>
+                </div>
+              )}
+              {caseData.dtAssigned && (
+                <div className="relative pl-4" style={{ borderLeft: '2px solid var(--border)' }}>
+                  <div className="absolute left-0 top-1 w-2 h-2 rounded-full -translate-x-1/2" style={{ backgroundColor: '#4A90E2' }} />
+                  <div className="text-[11px] font-bold">ASSIGNED</div>
+                  <div className="text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>{caseData.dtAssigned}</div>
+                </div>
+              )}
+              {caseData.dtInProgress && (
+                <div className="relative pl-4" style={{ borderLeft: '2px solid var(--border)' }}>
+                  <div className="absolute left-0 top-1 w-2 h-2 rounded-full -translate-x-1/2" style={{ backgroundColor: '#FFB81C' }} />
+                  <div className="text-[11px] font-bold">IN PROGRESS</div>
+                  <div className="text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>{caseData.dtInProgress}</div>
+                </div>
+              )}
+              {caseData.dtResolved && (
+                <div className="relative pl-4" style={{ borderLeft: '2px solid var(--border)' }}>
+                  <div className="absolute left-0 top-1 w-2 h-2 rounded-full -translate-x-1/2" style={{ backgroundColor: '#34C759' }} />
+                  <div className="text-[11px] font-bold">RESOLVED</div>
+                  <div className="text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>{caseData.dtResolved}</div>
+                </div>
+              )}
+              {caseData.closedDate && (
+                <div className="relative pl-4" style={{ borderLeft: '2px solid var(--border)' }}>
+                  <div className="absolute left-0 top-1 w-2 h-2 rounded-full -translate-x-1/2" style={{ backgroundColor: '#6C7681' }} />
+                  <div className="text-[11px] font-bold">CLOSED</div>
+                  <div className="text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>{caseData.closedDate}</div>
+                </div>
+              )}
+              {!caseData.createdDate && !caseData.dtAssigned && (
+                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>No history yet.</p>
+              )}
             </div>
           </Card>
 
@@ -752,137 +822,222 @@ function MetricRow({ label, target, value, status }) {
   );
 }
 
-/* ── Details Tab ─────────────────────────────────────────── */
-function DetailsTab({ caseData, caseParameter }) {
+/* ── Details Tab — 9 sections per FRD 1.4.1 ─────────────── */
+function DetailsTab({ caseData, caseParameter, onFieldSaved }) {
+  const F = ({ label, value }) => (
+    <div>
+      <div className="text-[11px] font-semibold uppercase tracking-wider mb-0.5" style={{ color: 'var(--text-muted)' }}>{label}</div>
+      <div className="text-sm font-medium min-h-[1.25rem]">{value || <span style={{ color: 'var(--text-muted)' }}>—</span>}</div>
+    </div>
+  );
+  const Section = ({ num, title, children }) => (
+    <div className="rounded-lg p-5" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+      <h3 className="text-sm font-bold mb-4" style={{ color: 'var(--text-main)' }}>{num}. {title}</h3>
+      {children}
+    </div>
+  );
   return (
     <>
-      {/* Section 1: Completion & SLA Tracking */}
-      <div className="rounded-lg p-5" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-        <h3 className="text-sm font-bold mb-4" style={{ color: 'var(--text-main)' }}>
-          1. Completion & SLA Tracking
-        </h3>
-        <div className="space-y-3">
-          {[
-            { label: 'Start Date OTF Mechanic', value: caseData.startDate },
-            { label: 'Target Date OTF Mechanic', value: caseData.targetDateOTF },
-            { label: 'Start Date SLA', value: caseData.startDateSLA },
-            { label: 'Target Date SLA', value: caseData.targetDateSLA },
-          ].map(field => (
-            <div key={field.label} className="group">
-              <label className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{field.label}</label>
-              <div className="flex items-center justify-between mt-1 px-3 py-2 rounded-md" style={{ backgroundColor: 'var(--bg-base)', border: '1px solid var(--border)' }}>
-                <span className="text-sm font-medium">{field.value}</span>
-                <button className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: 'var(--text-muted)' }}>
-                  <Edit size={12} />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Backdate Validation */}
-        <div className="mt-5 pt-5" style={{ borderTop: '1px solid var(--border)' }}>
-          <h4 className="text-[11px] font-bold uppercase tracking-wider mb-3" style={{ color: 'var(--text-main)' }}>
-            Backdate Validation
-          </h4>
-          <div className="space-y-2">
-            <div className="flex items-center justify-between py-2" style={{ borderBottom: '1px solid var(--border)' }}>
-              <span className="text-sm" style={{ color: 'var(--text-muted)' }}>Mechanic Start</span>
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium">26/05/2026, 07:31</span>
-                <CheckCircle size={14} className="text-green-500" />
-              </div>
-            </div>
-            <div className="flex items-center justify-between py-2">
-              <span className="text-sm" style={{ color: 'var(--text-muted)' }}>Job Complete</span>
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium">26/05/2026, 15:30</span>
-                <input type="checkbox" className="rounded" defaultChecked readOnly />
-              </div>
-            </div>
-          </div>
-          <div className="mt-3">
-            <label className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Reason</label>
-            <textarea
-              rows={3}
-              maxLength={500}
-              defaultValue={caseData.backdateReason}
-              className="w-full mt-1 px-3 py-2 rounded-md text-sm resize-none"
-              style={{ backgroundColor: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-main)' }}
-              placeholder="Provide reason for backdating..."
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Section 2: Case Information */}
-      <div className="rounded-lg p-5" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-        <h3 className="text-sm font-bold mb-4" style={{ color: 'var(--text-main)' }}>
-          2A. Case Information
-        </h3>
+      {/* Section 1 — Case Information */}
+      <Section num="1" title="Case Information">
         <div className="grid grid-cols-2 gap-x-8 gap-y-4">
-          <InfoRow label="Case Owner" value={caseData.owner} />
-          <InfoRow label="Status" badge={caseData.status} badgeColor={statusBadgeClass(caseData.status)} />
-          <InfoRow label="Case Number" value={caseData.caseNumber} />
-          <InfoRow label="Priority" badge={caseData.priority} badgeColor={priorityColor(caseData.priority)} />
-          <InfoRow
-            label="Case Parameter"
-            value={
-              <span className="inline-flex items-center gap-2">
-                <span
-                  className="inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold"
-                  style={{ backgroundColor: '#0B2D6E', color: '#fff' }}
-                >
-                  {caseParameter}
-                </span>
-                <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
-                  {['', 'Open', 'Assigned', 'In Progress', 'Resolved', 'Closed'][caseParameter] || ''}
-                </span>
-              </span>
-            }
-          />
-          <InfoRow label="Created Date" value={caseData.createdDate} />
-          <InfoRow label="Created By" value={caseData.createdBy} />
-          <InfoRow label="Last Updated" value={caseData.lastUpdatedDate} />
-          <InfoRow label="Last Updated By" value={caseData.lastUpdatedBy} />
+          <F label="Account" value={caseData.accountName} />
+          <F label="Contact" value={caseData.primaryContact} />
+          <F label="Asset" value={caseData.assetName || (caseData.assetId ? String(caseData.assetId) : '')} />
+          <F label="Plant" value={caseData.plant} />
+          <F label="Service Area" value={caseData.serviceArea} />
+          <F label="Case Owner" value={caseData.owner} />
         </div>
-      </div>
+      </Section>
 
-      {/* Section 3: Subject & Description */}
-      <div className="rounded-lg p-5" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-        <h3 className="text-sm font-bold mb-4" style={{ color: 'var(--text-main)' }}>
-          2B. Subject & Description
-        </h3>
-        <div className="mb-5">
-          <label className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Subject</label>
-          <p className="text-base font-semibold mt-1.5 leading-relaxed">{caseData.subject}</p>
+      {/* Section 2 — Case Informant */}
+      <Section num="2" title="Case Informant">
+        <div className="grid grid-cols-2 gap-x-8 gap-y-4">
+          <F label="Name (Case Creator)" value={caseData.informantName} />
+          <F label="Email" value={caseData.informantEmail} />
+          <F label="Position" value={caseData.informantPosition} />
         </div>
-        <div className="mt-5 pt-5" style={{ borderTop: '1px solid var(--border)' }}>
-          <label className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Detailed Description</label>
-          <div className="relative mt-1.5 p-3 rounded-md group" style={{ backgroundColor: 'var(--bg-base)', border: '1px solid var(--border)' }}>
-            <p className="text-sm leading-relaxed whitespace-pre-wrap">{caseData.description}</p>
-            <button className="absolute top-2 right-2 p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: 'var(--text-muted)' }}>
-              <Edit size={14} />
-            </button>
+      </Section>
+
+      {/* Section 3 — Case Details */}
+      <Section num="3" title="Case Details">
+        <div className="grid grid-cols-2 gap-x-8 gap-y-4">
+          <div className="col-span-2">
+            <div className="text-[11px] font-semibold uppercase tracking-wider mb-0.5" style={{ color: 'var(--text-muted)' }}>Subject</div>
+            <div className="mt-1">
+              <EditableField
+                caseNumber={caseData.caseNumber}
+                fieldName="subject"
+                label="Subject"
+                value={caseData.subject}
+                type="text"
+                onSaved={v => onFieldSaved('subject', v)}
+              />
+            </div>
           </div>
+          <F label="Parent Case" value={caseData.parentCaseID} />
+          <F label="Direction" value={caseData.direction} />
+          <F label="Location" value={caseData.location} />
+          <F label="Case Origin" value={caseData.caseOrigin} />
+          <F label="SMR Problem" value={caseData.smrProblem} />
+          <F label="Date/Time Opened" value={caseData.dateTimeOpened} />
+          <F label="Object Part" value={caseData.objectPart} />
+          <F label="Specific Object Part" value={caseData.specificObjectPart} />
+          <F label="Case Type" value={
+            <EditableField
+              caseNumber={caseData.caseNumber}
+              fieldName="caseType"
+              label="Case Type"
+              value={caseData.caseType}
+              type="select"
+              options={['Request','Incident','Problem','Change','Breakdown']}
+              onSaved={v => onFieldSaved('caseType', v)}
+            />
+          } />
+          <F label="Call Type" value={
+            <EditableField
+              caseNumber={caseData.caseNumber}
+              fieldName="callType"
+              label="Call Type"
+              value={caseData.callType}
+              type="select"
+              options={['Inbound','Outbound','Internal','Escalation']}
+              onSaved={v => onFieldSaved('callType', v)}
+            />
+          } />
+          <F label="Cause" value={caseData.cause} />
+          <F label="Damage" value={caseData.damage} />
+          <F label="Subcall Type" value={caseData.subcallType} />
+          <F label="Category" value={caseData.category} />
+          <F label="Sub-Category" value={caseData.subCategory} />
+          <F label="Status" value={
+            <EditableField
+              caseNumber={caseData.caseNumber}
+              fieldName="status"
+              label="Status"
+              value={caseData.status}
+              type="select"
+              options={['Open','Assigned','In Progress','Resolved','Closed']}
+              onSaved={v => onFieldSaved('status', v)}
+            />
+          } />
+          <F label="Priority" value={
+            <EditableField
+              caseNumber={caseData.caseNumber}
+              fieldName="priority"
+              label="Priority"
+              value={caseData.priority}
+              type="select"
+              options={['Critical','High','Medium','Low']}
+              onSaved={v => onFieldSaved('priority', v)}
+            />
+          } />
+          <F label="SAP Status" value={caseData.sapStatus} />
+          <F label="CS Rating" value={caseData.csRating} />
+          <F label="EMR" value={caseData.emr} />
+          <F label="Trouble Date" value={caseData.troubleDate} />
+          <F label="WA Number" value={caseData.waNumber} />
+          <F label="Close Reason" value={caseData.closeReason} />
+          <div className="col-span-2">
+            <div className="text-[11px] font-semibold uppercase tracking-wider mb-0.5" style={{ color: 'var(--text-muted)' }}>Case Description</div>
+            <div className="mt-1">
+              <EditableField
+                caseNumber={caseData.caseNumber}
+                fieldName="description"
+                label="Case Description"
+                value={caseData.description}
+                type="textarea"
+                onSaved={v => onFieldSaved('description', v)}
+              />
+            </div>
+          </div>
+          {caseData.descriptionUpdate && (
+            <div className="col-span-2">
+              <div className="text-[11px] font-semibold uppercase tracking-wider mb-0.5" style={{ color: 'var(--text-muted)' }}>Description Update</div>
+              <div className="text-sm whitespace-pre-wrap p-3 rounded-md" style={{ backgroundColor: 'var(--bg-base)', border: '1px solid var(--border)' }}>{caseData.descriptionUpdate}</div>
+            </div>
+          )}
+          {caseData.waUpdateProgress && (
+            <div className="col-span-2"><F label="WhatsApp Update Progress" value={caseData.waUpdateProgress} /></div>
+          )}
+          {caseData.waClosingUpdate && (
+            <div className="col-span-2"><F label="WhatsApp Closing Update" value={caseData.waClosingUpdate} /></div>
+          )}
+          {caseData.waDescription && (
+            <div className="col-span-2"><F label="WhatsApp Description" value={caseData.waDescription} /></div>
+          )}
         </div>
-      </div>
-    </>
-  );
-}
+      </Section>
 
-function InfoRow({ label, value, badge, badgeColor }) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <span className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{label}</span>
-      {badge ? (
-        <span className="inline-block self-start px-2 py-0.5 rounded text-xs font-medium" style={badgeColor}>
-          {badge}
-        </span>
-      ) : (
-        <span className="text-sm font-medium">{value}</span>
-      )}
-    </div>
+      {/* Section 4 — Completion OTIF */}
+      <Section num="4" title="Completion OTIF">
+        <div className="grid grid-cols-2 gap-x-8 gap-y-4">
+          <F label="Start Date OTIF Mechanic" value={caseData.otifMechStart} />
+          <F label="Target Date OTIF Mechanic" value={caseData.otifMechTarget} />
+          <F label="Start Date OTIF Solution" value={caseData.otifSolStart} />
+          <F label="Target Date OTIF Solution" value={caseData.otifSolTarget} />
+        </div>
+      </Section>
+
+      {/* Section 5 — Backdate */}
+      <Section num="5" title="Backdate">
+        <div className="grid grid-cols-2 gap-x-8 gap-y-4">
+          <F label="Backdate OTIF Mechanic" value={caseData.backdateMech} />
+          <F label="Backdate OTIF Solution" value={caseData.backdateSol} />
+          <F label="Reason Backdate" value={caseData.reasonBackdate} />
+          <F label="Reason for Others" value={caseData.reasonOthers} />
+        </div>
+      </Section>
+
+      {/* Section 6 — OTIF Status */}
+      <Section num="6" title="OTIF Status">
+        <div className="grid grid-cols-2 gap-x-8 gap-y-4">
+          <F label="OTIF Mechanic Status" value={caseData.otifMechStatus} />
+          <F label="NOT OTIF Mechanic" value={caseData.notOtifMech ? 'Yes' : 'No'} />
+          <F label="NOT OTIF Mechanic Reason" value={caseData.notOtifMechReason} />
+          <F label="OM Compensation Status" value={caseData.omCompensation} />
+          <F label="OTIF Solution Status" value={caseData.otifSolStatus} />
+          <F label="NOT OTIF Solution" value={caseData.notOtifSol ? 'Yes' : 'No'} />
+          <F label="NOT OTIF Solution Reason" value={caseData.notOtifSolReason} />
+        </div>
+      </Section>
+
+      {/* Section 7 — Billing */}
+      <Section num="7" title="Billing">
+        <div className="grid grid-cols-2 gap-x-8 gap-y-4">
+          <F label="Billing Account" value={caseData.billingAccount || caseData.accountName} />
+          <F label="Billing Sales Office" value={caseData.billingSalesOffice} />
+          <F label="Billing Division" value={caseData.billingDivision} />
+          <F label="Billing Sales Office Code" value={caseData.billingSalesOfficeCode} />
+          <F label="Billing Contact Name" value={caseData.billingContactName || caseData.primaryContact} />
+        </div>
+      </Section>
+
+      {/* Section 8 — Additional Info */}
+      <Section num="8" title="Additional Info">
+        <div className="grid grid-cols-2 gap-x-8 gap-y-4">
+          <F label="Date/Time Assigned" value={caseData.dtAssigned} />
+          <F label="Approval Status" value={caseData.approvalStatus} />
+          <F label="Date/Time In Progress" value={caseData.dtInProgress} />
+          <F label="Need Man Power" value={caseData.needManPower ? 'Yes' : 'No'} />
+          <F label="Date/Time Resolved" value={caseData.dtResolved} />
+          <F label="Case Cancel" value={caseData.caseCancel ? 'Yes' : 'No'} />
+          <F label="Date/Time Supervisor Approve" value={caseData.dtSupervisorApprove} />
+        </div>
+      </Section>
+
+      {/* Section 9 — System */}
+      <Section num="9" title="System">
+        <div className="grid grid-cols-2 gap-x-8 gap-y-4">
+          <F label="SF Case Number" value={caseData.caseNumber} />
+          <F label="Milestone Status" value={caseData.milestoneStatus} />
+          <F label="Created By" value={caseData.createdBy} />
+          <F label="Created Date" value={caseData.createdDate} />
+          <F label="Last Modified" value={caseData.lastUpdatedDate} />
+          <F label="Last Modified By" value={caseData.lastUpdatedBy} />
+        </div>
+      </Section>
+    </>
   );
 }
 
