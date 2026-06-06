@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\02_Learning\\Viandra Project CRM\\DEVELOPMENT_CRM\\backend\\UT.ServiceConsole.API\\UT.ServiceConsole.API.csproj": {}
+    "D:\\05_Projects_Private\\Viandra Project CRM\\DEVELOPMENT_CRM\\backend\\UT.ServiceConsole.API\\UT.ServiceConsole.API.csproj": {}
   },
   "projects": {
-    "D:\\02_Learning\\Viandra Project CRM\\DEVELOPMENT_CRM\\backend\\UT.ServiceConsole.API\\UT.ServiceConsole.API.csproj": {
+    "D:\\05_Projects_Private\\Viandra Project CRM\\DEVELOPMENT_CRM\\backend\\UT.ServiceConsole.API\\UT.ServiceConsole.API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\02_Learning\\Viandra Project CRM\\DEVELOPMENT_CRM\\backend\\UT.ServiceConsole.API\\UT.ServiceConsole.API.csproj",
+        "projectUniqueName": "D:\\05_Projects_Private\\Viandra Project CRM\\DEVELOPMENT_CRM\\backend\\UT.ServiceConsole.API\\UT.ServiceConsole.API.csproj",
         "projectName": "UT.ServiceConsole.API",
-        "projectPath": "D:\\02_Learning\\Viandra Project CRM\\DEVELOPMENT_CRM\\backend\\UT.ServiceConsole.API\\UT.ServiceConsole.API.csproj",
+        "projectPath": "D:\\05_Projects_Private\\Viandra Project CRM\\DEVELOPMENT_CRM\\backend\\UT.ServiceConsole.API\\UT.ServiceConsole.API.csproj",
         "packagesPath": "C:\\Users\\80124029\\.nuget\\packages\\",
-        "outputPath": "D:\\02_Learning\\Viandra Project CRM\\DEVELOPMENT_CRM\\backend\\UT.ServiceConsole.API\\obj\\",
+        "outputPath": "D:\\05_Projects_Private\\Viandra Project CRM\\DEVELOPMENT_CRM\\backend\\UT.ServiceConsole.API\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\80124029\\AppData\\Roaming\\NuGet\\NuGet.Config"

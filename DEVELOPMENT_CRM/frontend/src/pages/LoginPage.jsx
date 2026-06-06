@@ -22,11 +22,11 @@ const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Manrope:wght@400;500;600;700&display=swap');
 
   .lp-root {
-    --ink: #1A1A1A; --ink-2: #5C5C5C; --line: #E4E4E4;
+    --ink: #111827; --ink-2: #6B7280; --line: #E5E7EB;
     --surface: #FFFFFF; --surface-2: #F7F7F5;
-    --accent: #FFC400; --accent-press: #E6B000;
+    --accent: #FBBF24; --accent-press: #F59E0B;
     --cover-dark: #16181D; --danger: #C0392B; --ok: #3FB950;
-    --r: 10px;
+    --r: 8px;
     font-family: 'Manrope', system-ui, sans-serif;
     color: var(--ink);
     background: var(--surface);
@@ -55,10 +55,10 @@ const STYLES = `
     padding: 40px 0;
   }
   .lp-h1 {
-    font-family: 'Archivo', sans-serif; font-weight: 800;
-    font-size: 30px; letter-spacing: -.02em; margin-bottom: 6px;
+    font-family: 'Archivo', sans-serif; font-weight: 700;
+    font-size: 32px; letter-spacing: -.02em; margin-bottom: 6px;
   }
-  .lp-sub { color: var(--ink-2); font-size: 15px; margin-bottom: 32px; }
+  .lp-sub { color: var(--ink-2); font-size: 14px; margin-bottom: 32px; }
   .lp-label {
     display: block; font-size: 13px; font-weight: 600;
     letter-spacing: .01em; margin-bottom: 8px; color: var(--ink);
@@ -74,8 +74,8 @@ const STYLES = `
     font-family: inherit; font-size: 15px; color: var(--ink);
     background: var(--surface); transition: border-color .15s, box-shadow .15s;
   }
-  .lp-input::placeholder { color: #A6A6A6; }
-  .lp-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255,196,0,.28); }
+  .lp-input::placeholder { color: #9CA3AF; }
+  .lp-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(251,191,36,.2); }
   .lp-input.invalid { border-color: var(--danger); box-shadow: 0 0 0 3px rgba(192,57,43,.15); }
   .lp-eye {
     position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
@@ -87,11 +87,11 @@ const STYLES = `
     display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;
   }
   .lp-link {
-    color: var(--ink); font-size: 13px; font-weight: 600;
+    color: var(--accent); font-size: 13px; font-weight: 600;
     text-decoration: none; border-bottom: 1px solid transparent; background: none; border-top: none; border-left: none; border-right: none;
     cursor: pointer; font-family: inherit;
   }
-  .lp-link:hover { border-bottom-color: var(--ink); }
+  .lp-link:hover { border-bottom-color: var(--accent); }
   .lp-err {
     display: flex; align-items: center; gap: 6px;
     color: var(--danger); font-size: 12.5px; margin-top: -10px; margin-bottom: 16px;
@@ -102,14 +102,14 @@ const STYLES = `
   }
   .lp-remember input { width: 17px; height: 17px; accent-color: var(--ink); cursor: pointer; }
   .lp-btn {
-    width: 100%; height: 48px; border: 0; border-radius: var(--r);
+    width: 100%; height: 48px; border: 0; border-radius: 9999px;
     font-family: inherit; font-weight: 700; font-size: 15px; cursor: pointer;
     transition: transform .12s, background .15s, box-shadow .15s;
     display: flex; align-items: center; justify-content: center; gap: 8px;
   }
-  .lp-btn-primary { background: var(--accent); color: var(--ink); box-shadow: 0 1px 0 rgba(0,0,0,.04); }
-  .lp-btn-primary:hover { background: #FFCD1F; transform: translateY(-1px); box-shadow: 0 6px 16px rgba(255,196,0,.35); }
-  .lp-btn-primary:active { background: var(--accent-press); transform: translateY(0); }
+  .lp-btn-primary { background: var(--accent); color: #1F2937; box-shadow: 0 1px 0 rgba(0,0,0,.04); }
+  .lp-btn-primary:hover { background: var(--accent-press); transform: translateY(-1px); box-shadow: 0 6px 16px rgba(251,191,36,.35); }
+  .lp-btn-primary:active { background: #EAAA08; transform: translateY(0); }
   .lp-btn-primary:disabled { opacity: .6; cursor: not-allowed; transform: none; }
   .lp-divider {
     display: flex; align-items: center; gap: 14px;
@@ -117,13 +117,13 @@ const STYLES = `
   }
   .lp-divider::before, .lp-divider::after { content: ''; flex: 1; height: 1px; background: var(--line); }
   .lp-sso {
-    width: 100%; height: 48px; border: 1px solid var(--line); border-radius: var(--r);
-    background: var(--surface-2); font-family: inherit; font-weight: 600;
+    width: 100%; height: 48px; border: 1px solid var(--line); border-radius: 9999px;
+    background: #FFFFFF; font-family: inherit; font-weight: 600;
     font-size: 14.5px; color: var(--ink);
     display: flex; align-items: center; justify-content: center; gap: 10px;
     cursor: pointer; transition: border-color .15s, background .15s; margin-bottom: 12px;
   }
-  .lp-sso:hover { border-color: #C9C9C9; background: #fff; }
+  .lp-sso:hover { border-color: #D1D5DB; background: #F9FAFB; }
   .lp-ut-mark {
     width: 20px; height: 18px; border-radius: 4px;
     background: var(--ink); color: #fff; font-family: 'Archivo', sans-serif;
@@ -461,6 +461,14 @@ export default function LoginPage() {
               <li>
                 <span className="lp-tile"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 10h16M10 4v16"/></svg></span>
                 Asset Management
+              </li>
+              <li>
+                <span className="lp-tile"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+                Contact Management
+              </li>
+              <li>
+                <span className="lp-tile"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 1 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
+                Field Service
               </li>
             </ul>
           </div>

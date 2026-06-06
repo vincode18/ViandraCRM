@@ -60,6 +60,13 @@
             <param name="email">Registered email address.</param>
             <returns>200 OK always.</returns>
         </member>
+        <member name="M:UT.ServiceConsole.API.Controllers.AuthController.Register(UT.ServiceConsole.API.Models.DTOs.Auth.RegisterRequest)">
+            <summary>
+            Registers a new user account. Password is hashed server-side; never stored in plain text.
+            </summary>
+            <param name="request">Registration details: username, email, password, optional profile fields.</param>
+            <returns>201 Created with new user info on success; 409 Conflict if email/username taken; 400 on validation error.</returns>
+        </member>
         <member name="M:UT.ServiceConsole.API.Controllers.AuthController.Me">
             <summary>Returns information about the currently authenticated user.</summary>
         </member>
@@ -106,6 +113,43 @@
         <member name="M:UT.ServiceConsole.API.Controllers.CasesController.DeleteCase(System.Int32)">
             <summary>Permanently deletes a case (Admin role required).</summary>
             <param name="id">Case primary key.</param>
+        </member>
+        <member name="T:UT.ServiceConsole.API.Controllers.SearchController">
+            <summary>
+            Search endpoints for Account, Contact, and Asset entities.
+            Used by Create Case form for autocomplete/searchable select fields.
+            </summary>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Controllers.SearchController.SearchAccounts(System.String,System.Int32,System.Int32)">
+            <summary>
+            Search Accounts by name, ID, or other indexed fields.
+            </summary>
+            <param name="query">Search query (min 1 character)</param>
+            <param name="limit">Max results to return (default 10)</param>
+            <param name="offset">Pagination offset (default 0)</param>
+            <returns>List of matching Accounts with metadata</returns>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Controllers.SearchController.SearchContacts(System.String,System.Nullable{System.Int32},System.Int32,System.Int32)">
+            <summary>
+            Search Contacts by name, email, phone, or Contact ID.
+            Optionally filter by Account ID.
+            </summary>
+            <param name="query">Search query</param>
+            <param name="accountId">Optional Account ID to filter by</param>
+            <param name="limit">Max results (default 10)</param>
+            <param name="offset">Pagination offset (default 0)</param>
+            <returns>List of matching Contacts</returns>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Controllers.SearchController.SearchAssets(System.String,System.Nullable{System.Int32},System.Int32,System.Int32)">
+            <summary>
+            Search Assets by name, Asset ID, serial number, or type.
+            Optionally filter by Account ID.
+            </summary>
+            <param name="query">Search query</param>
+            <param name="accountId">Optional Account ID to filter by</param>
+            <param name="limit">Max results (default 10)</param>
+            <param name="offset">Pagination offset (default 0)</param>
+            <returns>List of matching Assets</returns>
         </member>
         <member name="T:UT.ServiceConsole.API.Controllers.WorkOrdersController">
             <summary>
@@ -194,6 +238,30 @@
         <member name="M:UT.ServiceConsole.API.Migrations.InitialCreate.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
         </member>
+        <member name="T:UT.ServiceConsole.API.Migrations.AddCaseDynamicFields">
+            <inheritdoc />
+        </member>
+        <member name="M:UT.ServiceConsole.API.Migrations.AddCaseDynamicFields.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:UT.ServiceConsole.API.Migrations.AddCaseDynamicFields.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:UT.ServiceConsole.API.Migrations.AddCaseDynamicFields.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:UT.ServiceConsole.API.Migrations.AddFRDCaseDetailsFields">
+            <inheritdoc />
+        </member>
+        <member name="M:UT.ServiceConsole.API.Migrations.AddFRDCaseDetailsFields.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:UT.ServiceConsole.API.Migrations.AddFRDCaseDetailsFields.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:UT.ServiceConsole.API.Migrations.AddFRDCaseDetailsFields.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
         <member name="T:UT.ServiceConsole.API.Models.DTOs.Auth.LoginRequest">
             <summary>Request payload for POST /api/auth/login.</summary>
         </member>
@@ -212,14 +280,20 @@
         <member name="T:UT.ServiceConsole.API.Models.DTOs.Auth.UserDto">
             <summary>Safe user info embedded in LoginResponse (no sensitive fields).</summary>
         </member>
+        <member name="T:UT.ServiceConsole.API.Models.DTOs.Auth.RegisterRequest">
+            <summary>Request payload for POST /api/auth/register.</summary>
+        </member>
+        <member name="T:UT.ServiceConsole.API.Models.DTOs.Auth.RegisterResponse">
+            <summary>Response payload for POST /api/auth/register.</summary>
+        </member>
         <member name="T:UT.ServiceConsole.API.Models.DTOs.Cases.CaseDto">
             <summary>Summary DTO for Case list views.</summary>
         </member>
         <member name="T:UT.ServiceConsole.API.Models.DTOs.Cases.CaseDetailDto">
-            <summary>Full detail DTO for Case detail page.</summary>
+            <summary>Full detail DTO for Case detail page (FRD 1.4.1 - 9 sections).</summary>
         </member>
         <member name="T:UT.ServiceConsole.API.Models.DTOs.Cases.CreateCaseRequest">
-            <summary>Request payload to create a new Case.</summary>
+            <summary>Request payload to create a new Case (FRD 1.4.1 - 9 sections).</summary>
         </member>
         <member name="T:UT.ServiceConsole.API.Models.DTOs.Cases.UpdateCaseRequest">
             <summary>Request payload to update an existing Case.</summary>
@@ -315,6 +389,12 @@
         <member name="M:UT.ServiceConsole.API.Services.AuthService.ResetPasswordAsync(System.String,System.String,System.String)">
             <summary>Resets user password after validating reset token.</summary>
         </member>
+        <member name="M:UT.ServiceConsole.API.Services.AuthService.RegisterAsync(UT.ServiceConsole.API.Models.DTOs.Auth.RegisterRequest)">
+            <summary>
+            Registers a new user: validates uniqueness, enforces password strength,
+            hashes password with salt, and persists the user to the database.
+            </summary>
+        </member>
         <member name="T:UT.ServiceConsole.API.Services.CaseService">
             <summary>
             Business logic for Case CRUD operations, case number generation, and status transitions.
@@ -330,7 +410,10 @@
             <summary>Returns full case details including related entities.</summary>
         </member>
         <member name="M:UT.ServiceConsole.API.Services.CaseService.CreateCaseAsync(UT.ServiceConsole.API.Models.DTOs.Cases.CreateCaseRequest,System.Int32)">
-            <summary>Creates a new case with auto-generated case number.</summary>
+            <summary>Creates a new case with auto-generated case number and dynamic SLA calculation.</summary>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Services.CaseService.CalculateSla(System.DateTime,System.String,System.String,System.String)">
+            <summary>Calculates SLA response and resolution targets based on FRD SLA matrix.</summary>
         </member>
         <member name="M:UT.ServiceConsole.API.Services.CaseService.UpdateCaseAsync(System.Int32,UT.ServiceConsole.API.Models.DTOs.Cases.UpdateCaseRequest,System.Int32)">
             <summary>Updates mutable fields of an existing case.</summary>
@@ -352,6 +435,9 @@
         </member>
         <member name="M:UT.ServiceConsole.API.Services.Interfaces.IAuthService.ResetPasswordAsync(System.String,System.String,System.String)">
             <summary>Resets password with a valid reset token.</summary>
+        </member>
+        <member name="M:UT.ServiceConsole.API.Services.Interfaces.IAuthService.RegisterAsync(UT.ServiceConsole.API.Models.DTOs.Auth.RegisterRequest)">
+            <summary>Registers a new user, hashes the password, and persists to DB.</summary>
         </member>
         <member name="T:UT.ServiceConsole.API.Services.Interfaces.ICaseService">
             <summary>Contract for Case management business logic.</summary>

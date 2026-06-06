@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "YfHr671A7vU=",
+  "dgSpecHash": "/JhIS7GasS4=",
   "success": true,
-  "projectFilePath": "D:\\02_Learning\\Viandra Project CRM\\DEVELOPMENT_CRM\\backend\\UT.ServiceConsole.API\\UT.ServiceConsole.API.csproj",
+  "projectFilePath": "D:\\05_Projects_Private\\Viandra Project CRM\\DEVELOPMENT_CRM\\backend\\UT.ServiceConsole.API\\UT.ServiceConsole.API.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\80124029\\.nuget\\packages\\fluentvalidation\\11.9.0\\fluentvalidation.11.9.0.nupkg.sha512",
     "C:\\Users\\80124029\\.nuget\\packages\\fluentvalidation.dependencyinjectionextensions\\11.9.0\\fluentvalidation.dependencyinjectionextensions.11.9.0.nupkg.sha512",
