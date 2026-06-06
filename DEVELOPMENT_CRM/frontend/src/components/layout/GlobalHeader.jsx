@@ -4,7 +4,7 @@ import {
   Menu, Search, Bell, Settings, HelpCircle,
   User, LogOut, ChevronDown, X, Sun, Moon,
   Home, Folder, ClipboardList, Box, Building2, Factory,
-  Clock, MapPin, Activity
+  Clock, MapPin, Activity, CalendarClock
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -17,6 +17,7 @@ const MODULES = [
   { key: 'account', label: 'Account', icon: Building2, path: '/accounts' },
   { key: 'plant', label: 'Plant', icon: Factory, path: '/plants' },
   { key: 'shift', label: 'Shift', icon: Clock, path: '/shifts' },
+  { key: 'serviceappointment', label: 'Service Appointment', icon: CalendarClock, path: '/serviceappointments' },
   { key: 'fieldservice', label: 'Field Service', icon: MapPin, path: '/fieldservice' },
   { key: 'emr', label: 'EMR', icon: Activity, path: '/emr' },
 ];

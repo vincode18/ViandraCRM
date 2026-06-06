@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Technician Schedule &amp; Availability</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-container": "#cdcdcd",
+                        "primary-container": "#f5c800",
+                        "surface-variant": "#e2e2e2",
+                        "on-error": "#ffffff",
+                        "on-surface-variant": "#4d4632",
+                        "on-secondary": "#ffffff",
+                        "surface-container": "#eeeeee",
+                        "on-secondary-container": "#656464",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "background": "#f9f9f9",
+                        "on-error-container": "#93000a",
+                        "surface-bright": "#f9f9f9",
+                        "tertiary": "#5d5f5f",
+                        "inverse-surface": "#2f3131",
+                        "secondary-fixed-dim": "#c8c6c5",
+                        "on-primary-fixed": "#231b00",
+                        "on-secondary-fixed": "#1c1b1b",
+                        "error-container": "#ffdad6",
+                        "surface-tint": "#725c00",
+                        "surface-container-low": "#f3f3f3",
+                        "on-tertiary-fixed": "#1a1c1c",
+                        "secondary-container": "#e5e2e1",
+                        "primary-fixed": "#ffe081",
+                        "inverse-on-surface": "#f1f1f1",
+                        "error": "#ba1a1a",
+                        "surface-container-high": "#e8e8e8",
+                        "on-tertiary-fixed-variant": "#454747",
+                        "primary": "#725c00",
+                        "surface-container-highest": "#e2e2e2",
+                        "on-primary-container": "#695400",
+                        "on-secondary-fixed-variant": "#474646",
+                        "on-tertiary-container": "#555757",
+                        "tertiary-fixed": "#e2e2e2",
+                        "surface": "#f9f9f9",
+                        "primary-fixed-dim": "#eec200",
+                        "surface-dim": "#dadada",
+                        "secondary": "#5f5e5e",
+                        "outline": "#7f7660",
+                        "on-surface": "#1a1c1c",
+                        "on-background": "#1a1c1c",
+                        "inverse-primary": "#eec200",
+                        "outline-variant": "#d1c6ab",
+                        "on-primary-fixed-variant": "#564500",
+                        "secondary-fixed": "#e5e2e1",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed-dim": "#c6c6c6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "xl": "32px",
+                        "margin": "24px",
+                        "sm": "8px",
+                        "md": "16px",
+                        "base": "8px",
+                        "gutter": "16px",
+                        "lg": "24px",
+                        "page-padding": "24px",
+                        "height-top-bar": "56px",
+                        "grid-col-1": "280px",
+                        "gap-standard": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-sm": ["Hanken Grotesk"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "body-md": ["Hanken Grotesk"],
+                        "label-sm": ["JetBrains Mono"],
+                        "body-sm": ["Hanken Grotesk"],
+                        "label-md": ["JetBrains Mono"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .gantt-grid {
+            display: grid;
+            grid-template-columns: 200px repeat(7, 1fr);
+            border-top: 1px solid #E0E0E0;
+            border-left: 1px solid #E0E0E0;
+        }
+        .gantt-cell {
+            border-right: 1px solid #E0E0E0;
+            border-bottom: 1px solid #E0E0E0;
+            padding: 8px;
+            min-height: 80px;
+        }
+        .gantt-header {
+            background-color: #F9F9F9;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 500;
+            text-align: center;
+            padding: 12px 8px;
+            border-right: 1px solid #E0E0E0;
+            border-bottom: 1px solid #E0E0E0;
+        }
+        .gantt-resource {
+            background-color: #FFFFFF;
+            font-family: 'Hanken Grotesk', sans-serif;
+            font-weight: 600;
+            padding: 12px 16px;
+            border-right: 1px solid #E0E0E0;
+            border-bottom: 1px solid #E0E0E0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .shift-block {
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            margin-bottom: 4px;
+            border: 1px solid transparent;
+        }
+        .shift-confirmed {
+            background-color: #FFFFFF;
+            border-color: #121212;
+            color: #121212;
+        }
+        .shift-tentative {
+            background-color: #F0F0F0;
+            border-color: #E0E0E0;
+            color: #575757;
+            border-style: dashed;
+        }
+        .shift-absence {
+            background-color: #ffdad6; /* error-container */
+            border-color: #ba1a1a; /* error */
+            color: #93000a; /* on-error-container */
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col md:flex-row">
+<!-- SideNavBar (Desktop) -->
+<nav class="hidden md:flex flex-col h-screen py-gap-standard w-[280px] bg-surface border-r border-surface-variant flex-shrink-0 z-10 sticky top-0">
+<div class="px-md mb-xl flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary text-[32px]" data-weight="fill" style="font-variation-settings: 'FILL' 1;">widgets</span>
+<div>
+<h1 class="font-headline-sm text-headline-sm font-bold text-on-surface tracking-tight">OPERATIONS</h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase">v4.2.0-stable</p>
+</div>
+</div>
+<div class="px-md mb-lg">
+<button class="w-full bg-primary-container text-on-primary-container font-label-md text-label-md py-sm px-md rounded hover:bg-primary-fixed transition-colors flex items-center justify-center gap-sm shadow-sm">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                New Work Order
+            </button>
+</div>
+<div class="flex-1 overflow-y-auto px-sm">
+<ul class="space-y-xs">
+<li>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all active:scale-95 duration-150 rounded" href="#">
+<span class="material-symbols-outlined text-[20px]">dashboard</span>
+<span class="font-label-md text-label-md">Overview</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm bg-primary-container text-on-primary-container font-semibold rounded-l-none border-l-4 border-primary active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined text-[20px]" data-weight="fill" style="font-variation-settings: 'FILL' 1;">calendar_today</span>
+<span class="font-label-md text-label-md">Schedule</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all active:scale-95 duration-150 rounded" href="#">
+<span class="material-symbols-outlined text-[20px]">minor_crash</span>
+<span class="font-label-md text-label-md">Dispatch</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all active:scale-95 duration-150 rounded" href="#">
+<span class="material-symbols-outlined text-[20px]">analytics</span>
+<span class="font-label-md text-label-md">Analytics</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all active:scale-95 duration-150 rounded" href="#">
+<span class="material-symbols-outlined text-[20px]">description</span>
+<span class="font-label-md text-label-md">Reports</span>
+</a>
+</li>
+</ul>
+</div>
+<div class="px-sm mt-auto border-t border-surface-variant pt-md">
+<ul class="space-y-xs">
+<li>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all active:scale-95 duration-150 rounded" href="#">
+<span class="material-symbols-outlined text-[20px]">headset_mic</span>
+<span class="font-label-md text-label-md">Support</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all active:scale-95 duration-150 rounded" href="#">
+<span class="material-symbols-outlined text-[20px]">dns</span>
+<span class="font-label-md text-label-md">System Status</span>
+</a>
+</li>
+</ul>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center w-full px-page-padding h-[56px] bg-surface-container-lowest border-b-2 border-primary-container flex-shrink-0 z-10 sticky top-0">
+<div class="flex items-center gap-lg">
+<span class="md:hidden font-headline-md text-headline-md font-black text-primary uppercase tracking-tighter">UT SC</span>
+<span class="hidden md:inline font-headline-sm text-headline-sm font-black text-primary uppercase tracking-tighter">UT SERVICE CONSOLE</span>
+<nav class="hidden md:flex items-center gap-md ml-xl h-full">
+<a class="text-on-surface-variant font-label-md text-label-md hover:text-primary transition-colors duration-200 h-full flex items-center cursor-pointer active:opacity-80" href="#">Dashboard</a>
+<a class="text-on-surface-variant font-label-md text-label-md hover:text-primary transition-colors duration-200 h-full flex items-center cursor-pointer active:opacity-80" href="#">Work Orders</a>
+<a class="text-on-surface-variant font-label-md text-label-md hover:text-primary transition-colors duration-200 h-full flex items-center cursor-pointer active:opacity-80" href="#">Assets</a>
+<a class="text-primary font-label-md text-label-md border-b-2 border-primary h-full flex items-center cursor-pointer active:opacity-80" href="#">Inventory</a>
+</nav>
+</div>
+<div class="flex items-center gap-md">
+<div class="hidden md:flex relative">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
+<input class="pl-xl pr-sm py-xs bg-surface border border-surface-variant rounded text-label-sm font-label-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-48" placeholder="Search..." type="text"/>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-colors duration-200 cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors duration-200 cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors duration-200 cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined">help</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-surface-variant overflow-hidden ml-sm border border-surface-variant">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="A close-up, highly detailed portrait of a professional industrial technician in a brightly lit environment, fitting the light mode technical aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDd0SaQwW-p1Dufy9tCUjlHPGbxT6Lyc3XRqd2FUFC1M-Gcu2uxoeErhZqjSjTgay2NidcNww29hw8Ao6Lqghl_MwBXp36u-i9YgdzQWW4_4FrBCWL0DEi5M7ets0CmgKV_Fz2FNV0JCHZ-j1zRcQ5Ae5UhwMsRb8yQKlb1QAR01nY-z0UtjF7toq-a-uj2uD5HimbBi4n-yZtkUjjg68TBM_Qrf977Iwyk4zOcnkPBgY7nlEzJ2HJom_EcB7BFIfc4zJLhmbmlDoKn"/>
+</div>
+</div>
+</header>
+<!-- Main Workspace -->
+<main class="flex-1 flex overflow-hidden bg-background">
+<!-- Filters Sidebar -->
+<aside class="w-[240px] bg-surface-container-lowest border-r border-surface-variant p-md flex flex-col gap-md overflow-y-auto flex-shrink-0">
+<div class="flex items-center gap-sm mb-sm text-on-surface border-b border-surface-variant pb-sm">
+<span class="material-symbols-outlined text-[20px]">filter_list</span>
+<h2 class="font-headline-sm text-headline-sm font-semibold">Filters</h2>
+</div>
+<!-- Territory Filter -->
+<div class="space-y-sm">
+<label class="font-label-sm text-label-sm text-on-surface-variant block uppercase">Territory</label>
+<div class="space-y-xs">
+<label class="flex items-center gap-sm cursor-pointer group">
+<div class="w-4 h-4 border border-on-surface rounded-sm flex items-center justify-center bg-primary-container group-hover:bg-primary-fixed transition-colors">
+<span class="material-symbols-outlined text-[14px] text-on-primary-container" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<span class="font-body-sm text-body-sm">JKT ST (Jakarta South)</span>
+</label>
+<label class="flex items-center gap-sm cursor-pointer group">
+<div class="w-4 h-4 border border-on-surface rounded-sm flex items-center justify-center group-hover:bg-surface-variant transition-colors">
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">JKT NT (Jakarta North)</span>
+</label>
+<label class="flex items-center gap-sm cursor-pointer group">
+<div class="w-4 h-4 border border-on-surface rounded-sm flex items-center justify-center group-hover:bg-surface-variant transition-colors">
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">BDG C (Bandung Central)</span>
+</label>
+</div>
+</div>
+<!-- Skill Filter -->
+<div class="space-y-sm mt-md">
+<label class="font-label-sm text-label-sm text-on-surface-variant block uppercase">Skill Level</label>
+<select class="w-full bg-surface-container-lowest border border-surface-variant rounded py-xs px-sm font-body-sm text-body-sm focus:border-primary focus:ring-1 focus:ring-primary appearance-none">
+<option>All Skills</option>
+<option>L1 - Basic Maint.</option>
+<option>L2 - Diagnostics</option>
+<option>L3 - Specialist</option>
+</select>
+</div>
+<!-- Resource Type -->
+<div class="space-y-sm mt-md">
+<label class="font-label-sm text-label-sm text-on-surface-variant block uppercase">Resource Type</label>
+<div class="space-y-xs">
+<label class="flex items-center gap-sm cursor-pointer group">
+<div class="w-4 h-4 border border-on-surface rounded-full flex items-center justify-center bg-primary-container group-hover:bg-primary-fixed transition-colors">
+<div class="w-2 h-2 rounded-full bg-on-primary-container"></div>
+</div>
+<span class="font-body-sm text-body-sm">Internal Tech</span>
+</label>
+<label class="flex items-center gap-sm cursor-pointer group">
+<div class="w-4 h-4 border border-on-surface rounded-full flex items-center justify-center group-hover:bg-surface-variant transition-colors">
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Contractor</span>
+</label>
+</div>
+</div>
+<button class="mt-auto w-full border border-on-surface text-on-surface font-label-md text-label-md py-sm rounded hover:bg-surface-container-low transition-colors">
+                    Reset Filters
+                </button>
+</aside>
+<!-- Calendar Canvas -->
+<div class="flex-1 flex flex-col p-md overflow-hidden bg-background">
+<!-- Toolbar -->
+<div class="flex justify-between items-center mb-md flex-shrink-0 bg-surface-container-lowest p-sm border border-surface-variant rounded">
+<div class="flex items-center gap-md">
+<h2 class="font-headline-md text-headline-md text-on-surface">Oct 23 - 29, 2024</h2>
+<div class="flex bg-surface border border-surface-variant rounded overflow-hidden">
+<button class="px-sm py-xs font-label-sm text-label-sm hover:bg-surface-container-high transition-colors border-r border-surface-variant">Day</button>
+<button class="px-sm py-xs font-label-sm text-label-sm bg-surface-container-high font-bold border-r border-surface-variant">Week</button>
+<button class="px-sm py-xs font-label-sm text-label-sm hover:bg-surface-container-high transition-colors">Month</button>
+</div>
+</div>
+<div class="flex gap-sm">
+<button class="border border-on-surface text-on-surface font-label-md text-label-md py-xs px-sm rounded hover:bg-surface-container-low transition-colors flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">event_busy</span>
+                            Recurring Absence
+                        </button>
+<button class="bg-primary-container text-on-primary-container font-label-md text-label-md py-xs px-sm rounded hover:bg-primary-fixed transition-colors flex items-center gap-xs shadow-sm">
+<span class="material-symbols-outlined text-[18px]">add_box</span>
+                            New Shift
+                        </button>
+</div>
+</div>
+<!-- Gantt Chart Area -->
+<div class="flex-1 overflow-auto bg-surface-container-lowest border border-surface-variant rounded">
+<div class="gantt-grid min-w-[1000px]">
+<!-- Headers -->
+<div class="gantt-header flex items-end justify-start pb-xs pl-sm text-on-surface-variant border-r border-b border-surface-variant">
+                            Resource / Capacity
+                        </div>
+<div class="gantt-header">MON 23</div>
+<div class="gantt-header">TUE 24</div>
+<div class="gantt-header bg-surface-container-low">WED 25 (Today)</div>
+<div class="gantt-header">THU 26</div>
+<div class="gantt-header">FRI 27</div>
+<div class="gantt-header text-on-surface-variant opacity-70">SAT 28</div>
+<div class="gantt-header text-on-surface-variant opacity-70">SUN 29</div>
+<!-- Resource Row 1 -->
+<div class="gantt-resource flex-col items-start justify-center">
+<div class="flex items-center gap-sm w-full">
+<div class="w-8 h-8 rounded-full bg-surface-variant overflow-hidden border border-surface-variant flex-shrink-0">
+<img alt="Tech" class="w-full h-full object-cover" data-alt="A portrait of a male industrial technician in work gear. Bright, clinical lighting consistent with a light-mode technical interface. Minimalist background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBTP5BO04e8KBMV4VR9orPfIGOsk_gWYJRTDaMT3zjulIDtoROtlrjaP6M39UhhyURl-6EPGvxohHRkrSys0-SNjGnqoOQnkFQDxeWAAkYgjLgZx93La9o8m6bhKLjWQ8Gax9g8pU_KLqqsjtRo9XKG5S_XNWrZRGkq_sZgW6Vv8uptfXZeyAARpFT_6-ETIjuGAY_eCT22yQ5GXweK1pKIhRpROGw_KY7fpXbXZtx0Z_WEaAfckwFKimA20s9xHPI__hB143hOSVjo"/>
+</div>
+<div class="min-w-0">
+<div class="truncate font-body-sm text-body-sm font-semibold">Budi Santoso</div>
+<div class="font-label-sm text-[10px] text-on-surface-variant">L3 | JKT ST</div>
+</div>
+</div>
+<div class="mt-2 w-full">
+<div class="flex justify-between font-label-sm text-[10px] mb-1">
+<span class="text-on-surface">32/40h Used</span>
+<span class="text-primary font-bold">80%</span>
+</div>
+<div class="w-full bg-surface-variant h-1 rounded-full overflow-hidden">
+<div class="bg-primary-container h-full w-[80%]"></div>
+</div>
+</div>
+</div>
+<div class="gantt-cell">
+<div class="shift-block shift-confirmed">
+<div class="font-bold">08:00 - 17:00</div>
+<div class="truncate">WO-9921 (Prev. Maint)</div>
+</div>
+</div>
+<div class="gantt-cell">
+<div class="shift-block shift-confirmed">
+<div class="font-bold">08:00 - 12:00</div>
+<div class="truncate">WO-9945 (Install)</div>
+</div>
+<div class="shift-block shift-tentative">
+<div class="font-bold">13:00 - 17:00</div>
+<div class="truncate">WO-9950 (Pending Pts)</div>
+</div>
+</div>
+<div class="gantt-cell bg-surface-container-low border-r border-primary opacity-50 relative">
+<!-- Current time indicator line could go here -->
+</div>
+<div class="gantt-cell">
+<div class="shift-block shift-confirmed">
+<div class="font-bold">09:00 - 18:00</div>
+<div class="truncate">WO-9960 (Emergency)</div>
+</div>
+</div>
+<div class="gantt-cell">
+<div class="shift-block shift-absence">
+<div class="font-bold">All Day</div>
+<div class="truncate">Annual Leave</div>
+</div>
+</div>
+<div class="gantt-cell bg-surface-variant opacity-30"></div>
+<div class="gantt-cell bg-surface-variant opacity-30"></div>
+<!-- Resource Row 2 -->
+<div class="gantt-resource flex-col items-start justify-center">
+<div class="flex items-center gap-sm w-full">
+<div class="w-8 h-8 rounded-full bg-surface-variant overflow-hidden border border-surface-variant flex-shrink-0">
+<span class="material-symbols-outlined w-full h-full flex items-center justify-center text-on-surface-variant text-[20px]">person</span>
+</div>
+<div class="min-w-0">
+<div class="truncate font-body-sm text-body-sm font-semibold">Agus Setiawan</div>
+<div class="font-label-sm text-[10px] text-on-surface-variant">L2 | JKT ST</div>
+</div>
+</div>
+<div class="mt-2 w-full">
+<div class="flex justify-between font-label-sm text-[10px] mb-1">
+<span class="text-on-surface">16/40h Used</span>
+<span class="text-on-surface-variant">40%</span>
+</div>
+<div class="w-full bg-surface-variant h-1 rounded-full overflow-hidden">
+<div class="bg-outline-variant h-full w-[40%]"></div>
+</div>
+</div>
+</div>
+<div class="gantt-cell"></div>
+<div class="gantt-cell">
+<div class="shift-block shift-tentative">
+<div class="font-bold">10:00 - 14:00</div>
+<div class="truncate">Site Survey</div>
+</div>
+</div>
+<div class="gantt-cell bg-surface-container-low">
+<div class="shift-block shift-confirmed">
+<div class="font-bold">08:00 - 16:00</div>
+<div class="truncate">WO-9933 (Routine)</div>
+</div>
+</div>
+<div class="gantt-cell"></div>
+<div class="gantt-cell">
+<div class="shift-block shift-confirmed">
+<div class="font-bold">13:00 - 17:00</div>
+<div class="truncate">Training Session</div>
+</div>
+</div>
+<div class="gantt-cell bg-surface-variant opacity-30"></div>
+<div class="gantt-cell bg-surface-variant opacity-30"></div>
+<!-- Resource Row 3 -->
+<div class="gantt-resource flex-col items-start justify-center">
+<div class="flex items-center gap-sm w-full">
+<div class="w-8 h-8 rounded-full bg-surface-variant overflow-hidden border border-surface-variant flex-shrink-0">
+<img alt="Tech" class="w-full h-full object-cover" data-alt="A portrait of a female industrial systems engineer looking professional. Bright, clinical lighting consistent with a light-mode technical interface. Minimalist white background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuChyL_v2s2W6GLDj98_wW0yP6pnYx8xAYfbBd_wGCmnNC4iRe-MaaFHudG2nIiQ2js-cxFmtfrH_4XtCJzkwIj2clDwrFbkMremqPO2_DGynO_XEhUqI65tzt5cKSzuTD9_7V_j4YirSBKb2P2JfZs5sJJ-otA-W-Y8Y4pQ0ftadk-QoVzN2BaFRh-Jdr7GjXxj-tFWDwOebKrnVszdfpt3hmy2xWaVIt8nInkBelDRLk0KUQ25kaY3hY1Euhh5o1lzCYveFuFag4Vv"/>
+</div>
+<div class="min-w-0">
+<div class="truncate font-body-sm text-body-sm font-semibold">Siti Aminah</div>
+<div class="font-label-sm text-[10px] text-on-surface-variant">L3 | JKT ST (Contract)</div>
+</div>
+</div>
+<div class="mt-2 w-full">
+<div class="flex justify-between font-label-sm text-[10px] mb-1">
+<span class="text-on-surface">40/40h Used</span>
+<span class="text-error font-bold">100%</span>
+</div>
+<div class="w-full bg-surface-variant h-1 rounded-full overflow-hidden">
+<div class="bg-error h-full w-full"></div>
+</div>
+</div>
+</div>
+<div class="gantt-cell">
+<div class="shift-block shift-confirmed">
+<div class="font-bold">08:00 - 17:00</div>
+<div class="truncate">Project Alpha Site A</div>
+</div>
+</div>
+<div class="gantt-cell">
+<div class="shift-block shift-confirmed">
+<div class="font-bold">08:00 - 17:00</div>
+<div class="truncate">Project Alpha Site A</div>
+</div>
+</div>
+<div class="gantt-cell bg-surface-container-low">
+<div class="shift-block shift-confirmed">
+<div class="font-bold">08:00 - 17:00</div>
+<div class="truncate">Project Alpha Site A</div>
+</div>
+</div>
+<div class="gantt-cell">
+<div class="shift-block shift-confirmed">
+<div class="font-bold">08:00 - 17:00</div>
+<div class="truncate">Project Alpha Site B</div>
+</div>
+</div>
+<div class="gantt-cell">
+<div class="shift-block shift-confirmed">
+<div class="font-bold">08:00 - 17:00</div>
+<div class="truncate">Project Alpha Site B</div>
+</div>
+</div>
+<div class="gantt-cell bg-surface-variant opacity-30"></div>
+<div class="gantt-cell bg-surface-variant opacity-30"></div>
+</div>
+</div>
+<!-- Legend -->
+<div class="mt-sm flex gap-md items-center text-label-sm font-label-sm text-on-surface-variant flex-shrink-0">
+<div class="flex items-center gap-xs">
+<div class="w-3 h-3 border border-[#121212] bg-[#FFFFFF] rounded-sm"></div>
+<span>Confirmed Shift</span>
+</div>
+<div class="flex items-center gap-xs">
+<div class="w-3 h-3 border border-[#E0E0E0] bg-[#F0F0F0] border-dashed rounded-sm"></div>
+<span>Tentative Shift</span>
+</div>
+<div class="flex items-center gap-xs">
+<div class="w-3 h-3 border border-[#ba1a1a] bg-[#ffdad6] rounded-sm"></div>
+<span>Absence</span>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

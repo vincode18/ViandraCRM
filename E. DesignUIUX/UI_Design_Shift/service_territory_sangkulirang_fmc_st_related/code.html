@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>UT SERVICE CONSOLE - Service Territory: Sangkulirang FMC ST</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-lowest": "#ffffff",
+                      "primary-fixed": "#ffe081",
+                      "on-secondary-container": "#656464",
+                      "on-primary-fixed": "#231b00",
+                      "on-primary": "#ffffff",
+                      "surface-bright": "#f9f9f9",
+                      "on-primary-container": "#695400",
+                      "on-secondary-fixed": "#1c1b1b",
+                      "on-tertiary-fixed-variant": "#454747",
+                      "secondary-fixed-dim": "#c8c6c5",
+                      "primary-fixed-dim": "#eec200",
+                      "surface": "#f9f9f9",
+                      "surface-container-low": "#f3f3f3",
+                      "error-container": "#ffdad6",
+                      "on-surface-variant": "#4d4632",
+                      "tertiary-fixed-dim": "#c6c6c6",
+                      "surface-tint": "#725c00",
+                      "primary-container": "#f5c800",
+                      "on-tertiary-fixed": "#1a1c1c",
+                      "on-secondary-fixed-variant": "#474646",
+                      "secondary": "#5f5e5e",
+                      "surface-container-highest": "#e2e2e2",
+                      "outline": "#7f7660",
+                      "surface-container": "#eeeeee",
+                      "on-error": "#ffffff",
+                      "error": "#ba1a1a",
+                      "surface-dim": "#dadada",
+                      "surface-variant": "#e2e2e2",
+                      "secondary-container": "#e5e2e1",
+                      "on-tertiary-container": "#555757",
+                      "on-primary-fixed-variant": "#564500",
+                      "tertiary-container": "#cdcdcd",
+                      "tertiary": "#5d5f5f",
+                      "primary": "#725c00",
+                      "on-background": "#1a1c1c",
+                      "tertiary-fixed": "#e2e2e2",
+                      "inverse-primary": "#eec200",
+                      "on-error-container": "#93000a",
+                      "background": "#f9f9f9",
+                      "surface-container-high": "#e8e8e8",
+                      "inverse-on-surface": "#f1f1f1",
+                      "secondary-fixed": "#e5e2e1",
+                      "on-tertiary": "#ffffff",
+                      "on-secondary": "#ffffff",
+                      "inverse-surface": "#2f3131",
+                      "on-surface": "#1a1c1c",
+                      "outline-variant": "#d1c6ab"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "md": "16px",
+                      "base": "8px",
+                      "margin": "24px",
+                      "lg": "24px",
+                      "xs": "4px",
+                      "xl": "32px",
+                      "sm": "8px",
+                      "gutter": "16px"
+              },
+              "fontFamily": {
+                      "headline-md": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-lg-mobile": [
+                              "Hanken Grotesk"
+                      ],
+                      "body-md": [
+                              "Hanken Grotesk"
+                      ],
+                      "body-sm": [
+                              "Hanken Grotesk"
+                      ],
+                      "label-sm": [
+                              "JetBrains Mono"
+                      ],
+                      "headline-lg": [
+                              "Hanken Grotesk"
+                      ],
+                      "label-md": [
+                              "JetBrains Mono"
+                      ],
+                      "body-lg": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-sm": [
+                              "Hanken Grotesk"
+                      ]
+              },
+              "fontSize": {
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "14px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-sm": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        body {
+            background-color: #f9f9f9;
+            color: #1a1c1c;
+        }
+        /* Custom scrollbar for data density */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f3f3f3; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #d1c6ab; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #7f7660; 
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col md:flex-row overflow-hidden font-body-md text-body-md">
+<!-- TopNavBar (Mobile Only) -->
+<header class="md:hidden flex justify-between items-center px-margin w-full h-[56px] bg-background dark:bg-background border-b-2 border-primary dark:border-primary z-50">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary">menu</span>
+<span class="text-headline-md font-headline-md font-bold text-primary dark:text-primary">UT SERVICE CONSOLE</span>
+</div>
+<div class="flex gap-md text-primary dark:text-primary">
+<span class="material-symbols-outlined cursor-pointer hover:bg-surface-raised transition-colors active:opacity-80">search</span>
+<img alt="User profile avatar" class="w-8 h-8 rounded-full cursor-pointer hover:bg-surface-raised transition-colors active:opacity-80" data-alt="A small circular avatar image showing a professional male in a corporate setting. The lighting is bright and even, fitting a light-mode UI." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGcjIr430nQI806mME4Bqo93ukqFHObwwfRb-0Jjf0xuZ804OQPC2oeY5VX3CEczCg1PK7UQEHIZiT0G2L-bVfcFKyUcAgtHRIFp2auJ9A7Ve2N8FdXCbZQj5nLEMrP4YZEf3rS5BKyGBmkTqTQnKz-zJ0USZt7PAwLOQ3KB3SiYppCLdPbsbhiPbUZKp549BzeTpkIXYOXf6r0exGySu8h0KQ2lK7LoxePR6O2Jk7XaZlDnsPld_RTChu1KLocHjm1eUh9kSQ-91X"/>
+</div>
+</header>
+<!-- SideNavBar (Desktop) -->
+<nav class="hidden md:flex flex-col h-full py-4 gap-standard bg-surface-container-low dark:bg-surface-container-low border-r border-border-muted w-64 flex-shrink-0 z-40">
+<div class="px-md mb-lg">
+<div class="flex items-center gap-sm mb-xs">
+<span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings: 'FILL' 1;">precision_manufacturing</span>
+<span class="text-headline-sm font-headline-sm font-bold text-primary">UT SERVICE CONSOLE</span>
+</div>
+<span class="text-label-sm font-label-sm text-on-surface-variant block ml-10">Operational View</span>
+</div>
+<div class="px-md mb-md">
+<button class="w-full bg-primary-container text-on-primary-container font-label-md text-label-md py-sm rounded flex items-center justify-center gap-xs hover:bg-primary-fixed-dim transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add</span>
+                New Case
+            </button>
+</div>
+<ul class="flex-1 overflow-y-auto px-sm space-y-xs">
+<li>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant font-label-md text-label-md hover:bg-surface-variant rounded transition-all scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                    Dashboard
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant font-label-md text-label-md hover:bg-surface-variant rounded transition-all scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined">description</span>
+                    Cases
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant font-label-md text-label-md hover:bg-surface-variant rounded transition-all scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined">build</span>
+                    Work Orders
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant font-label-md text-label-md hover:bg-surface-variant rounded transition-all scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined">precision_manufacturing</span>
+                    Assets
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant font-label-md text-label-md hover:bg-surface-variant rounded transition-all scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined">person</span>
+                    Accounts
+                </a>
+</li>
+<li class="mt-lg pt-sm border-t border-surface-variant">
+<span class="px-md text-label-sm font-label-sm text-outline-variant mb-xs block uppercase">Planning</span>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm bg-primary text-on-primary font-label-md text-label-md rounded-lg transition-all scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">map</span>
+                    Service Territory
+                </a>
+</li>
+</ul>
+<div class="px-md mt-auto pt-md border-t border-surface-variant">
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant font-label-md text-label-md hover:bg-surface-variant rounded transition-all" href="#">
+<span class="material-symbols-outlined">settings</span>
+                Settings
+            </a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col h-full overflow-hidden relative">
+<!-- Top App Bar (Desktop Contextual) -->
+<header class="hidden md:flex justify-between items-center px-margin py-md bg-surface-container-lowest border-b border-surface-variant z-30">
+<div class="flex items-center gap-md">
+<div class="p-sm bg-surface-container-low rounded">
+<span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings: 'FILL' 1;">map</span>
+</div>
+<div>
+<h1 class="text-headline-lg font-headline-lg text-on-surface m-0 leading-none">Sangkulirang FMC ST</h1>
+<div class="flex items-center gap-sm mt-xs">
+<span class="text-label-sm font-label-sm text-on-surface-variant">Service Territory</span>
+<span class="text-surface-dim">•</span>
+<span class="text-label-sm font-label-sm font-bold text-primary">Active</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<button class="px-md py-sm border border-outline text-on-surface font-label-md text-label-md rounded hover:bg-surface-container-low transition-colors">
+                    Edit
+                </button>
+<div class="flex gap-sm text-on-surface-variant">
+<span class="material-symbols-outlined p-sm hover:bg-surface-container-low rounded cursor-pointer transition-colors">notifications</span>
+<span class="material-symbols-outlined p-sm hover:bg-surface-container-low rounded cursor-pointer transition-colors">help</span>
+</div>
+<div class="h-8 w-px bg-outline-variant mx-sm"></div>
+<img alt="User profile avatar" class="w-10 h-10 rounded-full cursor-pointer border border-outline-variant" data-alt="A small circular avatar image showing a professional male in a corporate setting. The lighting is bright and even, fitting a light-mode UI." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCa8PJpv5NpUK6Y0DlJfcSqS6eDf6loIvd6AdM0Ar7xax_zimH3-0JkGi4JJuaivBRWwIqc-gdp9oA8U4YOkuZBU6LrDNqjHTeXt6MPmaMqIVu8fdPIbF2xsOt2j13U_WvKBjcVYF7xWSWhsZvho74KrCF9SG2ulLp99lEQOKNWKgET_woiNpgPrkOYDET4KYGTJzNh2vvIUlELWeSx_W53UBn7L4ZQP-NqCjCyHaXcvQi9NVZMU9ufGj3sG6uWzYdEfijrnn_165Ud"/>
+</div>
+</header>
+<!-- Content Canvas -->
+<div class="flex-1 overflow-y-auto p-margin flex flex-col lg:flex-row gap-margin">
+<!-- Left Column: Main Data -->
+<div class="flex-1 flex flex-col gap-lg min-w-0">
+<!-- Tab Navigation (Mocked visually) -->
+<div class="flex border-b border-surface-variant">
+<button class="px-md py-sm border-b-2 border-primary text-primary font-label-md text-label-md font-bold transition-colors">Related</button>
+<button class="px-md py-sm border-b-2 border-transparent text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-colors">Details</button>
+</div>
+<!-- Bento Grid / Cards Area -->
+<div class="flex flex-col gap-lg">
+<!-- Table: Service Territory Members -->
+<section class="bg-surface-container-lowest border border-surface-variant rounded-lg overflow-hidden flex flex-col">
+<div class="px-md py-sm border-b border-surface-variant flex justify-between items-center bg-surface-bright">
+<h2 class="text-headline-sm font-headline-sm text-on-surface flex items-center gap-sm">
+<span class="material-symbols-outlined text-outline">group</span>
+                                Service Territory Members (8)
+                            </h2>
+<button class="text-primary font-label-md text-label-md hover:underline">View All</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-surface-variant">
+<th class="px-md py-xs text-label-sm font-label-sm text-on-surface-variant font-normal w-12">No.</th>
+<th class="px-md py-xs text-label-sm font-label-sm text-on-surface-variant font-normal">Member Name</th>
+<th class="px-md py-xs text-label-sm font-label-sm text-on-surface-variant font-normal">Territory Type</th>
+<th class="px-md py-xs text-label-sm font-label-sm text-on-surface-variant font-normal">Role</th>
+<th class="px-md py-xs text-label-sm font-label-sm text-on-surface-variant font-normal text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="text-body-sm font-body-sm text-on-surface divide-y divide-surface-variant">
+<tr class="hover:bg-surface-bright transition-colors group">
+<td class="px-md py-sm text-on-surface-variant">1</td>
+<td class="px-md py-sm font-semibold text-primary">Bambang Suraji</td>
+<td class="px-md py-sm">
+<span class="inline-block px-2 py-0.5 bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm rounded-sm">Primary</span>
+</td>
+<td class="px-md py-sm text-on-surface-variant">Technician</td>
+<td class="px-md py-sm text-right opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-outline hover:text-primary cursor-pointer text-sm">edit</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-bright transition-colors group">
+<td class="px-md py-sm text-on-surface-variant">2</td>
+<td class="px-md py-sm font-semibold text-primary">Arrochman</td>
+<td class="px-md py-sm">
+<span class="inline-block px-2 py-0.5 bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm rounded-sm">Primary</span>
+</td>
+<td class="px-md py-sm text-on-surface-variant">Technician</td>
+<td class="px-md py-sm text-right opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-outline hover:text-primary cursor-pointer text-sm">edit</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-bright transition-colors group">
+<td class="px-md py-sm text-on-surface-variant">3</td>
+<td class="px-md py-sm font-semibold text-primary">Ade Saputra</td>
+<td class="px-md py-sm">
+<span class="inline-block px-2 py-0.5 bg-surface-container-highest text-on-surface font-label-sm text-label-sm rounded-sm border border-outline-variant">Secondary</span>
+</td>
+<td class="px-md py-sm text-on-surface-variant">Support</td>
+<td class="px-md py-sm text-right opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-outline hover:text-primary cursor-pointer text-sm">edit</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-bright transition-colors group">
+<td class="px-md py-sm text-on-surface-variant">4</td>
+<td class="px-md py-sm font-semibold text-primary">Sholeh Setiawan</td>
+<td class="px-md py-sm">
+<span class="inline-block px-2 py-0.5 bg-surface-container-highest text-on-surface font-label-sm text-label-sm rounded-sm border border-outline-variant">Secondary</span>
+</td>
+<td class="px-md py-sm text-on-surface-variant">Support</td>
+<td class="px-md py-sm text-right opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-outline hover:text-primary cursor-pointer text-sm">edit</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-bright transition-colors group">
+<td class="px-md py-sm text-on-surface-variant">5</td>
+<td class="px-md py-sm font-semibold text-primary">Edi Prayitno</td>
+<td class="px-md py-sm">
+<span class="inline-block px-2 py-0.5 bg-surface-container-highest text-on-surface font-label-sm text-label-sm rounded-sm border border-outline-variant">Secondary</span>
+</td>
+<td class="px-md py-sm text-on-surface-variant">Specialist</td>
+<td class="px-md py-sm text-right opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-outline hover:text-primary cursor-pointer text-sm">edit</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-bright transition-colors group">
+<td class="px-md py-sm text-on-surface-variant">6</td>
+<td class="px-md py-sm font-semibold text-primary">Supriyadi</td>
+<td class="px-md py-sm">
+<span class="inline-block px-2 py-0.5 bg-surface-container-highest text-on-surface font-label-sm text-label-sm rounded-sm border border-outline-variant">Secondary</span>
+</td>
+<td class="px-md py-sm text-on-surface-variant">Technician</td>
+<td class="px-md py-sm text-right opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-outline hover:text-primary cursor-pointer text-sm">edit</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-lg">
+<!-- Table: Locations -->
+<section class="bg-surface-container-lowest border border-surface-variant rounded-lg overflow-hidden flex flex-col">
+<div class="px-md py-sm border-b border-surface-variant flex justify-between items-center bg-surface-bright">
+<h2 class="text-headline-sm font-headline-sm text-on-surface flex items-center gap-sm">
+<span class="material-symbols-outlined text-outline">location_on</span>
+                                    Locations (1)
+                                </h2>
+</div>
+<div class="overflow-x-auto flex-1">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-surface-variant">
+<th class="px-md py-xs text-label-sm font-label-sm text-on-surface-variant font-normal">Location Name</th>
+<th class="px-md py-xs text-label-sm font-label-sm text-on-surface-variant font-normal">Type</th>
+</tr>
+</thead>
+<tbody class="text-body-sm font-body-sm text-on-surface divide-y divide-surface-variant">
+<tr class="hover:bg-surface-bright transition-colors">
+<td class="px-md py-sm font-semibold text-primary">FM-SKLPM</td>
+<td class="px-md py-sm text-on-surface-variant">Work Center</td>
+</tr>
+<tr class="hover:bg-surface-bright transition-colors">
+<td class="px-md py-sm font-semibold text-outline-variant italic" colspan="2">No more records.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- Table: Cases -->
+<section class="bg-surface-container-lowest border border-surface-variant rounded-lg overflow-hidden flex flex-col">
+<div class="px-md py-sm border-b border-surface-variant flex justify-between items-center bg-surface-bright">
+<h2 class="text-headline-sm font-headline-sm text-on-surface flex items-center gap-sm">
+<span class="material-symbols-outlined text-outline">assignment</span>
+                                    Recent Cases (3)
+                                </h2>
+</div>
+<div class="overflow-x-auto flex-1">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-surface-variant">
+<th class="px-md py-xs text-label-sm font-label-sm text-on-surface-variant font-normal">Case Number</th>
+<th class="px-md py-xs text-label-sm font-label-sm text-on-surface-variant font-normal">Status</th>
+</tr>
+</thead>
+<tbody class="text-body-sm font-body-sm text-on-surface divide-y divide-surface-variant">
+<tr class="hover:bg-surface-bright transition-colors">
+<td class="px-md py-sm font-label-md text-label-md text-primary">CS-2023-0841</td>
+<td class="px-md py-sm">
+<span class="inline-block px-2 py-0.5 bg-primary-container text-on-primary-container font-label-sm text-label-sm rounded-sm">In Progress</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-bright transition-colors">
+<td class="px-md py-sm font-label-md text-label-md text-primary">CS-2023-0812</td>
+<td class="px-md py-sm">
+<span class="inline-block px-2 py-0.5 bg-surface-container-highest text-on-surface font-label-sm text-label-sm rounded-sm border border-outline-variant">Resolved</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-bright transition-colors">
+<td class="px-md py-sm font-label-md text-label-md text-primary">CS-2023-0799</td>
+<td class="px-md py-sm">
+<span class="inline-block px-2 py-0.5 bg-surface-container-highest text-on-surface font-label-sm text-label-sm rounded-sm border border-outline-variant">Resolved</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+</div>
+</div>
+<!-- Right Column: Context/Summary Panel -->
+<aside class="w-full lg:w-80 flex-shrink-0 flex flex-col gap-md">
+<!-- Quick Summary Card -->
+<div class="bg-surface-container-lowest border border-surface-variant rounded-lg p-md">
+<h3 class="text-label-md font-label-md text-on-surface-variant mb-md uppercase tracking-wider border-b border-surface-variant pb-xs">Territory Details</h3>
+<div class="space-y-sm">
+<div>
+<span class="block text-label-sm font-label-sm text-outline">Operating Hours</span>
+<span class="block text-body-sm font-body-sm text-on-surface">Standard 24/7 Mining Ops</span>
+</div>
+<div>
+<span class="block text-label-sm font-label-sm text-outline">Parent Territory</span>
+<a class="block text-body-sm font-body-sm text-primary hover:underline" href="#">Kalimantan Timur Hub</a>
+</div>
+<div>
+<span class="block text-label-sm font-label-sm text-outline">Description</span>
+<p class="text-body-sm font-body-sm text-on-surface-variant leading-tight">
+                                Sangkulirang FMC (Facility Management Center) Service Territory covering primary mining extraction zones and associated heavy equipment maintenance facilities.
+                            </p>
+</div>
+</div>
+</div>
+<!-- Map Placeholder -->
+<div class="bg-surface-container-lowest border border-surface-variant rounded-lg overflow-hidden h-48 relative flex items-center justify-center bg-surface-container">
+<span class="material-symbols-outlined text-outline text-4xl mb-2 opacity-50 absolute z-10">map</span>
+<!-- A realistic implementation would embed a map canvas here. Using a subtle pattern for the architectural feel -->
+<div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(#1a1c1c 1px, transparent 1px); background-size: 16px 16px;"></div>
+<span class="z-10 mt-8 text-label-sm font-label-sm text-outline-variant bg-surface-container-lowest px-2 py-1 rounded">Map View Offline</span>
+</div>
+<!-- System Info -->
+<div class="bg-surface-container-lowest border border-surface-variant rounded-lg p-md">
+<h3 class="text-label-md font-label-md text-on-surface-variant mb-md uppercase tracking-wider border-b border-surface-variant pb-xs">System Info</h3>
+<div class="space-y-xs text-label-sm font-label-sm">
+<div class="flex justify-between">
+<span class="text-outline">Created By</span>
+<span class="text-on-surface">System Admin</span>
+</div>
+<div class="flex justify-between">
+<span class="text-outline">Created Date</span>
+<span class="text-on-surface">2023-01-15</span>
+</div>
+<div class="flex justify-between">
+<span class="text-outline">Last Modified</span>
+<span class="text-on-surface">2023-10-24</span>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</main>
+</body></html>

@@ -1,0 +1,1238 @@
+import { useState, useMemo } from "react";
+
+// ─── Design System Tokens (inline for standalone demo) ───────────────────────
+const DS = {
+  accent: "#F5C800",
+  accentDark: "#E0B200",
+  accentLight: "#FFC800",
+  accentPale: "#FFFDE7",
+  bgBase: "#FFFFFF",
+  bgPanel: "#FFFFFF",
+  bgCard: "#FFFFFF",
+  bgLight: "#F5F5F5",
+  bgLighter: "#EFEFEF",
+  border: "#E0E0E0",
+  textMain: "#1A1A1A",
+  textSecondary: "#2C2C2C",
+  textTertiary: "#757575",
+  textMuted: "#BDBDBD",
+};
+
+// ─── Shift Type Colour Mapping ────────────────────────────────────────────────
+const SHIFT_TYPES = {
+  "Day Shift":          { color: "#1976D2", bg: "rgba(25,118,210,0.10)",  label: "Day Shift" },
+  "Normal":             { color: "#00897B", bg: "rgba(0,137,123,0.10)",   label: "Normal" },
+  "Emergency Standby":  { color: "#C62828", bg: "rgba(198,40,40,0.10)",   label: "Emergency Standby" },
+  "Night Shift":        { color: "#6D28D9", bg: "rgba(109,40,217,0.10)",  label: "Night Shift" },
+  "On Call":            { color: "#F57C00", bg: "rgba(245,124,0,0.10)",   label: "On Call" },
+  "Unassigned":         { color: "#757575", bg: "rgba(117,117,117,0.10)", label: "Unassigned" },
+};
+
+// ─── Mock Data ────────────────────────────────────────────────────────────────
+const RESOURCES = [
+  { id: "bs", initials: "BS", name: "Budi Santoso",   role: "Senior · Heavy Equipment" },
+  { id: "am", initials: "AM", name: "Agus Mizni",     role: "Senior · Preventive Maint" },
+  { id: "sj", initials: "SJ", name: "Sarah Jenkins",  role: "Field · Diagnostics" },
+  { id: "rh", initials: "RH", name: "Rudi Hartono",   role: "Field · Hydraulics" },
+  { id: "dl", initials: "DL", name: "Dewi Lestari",   role: "Junior · Inspection" },
+  { id: "ep", initials: "EP", name: "Edi Prayitno",   role: "Field · Inspection" },
+];
+
+// Helper: get ISO date string for offset from a base date
+function isoDate(base, offsetDays) {
+  const d = new Date(base);
+  d.setDate(d.getDate() + offsetDays);
+  return d.toISOString().slice(0, 10);
+}
+
+const BASE = new Date("2026-06-01"); // Start of demo week (Mon)
+
+const SHIFTS = [
+  { id: "SFT-3061099", resourceId: "bs", date: isoDate(BASE, 0), start: "08:00", end: "17:00", type: "Day Shift",         status: "Confirmed" },
+  { id: "SFT-3061100", resourceId: "bs", date: isoDate(BASE, 2), start: "08:00", end: "17:00", type: "Day Shift",         status: "Confirmed" },
+  { id: "SFT-3061101", resourceId: "bs", date: isoDate(BASE, 3), start: "09:00", end: "18:00", type: "Day Shift",         status: "Tentative" },
+  { id: "SFT-3061102", resourceId: "am", date: isoDate(BASE, 0), start: "07:00", end: "15:00", type: "Normal",            status: "Confirmed" },
+  { id: "SFT-3061103", resourceId: "am", date: isoDate(BASE, 1), start: "07:00", end: "15:00", type: "Normal",            status: "Confirmed" },
+  { id: "SFT-3061104", resourceId: "am", date: isoDate(BASE, 4), start: "07:00", end: "15:00", type: "Normal",            status: "Tentative" },
+  { id: "SFT-3061105", resourceId: "sj", date: isoDate(BASE, 0), start: "14:00", end: "22:00", type: "Emergency Standby", status: "Confirmed" },
+  { id: "SFT-3061106", resourceId: "sj", date: isoDate(BASE, 2), start: "14:00", end: "22:00", type: "Emergency Standby", status: "Confirmed" },
+  { id: "SFT-3061107", resourceId: "sj", date: isoDate(BASE, 5), start: "08:00", end: "17:00", type: "Day Shift",         status: "Tentative" },
+  { id: "SFT-3061108", resourceId: "rh", date: isoDate(BASE, 1), start: "09:00", end: "18:00", type: "Day Shift",         status: "Confirmed" },
+  { id: "SFT-3061109", resourceId: "rh", date: isoDate(BASE, 3), start: "09:00", end: "18:00", type: "Day Shift",         status: "Confirmed" },
+  { id: "SFT-3061110", resourceId: "rh", date: isoDate(BASE, 4), start: "20:00", end: "06:00", type: "Night Shift",       status: "Confirmed" },
+  { id: "SFT-3061111", resourceId: "dl", date: isoDate(BASE, 0), start: "08:00", end: "16:00", type: "Normal",            status: "Tentative" },
+  { id: "SFT-3061112", resourceId: "dl", date: isoDate(BASE, 2), start: "08:00", end: "16:00", type: "Normal",            status: "Confirmed" },
+  { id: "SFT-3061113", resourceId: "dl", date: isoDate(BASE, 6), start: "08:00", end: "16:00", type: "Day Shift",         status: "Tentative" },
+  { id: "SFT-3061114", resourceId: "ep", date: isoDate(BASE, 1), start: "10:00", end: "18:00", type: "On Call",           status: "Confirmed" },
+  { id: "SFT-3061115", resourceId: "ep", date: isoDate(BASE, 3), start: "10:00", end: "18:00", type: "On Call",           status: "Confirmed" },
+  { id: "SFT-3061116", resourceId: "ep", date: isoDate(BASE, 5), start: "18:00", end: "22:00", type: "Emergency Standby", status: "Tentative" },
+];
+
+// ─── Shift Templates (reusable shift patterns) ───────────────────────────────
+const SEED_TEMPLATES = [
+  { id: "tpl-day",       name: "Day Shift",         type: "Day Shift",         start: "08:00", end: "17:00" },
+  { id: "tpl-normal",    name: "Normal",            type: "Normal",            start: "07:00", end: "15:00" },
+  { id: "tpl-night",     name: "Night Shift",       type: "Night Shift",       start: "20:00", end: "06:00" },
+  { id: "tpl-oncall",    name: "On Call",           type: "On Call",           start: "10:00", end: "18:00" },
+  { id: "tpl-emergency", name: "Emergency Standby", type: "Emergency Standby", start: "14:00", end: "22:00" },
+];
+
+const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+let SHIFT_SEQ = 3061200;
+function nextShiftId() {
+  SHIFT_SEQ += 1;
+  return `SFT-${SHIFT_SEQ}`;
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function getWeekDates(monday) {
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(monday);
+    d.setDate(d.getDate() + i);
+    return d;
+  });
+}
+
+function getMondayOf(date) {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  d.setDate(d.getDate() + diff);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+function formatDate(d) {
+  return d.toISOString().slice(0, 10);
+}
+
+function formatDayLabel(d) {
+  return d.toLocaleDateString("en-US", { weekday: "short" }).toUpperCase();
+}
+
+function formatDayNum(d) {
+  return d.getDate();
+}
+
+function formatMonthYear(monday, sunday) {
+  const opts = { month: "short", day: "numeric" };
+  return `${monday.toLocaleDateString("en-US", opts)} – ${sunday.toLocaleDateString("en-US", { ...opts, year: "numeric" })}`;
+}
+
+function totalHours(shifts) {
+  return shifts.reduce((acc, s) => {
+    const [sh, sm] = s.start.split(":").map(Number);
+    let [eh, em] = s.end.split(":").map(Number);
+    if (eh < sh) eh += 24;
+    return acc + (eh - sh) + (em - sm) / 60;
+  }, 0);
+}
+
+// ─── ShiftCard ────────────────────────────────────────────────────────────────
+function ShiftCard({ shift, onClick }) {
+  const t = SHIFT_TYPES[shift.type] || SHIFT_TYPES["Unassigned"];
+  const isTentative = shift.status === "Tentative";
+
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={() => onClick(shift)}
+      onKeyDown={e => e.key === "Enter" && onClick(shift)}
+      title={`${shift.id} · ${shift.start}–${shift.end} · ${shift.type}`}
+      style={{
+        background: t.bg,
+        borderLeft: `3px solid ${t.color}`,
+        borderRadius: "4px",
+        padding: "5px 7px",
+        marginBottom: "4px",
+        cursor: "pointer",
+        opacity: isTentative ? 0.75 : 1,
+        outline: "none",
+        transition: "box-shadow 0.15s ease, transform 0.1s ease",
+        minHeight: "52px",
+        display: "flex",
+        flexDirection: "column",
+        gap: "1px",
+      }}
+      onMouseEnter={e => { e.currentTarget.style.boxShadow = `0 2px 8px rgba(0,0,0,0.14)`; e.currentTarget.style.transform = "translateY(-1px)"; }}
+      onMouseLeave={e => { e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.transform = "none"; }}
+      onFocus={e => { e.currentTarget.style.boxShadow = `0 0 0 2px ${DS.accent}`; }}
+      onBlur={e => { e.currentTarget.style.boxShadow = "none"; }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: "4px", justifyContent: "space-between" }}>
+        <span style={{
+          fontFamily: "ui-monospace, SFMono-Regular, monospace",
+          fontSize: "10px",
+          color: t.color,
+          fontWeight: 600,
+          letterSpacing: "0.02em",
+        }}>
+          {shift.id}
+        </span>
+        {isTentative && (
+          <span style={{
+            fontSize: "9px",
+            color: DS.textMuted,
+            background: DS.bgLighter,
+            borderRadius: "3px",
+            padding: "1px 4px",
+            fontWeight: 500,
+            letterSpacing: "0.02em",
+          }}>
+            TENTATIVE
+          </span>
+        )}
+      </div>
+      <div style={{ fontSize: "11px", color: DS.textTertiary, fontWeight: 400 }}>
+        {shift.start}–{shift.end}
+      </div>
+      <div style={{ fontSize: "11px", color: t.color, fontWeight: 600 }}>
+        {shift.type}
+      </div>
+    </div>
+  );
+}
+
+// ─── DayCell ──────────────────────────────────────────────────────────────────
+function DayCell({ shifts, isToday, resourceName, dateLabel, onShiftClick, onEmptyClick, activeTemplate }) {
+  const [hovered, setHovered] = useState(false);
+  const isEmpty = shifts.length === 0;
+  const brushHint = isEmpty && activeTemplate;
+
+  return (
+    <td
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        verticalAlign: "top",
+        padding: "6px",
+        border: `1px solid ${DS.border}`,
+        borderLeft: isToday ? `2px solid ${DS.accent}` : `1px solid ${DS.border}`,
+        borderRight: isToday ? `2px solid ${DS.accent}` : `1px solid ${DS.border}`,
+        background: isEmpty
+          ? (hovered ? DS.accentPale : DS.bgLight)
+          : DS.bgCard,
+        transition: "background 0.15s ease",
+        minWidth: "110px",
+        width: "13%",
+        position: "relative",
+        cursor: isEmpty ? (activeTemplate ? "copy" : "pointer") : "default",
+      }}
+      onClick={e => { if (isEmpty) onEmptyClick(e, dateLabel, resourceName); }}
+      aria-label={isEmpty ? `Add shift for ${resourceName} on ${dateLabel}` : undefined}
+    >
+      {/* Shifts */}
+      {shifts.map(s => (
+        <ShiftCard key={s.id} shift={s} onClick={onShiftClick} />
+      ))}
+
+      {/* Empty cell: brush preview / add hint */}
+      {brushHint && (() => {
+        const t = SHIFT_TYPES[activeTemplate.type] || SHIFT_TYPES["Unassigned"];
+        return (
+          <div style={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            height: "52px",
+            padding: "5px 7px",
+            borderRadius: "4px",
+            border: `1px dashed ${t.color}`,
+            background: hovered ? t.bg : "transparent",
+            opacity: hovered ? 1 : 0.55,
+          }}>
+            <span style={{ fontSize: "11px", color: t.color, fontWeight: 600 }}>+ {activeTemplate.name}</span>
+            <span style={{ fontSize: "10px", color: DS.textTertiary }}>{activeTemplate.start}–{activeTemplate.end}</span>
+          </div>
+        );
+      })()}
+
+      {isEmpty && !activeTemplate && hovered && (
+        <div style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "52px",
+          color: DS.textMuted,
+          fontSize: "20px",
+          fontWeight: 300,
+          borderRadius: "4px",
+          border: `1px dashed ${DS.border}`,
+        }}>
+          +
+        </div>
+      )}
+
+      {isEmpty && !activeTemplate && !hovered && (
+        <div style={{
+          height: "52px",
+          borderRadius: "4px",
+          border: `1px dashed ${DS.border}`,
+        }} />
+      )}
+    </td>
+  );
+}
+
+// ─── ShiftDetailModal ─────────────────────────────────────────────────────────
+function ShiftDetailModal({ shift, onClose }) {
+  if (!shift) return null;
+  const t = SHIFT_TYPES[shift.type] || SHIFT_TYPES["Unassigned"];
+  const resource = RESOURCES.find(r => r.id === shift.resourceId);
+
+  return (
+    <div
+      style={{
+        position: "fixed", inset: 0, zIndex: 1000,
+        background: "rgba(0,0,0,0.32)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+      }}
+      onClick={e => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div style={{
+        background: DS.bgCard,
+        border: `1px solid ${DS.border}`,
+        borderRadius: "8px",
+        padding: "24px",
+        width: "380px",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.16)",
+      }}>
+        {/* Header */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "16px" }}>
+          <div>
+            <div style={{
+              fontFamily: "ui-monospace, SFMono-Regular, monospace",
+              fontSize: "12px",
+              color: t.color,
+              fontWeight: 700,
+              letterSpacing: "0.05em",
+              marginBottom: "4px",
+            }}>
+              {shift.id}
+            </div>
+            <div style={{
+              fontSize: "18px",
+              fontWeight: 700,
+              color: DS.textMain,
+            }}>
+              {shift.type}
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            style={{
+              background: DS.bgLight,
+              border: `1px solid ${DS.border}`,
+              borderRadius: "4px",
+              width: "32px",
+              height: "32px",
+              cursor: "pointer",
+              color: DS.textTertiary,
+              fontSize: "16px",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}
+          >×</button>
+        </div>
+
+        {/* Colour bar */}
+        <div style={{
+          height: "4px",
+          background: t.color,
+          borderRadius: "2px",
+          marginBottom: "20px",
+          opacity: 0.6,
+        }} />
+
+        {/* Fields */}
+        {[
+          ["Resource", resource?.name || shift.resourceId],
+          ["Role", resource?.role || "—"],
+          ["Date", shift.date],
+          ["Time", `${shift.start} – ${shift.end}`],
+          ["Status", shift.status],
+        ].map(([label, value]) => (
+          <div key={label} style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            padding: "8px 0",
+            borderBottom: `1px solid ${DS.border}`,
+            fontSize: "13px",
+          }}>
+            <span style={{ color: DS.textTertiary, fontWeight: 500 }}>{label}</span>
+            <span style={{ color: DS.textSecondary, fontWeight: 500 }}>{value}</span>
+          </div>
+        ))}
+
+        {/* Actions */}
+        <div style={{ display: "flex", gap: "8px", marginTop: "20px" }}>
+          <button style={{
+            flex: 1,
+            background: DS.accent,
+            color: DS.textMain,
+            border: "none",
+            borderRadius: "4px",
+            padding: "10px",
+            fontWeight: 600,
+            fontSize: "13px",
+            cursor: "pointer",
+            minHeight: "44px",
+          }}>
+            Edit Shift
+          </button>
+          <button
+            onClick={onClose}
+            style={{
+              flex: 1,
+              background: DS.bgLight,
+              color: DS.textSecondary,
+              border: `1px solid ${DS.border}`,
+              borderRadius: "4px",
+              padding: "10px",
+              fontWeight: 500,
+              fontSize: "13px",
+              cursor: "pointer",
+              minHeight: "44px",
+            }}
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── NewShiftToast ─────────────────────────────────────────────────────────────
+function Toast({ message, onClose }) {
+  if (!message) return null;
+  return (
+    <div style={{
+      position: "fixed",
+      bottom: "24px",
+      right: "24px",
+      zIndex: 2000,
+      background: DS.textMain,
+      color: "#fff",
+      borderRadius: "6px",
+      padding: "12px 16px",
+      fontSize: "13px",
+      fontWeight: 500,
+      boxShadow: "0 4px 16px rgba(0,0,0,0.2)",
+      display: "flex",
+      alignItems: "center",
+      gap: "12px",
+      maxWidth: "360px",
+      animation: "slideInRight 0.25s ease-out",
+    }}>
+      <span style={{ flex: 1 }}>{message}</span>
+      <button onClick={onClose} style={{
+        background: "none",
+        border: "none",
+        color: DS.textMuted,
+        cursor: "pointer",
+        fontSize: "16px",
+        padding: 0,
+        lineHeight: 1,
+      }}>×</button>
+    </div>
+  );
+}
+
+// ─── Legend ───────────────────────────────────────────────────────────────────
+function Legend() {
+  return (
+    <div style={{
+      display: "flex",
+      flexWrap: "wrap",
+      gap: "8px 16px",
+      padding: "10px 0 4px",
+      borderTop: `1px solid ${DS.border}`,
+      marginTop: "8px",
+    }}>
+      {Object.entries(SHIFT_TYPES).slice(0, 5).map(([key, val]) => (
+        <div key={key} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+          <div style={{
+            width: "10px",
+            height: "10px",
+            borderRadius: "2px",
+            background: val.color,
+            flexShrink: 0,
+          }} />
+          <span style={{ fontSize: "11px", color: DS.textTertiary, fontWeight: 500 }}>{val.label}</span>
+        </div>
+      ))}
+      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+        <div style={{
+          width: "10px",
+          height: "10px",
+          borderRadius: "2px",
+          background: "repeating-linear-gradient(45deg, #bdbdbd 0, #bdbdbd 2px, transparent 2px, transparent 6px)",
+          border: `1px dashed ${DS.border}`,
+          flexShrink: 0,
+        }} />
+        <span style={{ fontSize: "11px", color: DS.textTertiary, fontWeight: 500 }}>Tentative</span>
+      </div>
+    </div>
+  );
+}
+
+// ─── ShiftTemplatePanel ───────────────────────────────────────────────────────
+function ShiftTemplatePanel({ open, templates, activeTemplateId, onToggle, onSelect, onAddTemplate }) {
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ name: "", type: "Day Shift", start: "08:00", end: "17:00" });
+
+  function submit() {
+    if (!form.name.trim()) return;
+    onAddTemplate({ ...form, id: `tpl-${Date.now()}` });
+    setForm({ name: "", type: "Day Shift", start: "08:00", end: "17:00" });
+    setShowForm(false);
+  }
+
+  if (!open) {
+    return (
+      <button
+        onClick={onToggle}
+        title="Show Shift Templates"
+        style={{
+          position: "fixed", right: 0, top: "120px", zIndex: 40,
+          background: DS.accent, color: DS.textMain, border: "none",
+          borderRadius: "6px 0 0 6px", padding: "10px 8px", cursor: "pointer",
+          fontSize: "12px", fontWeight: 700, writingMode: "vertical-rl",
+          letterSpacing: "0.08em", boxShadow: "-2px 0 8px rgba(0,0,0,0.08)",
+        }}
+      >TEMPLATES</button>
+    );
+  }
+
+  return (
+    <aside style={{
+      width: "260px", flexShrink: 0, borderLeft: `1px solid ${DS.border}`,
+      background: DS.bgPanel, padding: "16px", overflowY: "auto",
+    }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
+        <span style={{ fontSize: "13px", fontWeight: 700, color: DS.textMain, letterSpacing: "0.02em" }}>Shift Templates</span>
+        <button onClick={onToggle} title="Hide panel" style={{
+          background: DS.bgLight, border: `1px solid ${DS.border}`, borderRadius: "4px",
+          width: "26px", height: "26px", cursor: "pointer", color: DS.textTertiary, fontSize: "13px",
+        }}>›</button>
+      </div>
+
+      <p style={{ fontSize: "11px", color: DS.textTertiary, margin: "0 0 12px", lineHeight: 1.5 }}>
+        Select a template then click empty cells to apply it. Click again to deselect.
+      </p>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+        {templates.map(tpl => {
+          const t = SHIFT_TYPES[tpl.type] || SHIFT_TYPES["Unassigned"];
+          const active = tpl.id === activeTemplateId;
+          return (
+            <button
+              key={tpl.id}
+              onClick={() => onSelect(active ? null : tpl)}
+              style={{
+                textAlign: "left", cursor: "pointer",
+                background: active ? t.bg : DS.bgCard,
+                border: `1px solid ${active ? t.color : DS.border}`,
+                boxShadow: active ? `0 0 0 2px ${t.color}` : "none",
+                borderLeft: `3px solid ${t.color}`,
+                borderRadius: "5px", padding: "8px 10px",
+                display: "flex", flexDirection: "column", gap: "2px",
+                transition: "all 0.12s ease",
+              }}
+            >
+              <span style={{ fontSize: "12px", fontWeight: 600, color: t.color }}>{tpl.name}</span>
+              <span style={{ fontSize: "11px", color: DS.textTertiary }}>{tpl.start}–{tpl.end}</span>
+              <span style={{ fontSize: "10px", color: DS.textMuted }}>{tpl.type}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Add template */}
+      {showForm ? (
+        <div style={{ marginTop: "12px", padding: "10px", border: `1px solid ${DS.border}`, borderRadius: "6px", background: DS.bgLight }}>
+          <input
+            placeholder="Template name"
+            value={form.name}
+            onChange={e => setForm({ ...form, name: e.target.value })}
+            style={{ width: "100%", marginBottom: "6px", padding: "6px 8px", fontSize: "12px", border: `1px solid ${DS.border}`, borderRadius: "4px" }}
+          />
+          <select
+            value={form.type}
+            onChange={e => setForm({ ...form, type: e.target.value })}
+            style={{ width: "100%", marginBottom: "6px", padding: "6px 8px", fontSize: "12px", border: `1px solid ${DS.border}`, borderRadius: "4px" }}
+          >
+            {Object.keys(SHIFT_TYPES).filter(k => k !== "Unassigned").map(k => <option key={k} value={k}>{k}</option>)}
+          </select>
+          <div style={{ display: "flex", gap: "6px", marginBottom: "8px" }}>
+            <input type="time" value={form.start} onChange={e => setForm({ ...form, start: e.target.value })} style={{ flex: 1, padding: "6px", fontSize: "12px", border: `1px solid ${DS.border}`, borderRadius: "4px" }} />
+            <input type="time" value={form.end} onChange={e => setForm({ ...form, end: e.target.value })} style={{ flex: 1, padding: "6px", fontSize: "12px", border: `1px solid ${DS.border}`, borderRadius: "4px" }} />
+          </div>
+          <div style={{ display: "flex", gap: "6px" }}>
+            <button onClick={submit} style={{ flex: 1, background: DS.accent, border: "none", borderRadius: "4px", padding: "8px", fontSize: "12px", fontWeight: 600, cursor: "pointer" }}>Add</button>
+            <button onClick={() => setShowForm(false)} style={{ flex: 1, background: DS.bgCard, border: `1px solid ${DS.border}`, borderRadius: "4px", padding: "8px", fontSize: "12px", cursor: "pointer", color: DS.textSecondary }}>Cancel</button>
+          </div>
+        </div>
+      ) : (
+        <button onClick={() => setShowForm(true)} style={{
+          marginTop: "12px", width: "100%", background: DS.bgCard,
+          border: `1px dashed ${DS.border}`, borderRadius: "5px", padding: "10px",
+          fontSize: "12px", fontWeight: 600, color: DS.textTertiary, cursor: "pointer",
+        }}>+ Add Template</button>
+      )}
+    </aside>
+  );
+}
+
+// ─── TemplatePickerPopover (quick-apply on empty cell) ────────────────────────
+function TemplatePickerPopover({ anchor, templates, onPick, onClose }) {
+  if (!anchor) return null;
+  return (
+    <>
+      <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 900 }} />
+      <div style={{
+        position: "fixed", zIndex: 901,
+        top: Math.min(anchor.y, window.innerHeight - 280),
+        left: Math.min(anchor.x, window.innerWidth - 220),
+        width: "200px", background: DS.bgCard, border: `1px solid ${DS.border}`,
+        borderRadius: "8px", boxShadow: "0 8px 24px rgba(0,0,0,0.16)", padding: "8px",
+      }}>
+        <div style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.06em", color: DS.textMuted, textTransform: "uppercase", padding: "4px 6px 8px" }}>
+          Apply Template
+        </div>
+        {templates.map(tpl => {
+          const t = SHIFT_TYPES[tpl.type] || SHIFT_TYPES["Unassigned"];
+          return (
+            <button
+              key={tpl.id}
+              onClick={() => onPick(tpl)}
+              style={{
+                width: "100%", textAlign: "left", cursor: "pointer", background: "transparent",
+                border: "none", borderLeft: `3px solid ${t.color}`, borderRadius: "4px",
+                padding: "7px 9px", marginBottom: "2px", display: "flex", flexDirection: "column", gap: "1px",
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = t.bg}
+              onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+            >
+              <span style={{ fontSize: "12px", fontWeight: 600, color: t.color }}>{tpl.name}</span>
+              <span style={{ fontSize: "10px", color: DS.textTertiary }}>{tpl.start}–{tpl.end}</span>
+            </button>
+          );
+        })}
+      </div>
+    </>
+  );
+}
+
+// ─── BulkPatternDialog ────────────────────────────────────────────────────────
+function BulkPatternDialog({ resource, templates, onApply, onClose }) {
+  const [templateId, setTemplateId] = useState(templates[0]?.id || "");
+  const [days, setDays] = useState([true, true, true, true, true, false, false]);
+
+  if (!resource) return null;
+  const selectedCount = days.filter(Boolean).length;
+
+  function toggleDay(i) {
+    setDays(days.map((d, idx) => idx === i ? !d : d));
+  }
+
+  return (
+    <div
+      style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(0,0,0,0.32)", display: "flex", alignItems: "center", justifyContent: "center" }}
+      onClick={e => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div style={{ background: DS.bgCard, border: `1px solid ${DS.border}`, borderRadius: "8px", padding: "24px", width: "420px", boxShadow: "0 8px 32px rgba(0,0,0,0.16)" }}>
+        <div style={{ marginBottom: "4px", fontSize: "11px", fontWeight: 700, letterSpacing: "0.05em", color: DS.accentDark, textTransform: "uppercase" }}>
+          Apply Weekly Pattern
+        </div>
+        <div style={{ fontSize: "16px", fontWeight: 700, color: DS.textMain, marginBottom: "16px" }}>
+          {resource.name}
+        </div>
+
+        <label style={{ fontSize: "12px", fontWeight: 600, color: DS.textTertiary, display: "block", marginBottom: "6px" }}>Template</label>
+        <select
+          value={templateId}
+          onChange={e => setTemplateId(e.target.value)}
+          style={{ width: "100%", padding: "8px 10px", fontSize: "13px", border: `1px solid ${DS.border}`, borderRadius: "4px", marginBottom: "16px" }}
+        >
+          {templates.map(t => <option key={t.id} value={t.id}>{t.name} ({t.start}–{t.end})</option>)}
+        </select>
+
+        <label style={{ fontSize: "12px", fontWeight: 600, color: DS.textTertiary, display: "block", marginBottom: "6px" }}>Days</label>
+        <div style={{ display: "flex", gap: "6px", marginBottom: "20px" }}>
+          {DAY_NAMES.map((dn, i) => (
+            <button
+              key={dn}
+              onClick={() => toggleDay(i)}
+              style={{
+                flex: 1, padding: "8px 0", fontSize: "11px", fontWeight: 600, cursor: "pointer",
+                borderRadius: "4px", border: `1px solid ${days[i] ? DS.accent : DS.border}`,
+                background: days[i] ? DS.accent : DS.bgCard,
+                color: days[i] ? DS.textMain : DS.textTertiary,
+              }}
+            >{dn}</button>
+          ))}
+        </div>
+
+        <div style={{ display: "flex", gap: "8px" }}>
+          <button
+            onClick={() => onApply(resource, templates.find(t => t.id === templateId), days)}
+            disabled={selectedCount === 0}
+            style={{
+              flex: 1, background: selectedCount ? DS.accent : DS.bgLighter, color: DS.textMain,
+              border: "none", borderRadius: "4px", padding: "10px", fontWeight: 600, fontSize: "13px",
+              cursor: selectedCount ? "pointer" : "not-allowed", minHeight: "44px",
+            }}
+          >Apply to {selectedCount} day{selectedCount !== 1 ? "s" : ""}</button>
+          <button onClick={onClose} style={{ flex: 1, background: DS.bgLight, color: DS.textSecondary, border: `1px solid ${DS.border}`, borderRadius: "4px", padding: "10px", fontWeight: 500, fontSize: "13px", cursor: "pointer", minHeight: "44px" }}>Cancel</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Component ───────────────────────────────────────────────────────────
+export default function ShiftManagementWeekly() {
+  const [activeView, setActiveView] = useState("Week");
+  const [currentMonday, setCurrentMonday] = useState(getMondayOf(new Date("2026-06-01")));
+  const [selectedShift, setSelectedShift] = useState(null);
+  const [toast, setToast] = useState(null);
+
+  // Template enhancement state
+  const [shifts, setShifts] = useState(SHIFTS);
+  const [templates, setTemplates] = useState(SEED_TEMPLATES);
+  const [panelOpen, setPanelOpen] = useState(true);
+  const [activeTemplate, setActiveTemplate] = useState(null);
+  const [picker, setPicker] = useState(null);      // { x, y, date, resourceName, resourceId }
+  const [bulkResource, setBulkResource] = useState(null);
+
+  const weekDates = getWeekDates(currentMonday);
+  const sunday = weekDates[6];
+
+  function showToast(msg) {
+    setToast(msg);
+    setTimeout(() => setToast(null), 3000);
+  }
+
+  // Group shifts by resourceId → date
+  const shiftMap = useMemo(() => {
+    const map = {};
+    RESOURCES.forEach(r => { map[r.id] = {}; });
+    shifts.forEach(s => {
+      if (!map[s.resourceId]) map[s.resourceId] = {};
+      if (!map[s.resourceId][s.date]) map[s.resourceId][s.date] = [];
+      map[s.resourceId][s.date].push(s);
+    });
+    return map;
+  }, [shifts]);
+
+  // Create a shift from a template (skips occupied cells)
+  function applyTemplate(resourceId, date, template) {
+    if (!template) return false;
+    const occupied = shifts.some(s => s.resourceId === resourceId && s.date === date);
+    if (occupied) return false;
+    setShifts(prev => [...prev, {
+      id: nextShiftId(),
+      resourceId, date,
+      start: template.start, end: template.end,
+      type: template.type, status: "Tentative",
+    }]);
+    return true;
+  }
+
+  function handleEmptyClick(e, date, resourceName) {
+    const resource = RESOURCES.find(r => r.name === resourceName);
+    if (activeTemplate) {
+      const ok = applyTemplate(resource.id, date, activeTemplate);
+      showToast(ok ? `${activeTemplate.name} applied to ${resourceName} on ${date}` : "Cell already has a shift");
+    } else {
+      setPicker({ x: e.clientX, y: e.clientY, date, resourceName, resourceId: resource.id });
+    }
+  }
+
+  function handlePickerChoose(template) {
+    applyTemplate(picker.resourceId, picker.date, template);
+    showToast(`${template.name} applied to ${picker.resourceName} on ${picker.date}`);
+    setPicker(null);
+  }
+
+  function handleBulkApply(resource, template, days) {
+    let created = 0;
+    const newShifts = [];
+    weekDates.forEach((d, i) => {
+      if (!days[i]) return;
+      const date = formatDate(d);
+      const occupied = shifts.some(s => s.resourceId === resource.id && s.date === date)
+        || newShifts.some(s => s.date === date);
+      if (occupied) return;
+      newShifts.push({
+        id: nextShiftId(), resourceId: resource.id, date,
+        start: template.start, end: template.end, type: template.type, status: "Tentative",
+      });
+      created += 1;
+    });
+    if (newShifts.length) setShifts(prev => [...prev, ...newShifts]);
+    setBulkResource(null);
+    showToast(`${created} ${template.name} shift${created !== 1 ? "s" : ""} created for ${resource.name}`);
+  }
+
+  // Shifts in current week for totals
+  const weekShifts = useMemo(() => {
+    const weekIsos = weekDates.map(formatDate);
+    return shifts.filter(s => weekIsos.includes(s.date));
+  }, [currentMonday, shifts]);
+
+  const totalH = totalHours(weekShifts);
+  const todayIso = formatDate(new Date());
+
+  function prevWeek() {
+    const d = new Date(currentMonday);
+    d.setDate(d.getDate() - 7);
+    setCurrentMonday(d);
+  }
+  function nextWeek() {
+    const d = new Date(currentMonday);
+    d.setDate(d.getDate() + 7);
+    setCurrentMonday(d);
+  }
+  function goToday() {
+    setCurrentMonday(getMondayOf(new Date()));
+  }
+
+  const VIEWS = ["Day", "3-Day", "Week"];
+  const activeT = activeTemplate ? (SHIFT_TYPES[activeTemplate.type] || SHIFT_TYPES["Unassigned"]) : null;
+
+  return (
+    <div style={{
+      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+      background: DS.bgBase,
+      minHeight: "100vh",
+      color: DS.textMain,
+    }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        * { box-sizing: border-box; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #F5F5F5; }
+        ::-webkit-scrollbar-thumb { background: #E0E0E0; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #757575; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+        @keyframes slideInRight { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: none; } }
+        .shift-table { width: 100%; border-collapse: collapse; animation: fadeIn 0.3s ease-out; }
+        .shift-table th { position: sticky; top: 0; z-index: 10; }
+        .resource-col { width: 180px; min-width: 160px; position: sticky; left: 0; z-index: 20; }
+      `}</style>
+
+      {/* ── Header ─────────────────────────────────────────────────────────── */}
+      <div style={{
+        background: DS.bgPanel,
+        borderBottom: `1px solid ${DS.border}`,
+        padding: "12px 24px",
+        display: "flex",
+        alignItems: "center",
+        gap: "16px",
+        flexWrap: "wrap",
+      }}>
+        {/* Title */}
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginRight: "4px" }}>
+          <span style={{ fontSize: "16px" }}>🕐</span>
+          <span style={{ fontSize: "18px", fontWeight: 700, color: DS.textMain }}>Shift Management</span>
+        </div>
+
+        {/* View Tabs */}
+        <div style={{
+          display: "flex",
+          border: `1px solid ${DS.border}`,
+          borderRadius: "6px",
+          overflow: "hidden",
+        }}>
+          {VIEWS.map(v => (
+            <button
+              key={v}
+              onClick={() => setActiveView(v)}
+              style={{
+                padding: "6px 14px",
+                fontSize: "13px",
+                fontWeight: 500,
+                border: "none",
+                borderRight: v !== "Week" ? `1px solid ${DS.border}` : "none",
+                cursor: "pointer",
+                background: activeView === v ? DS.accent : DS.bgBase,
+                color: activeView === v ? DS.textMain : DS.textTertiary,
+                transition: "all 0.15s ease",
+                minHeight: "32px",
+              }}
+            >
+              {v}
+            </button>
+          ))}
+        </div>
+
+        {/* Spacer */}
+        <div style={{ flex: 1 }} />
+
+        {/* Week Navigator */}
+        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+          <button onClick={prevWeek} style={{
+            width: "32px", height: "32px",
+            background: DS.bgLight,
+            border: `1px solid ${DS.border}`,
+            borderRadius: "4px",
+            cursor: "pointer",
+            fontSize: "14px",
+            color: DS.textSecondary,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontWeight: 600,
+          }}>‹</button>
+
+          <span style={{
+            fontSize: "13px",
+            fontWeight: 500,
+            color: DS.textSecondary,
+            minWidth: "180px",
+            textAlign: "center",
+          }}>
+            {formatMonthYear(currentMonday, sunday)}
+          </span>
+
+          <button onClick={nextWeek} style={{
+            width: "32px", height: "32px",
+            background: DS.bgLight,
+            border: `1px solid ${DS.border}`,
+            borderRadius: "4px",
+            cursor: "pointer",
+            fontSize: "14px",
+            color: DS.textSecondary,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontWeight: 600,
+          }}>›</button>
+
+          <button onClick={goToday} style={{
+            padding: "0 12px",
+            height: "32px",
+            background: DS.bgLight,
+            border: `1px solid ${DS.border}`,
+            borderRadius: "4px",
+            cursor: "pointer",
+            fontSize: "12px",
+            fontWeight: 600,
+            color: DS.textSecondary,
+            letterSpacing: "0.02em",
+          }}>
+            TODAY
+          </button>
+        </div>
+
+        {/* Stats */}
+        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+            <span style={{ fontSize: "12px", color: DS.textTertiary }}>🕐</span>
+            <span style={{ fontSize: "13px", fontWeight: 600, color: DS.textSecondary }}>
+              {totalH.toFixed(1)}h
+            </span>
+            <span style={{ fontSize: "12px", color: DS.textMuted }}>this week</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+            <span style={{ fontSize: "12px", color: DS.textTertiary }}>📅</span>
+            <span style={{ fontSize: "13px", color: DS.textSecondary }}>{formatDate(currentMonday)}</span>
+          </div>
+        </div>
+
+        {/* New Shift CTA */}
+        <button
+          onClick={() => setToast("Opening New Shift form…")}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            background: DS.accent,
+            color: DS.textMain,
+            border: "none",
+            borderRadius: "4px",
+            padding: "0 16px",
+            height: "36px",
+            fontSize: "13px",
+            fontWeight: 600,
+            cursor: "pointer",
+            transition: "background 0.15s ease",
+            minHeight: "44px",
+          }}
+          onMouseEnter={e => e.currentTarget.style.background = DS.accentLight}
+          onMouseLeave={e => e.currentTarget.style.background = DS.accent}
+        >
+          <span style={{ fontSize: "16px", fontWeight: 400, lineHeight: 1 }}>+</span>
+          New Shift
+        </button>
+      </div>
+
+      {/* ── Active Template Brush Banner ───────────────────────────────────── */}
+      {activeTemplate && (
+        <div style={{
+          display: "flex", alignItems: "center", gap: "10px",
+          padding: "8px 24px", background: activeT.bg,
+          borderBottom: `1px solid ${DS.border}`, fontSize: "12px",
+        }}>
+          <span style={{ fontWeight: 700, color: activeT.color }}>Brush active:</span>
+          <span style={{ color: DS.textSecondary }}>
+            {activeTemplate.name} · {activeTemplate.start}–{activeTemplate.end} — click empty cells to apply
+          </span>
+          <button
+            onClick={() => setActiveTemplate(null)}
+            style={{
+              marginLeft: "auto", background: DS.bgCard, border: `1px solid ${DS.border}`,
+              borderRadius: "4px", padding: "3px 10px", fontSize: "11px", fontWeight: 600,
+              cursor: "pointer", color: DS.textSecondary,
+            }}
+          >Clear</button>
+        </div>
+      )}
+
+      {/* ── Body: Calendar Grid + Template Panel ───────────────────────────── */}
+      <div style={{ display: "flex", alignItems: "stretch" }}>
+      <div style={{ flex: 1, padding: "16px 24px", overflowX: "auto", minWidth: 0 }}>
+        <table className="shift-table">
+          <thead>
+            <tr>
+              {/* Resource header */}
+              <th className="resource-col" style={{
+                padding: "10px 12px",
+                textAlign: "left",
+                fontSize: "10px",
+                fontWeight: 700,
+                letterSpacing: "0.08em",
+                color: DS.textMuted,
+                background: DS.bgBase,
+                border: `1px solid ${DS.border}`,
+                borderBottom: `2px solid ${DS.border}`,
+                textTransform: "uppercase",
+              }}>
+                RESOURCE
+              </th>
+
+              {/* Day column headers */}
+              {weekDates.map(d => {
+                const iso = formatDate(d);
+                const isToday = iso === todayIso;
+                return (
+                  <th key={iso} style={{
+                    padding: "8px 6px",
+                    textAlign: "center",
+                    border: `1px solid ${DS.border}`,
+                    borderBottom: `2px solid ${isToday ? DS.accent : DS.border}`,
+                    background: isToday ? DS.accentPale : DS.bgBase,
+                    minWidth: "110px",
+                  }}>
+                    <div style={{
+                      fontSize: "10px",
+                      fontWeight: 700,
+                      letterSpacing: "0.08em",
+                      color: isToday ? DS.accentDark : DS.textMuted,
+                      textTransform: "uppercase",
+                    }}>
+                      {formatDayLabel(d)}
+                    </div>
+                    <div style={{
+                      fontSize: "20px",
+                      fontWeight: isToday ? 700 : 400,
+                      color: isToday ? DS.accentDark : DS.textSecondary,
+                      lineHeight: "1.2",
+                      marginTop: "1px",
+                    }}>
+                      {formatDayNum(d)}
+                    </div>
+                    {/* Shift count for this day */}
+                    {(() => {
+                      const count = shifts.filter(s => s.date === iso).length;
+                      return count > 0 ? (
+                        <div style={{
+                          fontSize: "10px",
+                          color: DS.textMuted,
+                          marginTop: "2px",
+                        }}>
+                          {count} shift{count !== 1 ? "s" : ""}
+                        </div>
+                      ) : null;
+                    })()}
+                  </th>
+                );
+              })}
+            </tr>
+          </thead>
+
+          <tbody>
+            {RESOURCES.map(resource => (
+              <tr key={resource.id}>
+                {/* Resource label cell */}
+                <td className="resource-col" style={{
+                  padding: "10px 12px",
+                  border: `1px solid ${DS.border}`,
+                  background: DS.bgBase,
+                  verticalAlign: "top",
+                }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    {/* Avatar */}
+                    <div style={{
+                      width: "32px",
+                      height: "32px",
+                      borderRadius: "50%",
+                      background: DS.accentPale,
+                      border: `1px solid ${DS.accent}`,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "11px",
+                      fontWeight: 700,
+                      color: DS.accentDark,
+                      flexShrink: 0,
+                    }}>
+                      {resource.initials}
+                    </div>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{
+                        fontSize: "13px",
+                        fontWeight: 600,
+                        color: DS.textMain,
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}>
+                        {resource.name}
+                      </div>
+                      <div style={{
+                        fontSize: "11px",
+                        color: DS.textTertiary,
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}>
+                        {resource.role}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Weekly shift count for resource */}
+                  {(() => {
+                    const weekIsos = weekDates.map(formatDate);
+                    const count = (shiftMap[resource.id] ? Object.entries(shiftMap[resource.id]).filter(([date]) => weekIsos.includes(date)).reduce((acc, [, s]) => acc + s.length, 0) : 0);
+                    return count > 0 ? (
+                      <div style={{
+                        marginTop: "6px",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        padding: "2px 8px",
+                        borderRadius: "20px",
+                        background: DS.accentPale,
+                        fontSize: "10px",
+                        fontWeight: 600,
+                        color: DS.accentDark,
+                        letterSpacing: "0.02em",
+                      }}>
+                        {count} shift{count !== 1 ? "s" : ""} this week
+                      </div>
+                    ) : (
+                      <div style={{
+                        marginTop: "6px",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        padding: "2px 8px",
+                        borderRadius: "20px",
+                        background: DS.bgLighter,
+                        fontSize: "10px",
+                        fontWeight: 500,
+                        color: DS.textMuted,
+                      }}>
+                        No shifts
+                      </div>
+                    );
+                  })()}
+
+                  {/* Apply weekly pattern */}
+                  <button
+                    onClick={() => setBulkResource(resource)}
+                    title={`Apply a shift template pattern for ${resource.name}`}
+                    style={{
+                      marginTop: "6px",
+                      display: "block",
+                      width: "100%",
+                      background: DS.bgLight,
+                      border: `1px solid ${DS.border}`,
+                      borderRadius: "4px",
+                      padding: "4px 8px",
+                      fontSize: "10px",
+                      fontWeight: 600,
+                      color: DS.textTertiary,
+                      cursor: "pointer",
+                      letterSpacing: "0.02em",
+                    }}
+                  >
+                    ⤢ Apply Pattern
+                  </button>
+                </td>
+
+                {/* Day cells */}
+                {weekDates.map(d => {
+                  const iso = formatDate(d);
+                  const isToday = iso === todayIso;
+                  const cellShifts = shiftMap[resource.id]?.[iso] || [];
+                  return (
+                    <DayCell
+                      key={iso}
+                      shifts={cellShifts}
+                      isToday={isToday}
+                      resourceName={resource.name}
+                      dateLabel={iso}
+                      onShiftClick={setSelectedShift}
+                      onEmptyClick={handleEmptyClick}
+                      activeTemplate={activeTemplate}
+                    />
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {/* Legend */}
+        <Legend />
+      </div>
+
+      {/* ── Template Side Panel ────────────────────────────────────────────── */}
+      <ShiftTemplatePanel
+        open={panelOpen}
+        templates={templates}
+        activeTemplateId={activeTemplate?.id}
+        onToggle={() => setPanelOpen(o => !o)}
+        onSelect={setActiveTemplate}
+        onAddTemplate={tpl => { setTemplates(prev => [...prev, tpl]); showToast(`Template "${tpl.name}" added`); }}
+      />
+      </div>
+
+      {/* ── Modals, Popovers & Toasts ──────────────────────────────────────── */}
+      {selectedShift && (
+        <ShiftDetailModal
+          shift={selectedShift}
+          onClose={() => setSelectedShift(null)}
+        />
+      )}
+
+      <TemplatePickerPopover
+        anchor={picker}
+        templates={templates}
+        onPick={handlePickerChoose}
+        onClose={() => setPicker(null)}
+      />
+
+      <BulkPatternDialog
+        resource={bulkResource}
+        templates={templates}
+        onApply={handleBulkApply}
+        onClose={() => setBulkResource(null)}
+      />
+
+      <Toast message={toast} onClose={() => setToast(null)} />
+    </div>
+  );
+}

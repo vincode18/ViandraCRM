@@ -4,7 +4,8 @@ import {
   LayoutDashboard, FolderOpen, Wrench,
   Users, Building2, Package, BarChart2,
   ChevronRight, Filter, Clock, TrendingUp, Plus, AlertCircle,
-  ArrowLeft, Clipboard, Box, Archive, ClipboardList, Calendar, FileText
+  ArrowLeft, Clipboard, Box, Archive, ClipboardList, Calendar, FileText,
+  CalendarClock, MapPin, LayoutGrid, CheckCircle2, Factory, Map as MapIcon
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -13,7 +14,7 @@ const NAV_ITEMS = [
   { to: '/dashboard',  icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/cases',      icon: FolderOpen,      label: 'Cases' },
   { to: '/workorders', icon: Wrench,           label: 'Work Orders' },
-  { to: '/assets',     icon: Package,          label: 'Assets',    disabled: true },
+  { to: '/assets',     icon: Package,          label: 'Assets' },
   { to: '/accounts',   icon: Building2,        label: 'Accounts',  disabled: true },
   { to: '/users',      icon: Users,            label: 'Users',     adminOnly: true, disabled: true },
   { to: '/reports',    icon: BarChart2,        label: 'Reports',   disabled: true },
@@ -73,6 +74,103 @@ const WORK_ORDER_MODULE_NAV = [
   },
 ];
 
+const SA_MODULE_NAV = [
+  {
+    section: 'SERVICE APPOINTMENTS',
+    items: [
+      { to: '/serviceappointments', icon: CalendarClock, label: 'All Appointments' },
+      { to: '/serviceappointments?status=Scheduled', icon: Clock, label: 'Scheduled' },
+      { to: '/serviceappointments?status=Dispatched', icon: TrendingUp, label: 'Dispatched' },
+      { to: '/serviceappointments?status=In Progress', icon: Filter, label: 'In Progress' },
+      { to: '/serviceappointments?status=Completed', icon: CheckCircle2, label: 'Completed' },
+    ]
+  },
+  {
+    section: 'FILTERS',
+    items: [
+      { to: '/serviceappointments?status=Overdue', icon: AlertCircle, label: 'Overdue' },
+    ]
+  },
+  {
+    section: 'QUICK LINKS',
+    items: [
+      { to: '/fieldservice', icon: MapPin, label: 'Dispatch Console' },
+    ]
+  },
+];
+
+const FIELD_SERVICE_MODULE_NAV = [
+  {
+    section: 'DISPATCH',
+    items: [
+      { to: '/fieldservice', icon: LayoutGrid, label: 'Gantt Schedule' },
+      { to: '/fieldservice', icon: MapPin, label: 'Map View' },
+    ]
+  },
+  {
+    section: 'QUICK LINKS',
+    items: [
+      { to: '/serviceappointments', icon: CalendarClock, label: 'All Appointments' },
+      { to: '/workorders', icon: Wrench, label: 'Work Orders' },
+    ]
+  },
+];
+
+const SERVICE_AREA_MODULE_NAV = [
+  {
+    section: 'SERVICE AREA',
+    items: [
+      { to: '/plants', icon: Factory, label: 'Plants' },
+      { to: '/workcenters', icon: Wrench, label: 'Work Centers' },
+      { to: '/territories', icon: MapIcon, label: 'Service Territory' },
+    ]
+  },
+  {
+    section: 'QUICK LINKS',
+    items: [
+      { to: '/shifts', icon: Clock, label: 'Shift Schedule' },
+      { to: '/fieldservice', icon: MapPin, label: 'Dispatch Console' },
+    ]
+  },
+];
+
+const SHIFT_MODULE_NAV = [
+  {
+    section: 'SHIFT MANAGEMENT',
+    items: [
+      { to: '/shifts', icon: LayoutGrid, label: 'Gantt Schedule Board' },
+      { to: '/shifts', icon: Calendar, label: 'Schedule Overview' },
+    ]
+  },
+  {
+    section: 'QUICK LINKS',
+    items: [
+      { to: '/territories', icon: MapIcon, label: 'Service Territory' },
+      { to: '/serviceappointments', icon: CalendarClock, label: 'Appointments' },
+      { to: '/fieldservice', icon: MapPin, label: 'Dispatch Console' },
+    ]
+  },
+];
+
+const ASSET_MODULE_NAV = [
+  {
+    section: 'ASSET MANAGEMENT',
+    items: [
+      { to: '/assets', icon: Package, label: 'All Assets' },
+      { to: '/assets?status=Installed', icon: CheckCircle2, label: 'Active Units' },
+      { to: '/assets?status=Obsolete', icon: Archive, label: 'Obsolete' },
+    ]
+  },
+  {
+    section: 'QUICK LINKS',
+    items: [
+      { to: '/plants', icon: Factory, label: 'Plants' },
+      { to: '/workorders', icon: Wrench, label: 'Work Orders' },
+      { to: '/fieldservice', icon: MapPin, label: 'Dispatch Console' },
+    ]
+  },
+];
+
 export default function Sidebar({ isOpen }) {
   const { user } = useAuth();
   const { currentModule } = useTheme();
@@ -86,6 +184,13 @@ export default function Sidebar({ isOpen }) {
   // Detect if we're on a work order detail page: /workorders/:id (but not /workorders/new)
   const workOrderDetailMatch = location.pathname.match(/^\/workorders\/([^/]+)$/);
   const isWorkOrderDetail = workOrderDetailMatch && workOrderDetailMatch[1] !== 'new';
+
+  // Path-based module override (so direct links / deep links show the right nav)
+  const path = location.pathname;
+  const isServiceArea = /^\/(plants|workcenters|territories)/.test(path);
+  const isShift = /^\/shifts/.test(path);
+  const isAsset = /^\/assets/.test(path);
+  const effectiveModule = isServiceArea ? 'plant' : isShift ? 'shift' : isAsset ? 'asset' : currentModule;
 
   return (
     <aside
@@ -112,6 +217,146 @@ export default function Sidebar({ isOpen }) {
               <ul className="space-y-0.5">
                 {navSection.items.map(({ to, icon: Icon, label }) => (
                   <li key={to}>
+                    <NavLink
+                      to={to}
+                      className={({ isActive }) =>
+                        `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm
+                         transition-all duration-150 group
+                         ${isActive
+                           ? 'bg-brand-blue/15 text-brand-blue font-semibold border border-brand-blue/20'
+                           : 'text-gray-400 hover:bg-brand-card hover:text-white'}`
+                      }
+                    >
+                      <Icon size={16} aria-hidden="true" className="shrink-0" />
+                      <span className="truncate">{label}</span>
+                    </NavLink>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        ) : currentModule === 'serviceappointment' ? (
+          // Service Appointment Module Navigation
+          SA_MODULE_NAV.map((navSection) => (
+            <div key={navSection.section} className="mb-4">
+              <p className="text-[10px] font-semibold uppercase tracking-widest px-3 mb-2" style={{ color: 'var(--text-muted)' }}>
+                {navSection.section}
+              </p>
+              <ul className="space-y-0.5">
+                {navSection.items.map(({ to, icon: Icon, label }) => (
+                  <li key={label}>
+                    <NavLink
+                      to={to}
+                      className={({ isActive }) =>
+                        `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm
+                         transition-all duration-150 group
+                         ${isActive
+                           ? 'bg-brand-blue/15 text-brand-blue font-semibold border border-brand-blue/20'
+                           : 'text-gray-400 hover:bg-brand-card hover:text-white'}`
+                      }
+                    >
+                      <Icon size={16} aria-hidden="true" className="shrink-0" />
+                      <span className="truncate">{label}</span>
+                    </NavLink>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        ) : currentModule === 'fieldservice' ? (
+          // Field Service Module Navigation
+          FIELD_SERVICE_MODULE_NAV.map((navSection) => (
+            <div key={navSection.section} className="mb-4">
+              <p className="text-[10px] font-semibold uppercase tracking-widest px-3 mb-2" style={{ color: 'var(--text-muted)' }}>
+                {navSection.section}
+              </p>
+              <ul className="space-y-0.5">
+                {navSection.items.map(({ to, icon: Icon, label }) => (
+                  <li key={label}>
+                    <NavLink
+                      to={to}
+                      className={({ isActive }) =>
+                        `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm
+                         transition-all duration-150 group
+                         ${isActive
+                           ? 'bg-brand-blue/15 text-brand-blue font-semibold border border-brand-blue/20'
+                           : 'text-gray-400 hover:bg-brand-card hover:text-white'}`
+                      }
+                    >
+                      <Icon size={16} aria-hidden="true" className="shrink-0" />
+                      <span className="truncate">{label}</span>
+                    </NavLink>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        ) : effectiveModule === 'asset' ? (
+          // Asset Management Module Navigation
+          ASSET_MODULE_NAV.map((navSection) => (
+            <div key={navSection.section} className="mb-4">
+              <p className="text-[10px] font-semibold uppercase tracking-widest px-3 mb-2" style={{ color: 'var(--text-muted)' }}>
+                {navSection.section}
+              </p>
+              <ul className="space-y-0.5">
+                {navSection.items.map(({ to, icon: Icon, label }) => (
+                  <li key={label}>
+                    <NavLink
+                      to={to}
+                      className={({ isActive }) =>
+                        `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm
+                         transition-all duration-150 group
+                         ${isActive
+                           ? 'bg-brand-blue/15 text-brand-blue font-semibold border border-brand-blue/20'
+                           : 'text-gray-400 hover:bg-brand-card hover:text-white'}`
+                      }
+                    >
+                      <Icon size={16} aria-hidden="true" className="shrink-0" />
+                      <span className="truncate">{label}</span>
+                    </NavLink>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        ) : effectiveModule === 'plant' ? (
+          // Service Area Module Navigation (Plant · Work Center · Territory)
+          SERVICE_AREA_MODULE_NAV.map((navSection) => (
+            <div key={navSection.section} className="mb-4">
+              <p className="text-[10px] font-semibold uppercase tracking-widest px-3 mb-2" style={{ color: 'var(--text-muted)' }}>
+                {navSection.section}
+              </p>
+              <ul className="space-y-0.5">
+                {navSection.items.map(({ to, icon: Icon, label }) => (
+                  <li key={label}>
+                    <NavLink
+                      to={to}
+                      className={({ isActive }) =>
+                        `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm
+                         transition-all duration-150 group
+                         ${isActive
+                           ? 'bg-brand-blue/15 text-brand-blue font-semibold border border-brand-blue/20'
+                           : 'text-gray-400 hover:bg-brand-card hover:text-white'}`
+                      }
+                    >
+                      <Icon size={16} aria-hidden="true" className="shrink-0" />
+                      <span className="truncate">{label}</span>
+                    </NavLink>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        ) : effectiveModule === 'shift' ? (
+          // Shift Management Module Navigation
+          SHIFT_MODULE_NAV.map((navSection) => (
+            <div key={navSection.section} className="mb-4">
+              <p className="text-[10px] font-semibold uppercase tracking-widest px-3 mb-2" style={{ color: 'var(--text-muted)' }}>
+                {navSection.section}
+              </p>
+              <ul className="space-y-0.5">
+                {navSection.items.map(({ to, icon: Icon, label }) => (
+                  <li key={label}>
                     <NavLink
                       to={to}
                       className={({ isActive }) =>
@@ -234,6 +479,7 @@ function CaseDetailSidebar({ navigate }) {
     { icon: Clipboard, label: 'Work Orders', count: 2, to: '#' },
     { icon: Box,       label: 'Parts Requests', count: 1, to: '#' },
     { icon: Archive,   label: 'Fleet Units', count: 4, to: '#' },
+    { icon: MapIcon,   label: 'Service Territory', text: 'Sangkulirang', to: '/territories/ST-0001' },
     { icon: Building2, label: 'Account', text: 'PUTRA PERKASA ABADI', to: '#' },
   ];
 
@@ -331,6 +577,8 @@ function WorkOrderDetailSidebar({ navigate }) {
     { icon: ClipboardList, label: 'Work Plans', count: 2, to: '#' },
     { icon: Wrench, label: 'Work Steps', count: 3, to: '#' },
     { icon: Calendar, label: 'Service Appointments', count: 1, to: '#' },
+    { icon: MapIcon, label: 'Service Territory', text: 'Sangkulirang', to: '/territories/ST-0001' },
+    { icon: Clock, label: 'Shift', text: 'SFT-3061099', to: '/shifts/SFT-3061099' },
     { icon: FileText, label: 'Case', text: '01553477', to: '#' },
     { icon: Building2, label: 'Account', text: 'SIMS JAYA KALTIM', to: '#' },
   ];

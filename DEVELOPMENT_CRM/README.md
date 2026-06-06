@@ -139,10 +139,14 @@ DEVELOPMENT_CRM/
 │       └── Program.cs
 └── frontend/
     ├── src/
-    │   ├── components/layout/  AppLayout, GlobalHeader, Sidebar
-    │   ├── contexts/           AuthContext
-    │   ├── pages/              LoginPage, ConsolePage, CasesPage, WorkOrdersPage
-    │   ├── utils/              api.js (axios instance)
+    │   ├── components/         BookAppointmentModal, SAStatusBadge, SearchableSelect, …
+    │   │   └── layout/         AppLayout, GlobalHeader, Sidebar
+    │   ├── contexts/           AuthContext, ThemeContext (light/dark)
+    │   ├── pages/              LoginPage, ConsolePage, CasesPage, CaseDetailPage,
+    │   │                       WorkOrdersPage, WorkOrderDetailPage,
+    │   │                       ServiceAppointmentsPage, ServiceAppointmentDetailPage,
+    │   │                       FieldServicePage
+    │   ├── utils/              api.js (axios instance), saData.js (SA schema + mock data)
     │   ├── App.jsx
     │   ├── main.jsx
     │   └── index.css
@@ -154,7 +158,36 @@ DEVELOPMENT_CRM/
 
 ---
 
-## 7 — Security Notes
+## 7 — Frontend Modules (Module Combobox)
+
+The global header combobox (next to **UT Service Console**) switches between modules. Each route is theme-aware (light/dark via `ThemeContext`).
+
+| Module | Route | Description |
+|--------|-------|-------------|
+| Dashboard | `/dashboard` | KPI overview console |
+| Cases | `/cases`, `/cases/:id` | Case management |
+| Work Orders | `/workorders`, `/workorders/:id` | Work order management (Feed tab → **Book Appointment**) |
+| **Service Appointment (SA)** | `/serviceappointments`, `/serviceappointments/:id` | SA list view (filter chips) + 8-section detail view |
+| **Field Service** | `/fieldservice` | Three-panel dispatch console: SA Queue · Gantt Chart (drag-and-drop assignment) · SA side sheet, with Gantt/Map toggle |
+
+### Service Appointment & Field Service — Implementation Notes
+
+Built from `C. UI_Enhancement/Field_Service_Module/`:
+- `FRD-SA-Fields.md` — full 36-field `ServiceAppointment` schema (implemented in `src/utils/saData.js`)
+- `FRD-Field-Service-Tracking.md` — appointment lifecycle, Gantt assignment, status transitions, SLA overdue
+- `DESIGN-SA-FieldService-Module.md` — UI spec (light/dark tokens, status badges, three-panel layout)
+
+Key behaviours:
+- **Book Appointment** modal opens from the Work Order **Feed** tab and the Details actions; pre-fills from the WO, validates per FRD §5.4 (Scheduled End > Start, positive Duration, offsite confirmation), and creates an SA with `Status = Scheduled` + a Feed entry.
+- **Gantt drag-and-drop** assigns an unassigned SA to a resource row, computes `SchedStart`/`SchedEnd`, sets `Schedule Mode = Drag and Drop`, and warns on overlapping conflicts.
+- **SA detail** renders the 8 collapsible sections (Header, Scheduling, Location, Stakeholders, Actuals, Description & Notes, Bundle [conditional], System Info [collapsed]).
+- **Status badges** follow the FRD §8.3 light/dark colour pairs (`SAStatusBadge`).
+
+> Note: No SA backend endpoints exist yet — these modules run on mock sample data in `src/utils/saData.js`, ready to be swapped for live `/api/serviceappointments` calls.
+
+---
+
+## 8 — Security Notes
 
 - Passwords are SHA-256 hashed with a random 128-bit salt (constant-time comparison)
 - JWT expiration: 8 hours (configurable via `JwtSettings.ExpirationMinutes`)
@@ -166,7 +199,7 @@ DEVELOPMENT_CRM/
 
 ---
 
-## 8 — Running Both Together (Quick Start)
+## 9 — Running Both Together (Quick Start)
 
 Open two terminals:
 

@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Shift Module Dashboard</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-secondary-container": "#656464",
+                      "surface": "#f9f9f9",
+                      "on-tertiary-container": "#555757",
+                      "surface-container-low": "#f3f3f3",
+                      "tertiary-container": "#cdcdcd",
+                      "surface-container-highest": "#e2e2e2",
+                      "primary-fixed": "#ffe081",
+                      "on-error": "#ffffff",
+                      "on-tertiary": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "on-surface-variant": "#4d4632",
+                      "outline": "#7f7660",
+                      "surface-container-high": "#e8e8e8",
+                      "inverse-primary": "#eec200",
+                      "secondary-fixed-dim": "#c8c6c5",
+                      "on-secondary-fixed": "#1c1b1b",
+                      "secondary-fixed": "#e5e2e1",
+                      "on-secondary": "#ffffff",
+                      "on-primary-fixed-variant": "#564500",
+                      "secondary": "#5f5e5e",
+                      "on-secondary-fixed-variant": "#474646",
+                      "on-error-container": "#93000a",
+                      "surface-dim": "#dadada",
+                      "tertiary-fixed-dim": "#c6c6c6",
+                      "on-background": "#1a1c1c",
+                      "primary-fixed-dim": "#eec200",
+                      "surface-bright": "#f9f9f9",
+                      "inverse-surface": "#2f3131",
+                      "surface-variant": "#e2e2e2",
+                      "surface-container-lowest": "#ffffff",
+                      "primary-container": "#f5c800",
+                      "inverse-on-surface": "#f1f1f1",
+                      "on-tertiary-fixed-variant": "#454747",
+                      "primary": "#725c00",
+                      "on-surface": "#1a1c1c",
+                      "outline-variant": "#d1c6ab",
+                      "on-primary": "#ffffff",
+                      "surface-container": "#eeeeee",
+                      "on-primary-container": "#695400",
+                      "surface-tint": "#725c00",
+                      "tertiary-fixed": "#e2e2e2",
+                      "background": "#f9f9f9",
+                      "error": "#ba1a1a",
+                      "secondary-container": "#e5e2e1",
+                      "on-tertiary-fixed": "#1a1c1c",
+                      "tertiary": "#5d5f5f",
+                      "on-primary-fixed": "#231b00"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "xl": "32px",
+                      "md": "16px",
+                      "gutter": "16px",
+                      "sm": "8px",
+                      "xs": "4px",
+                      "base": "8px",
+                      "margin": "24px",
+                      "lg": "24px"
+              },
+              "fontFamily": {
+                      "body-sm": ["Hanken Grotesk"],
+                      "headline-md": ["Hanken Grotesk"],
+                      "label-md": ["JetBrains Mono"],
+                      "body-lg": ["Hanken Grotesk"],
+                      "headline-lg": ["Hanken Grotesk"],
+                      "body-md": ["Hanken Grotesk"],
+                      "headline-sm": ["Hanken Grotesk"],
+                      "headline-lg-mobile": ["Hanken Grotesk"],
+                      "label-sm": ["JetBrains Mono"]
+              },
+              "fontSize": {
+                      "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "label-md": ["14px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                      "headline-lg-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                      "label-sm": ["12px", {"lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "500"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        .gantt-grid {
+            display: grid;
+            grid-template-columns: 180px repeat(10, minmax(60px, 1fr));
+        }
+        /* Custom scrollbar for technical feel */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f9f9f9; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #d1c6ab; 
+            border-radius: 0.125rem;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #7f7660; 
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md overflow-hidden selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="fixed top-0 right-0 left-64 h-16 flex justify-between items-center px-lg w-full bg-surface-container-lowest text-primary border-b border-outline-variant z-20">
+<div class="flex items-center gap-xl h-full">
+<span class="font-label-md text-primary font-bold tracking-tighter">SHIFT_MANAGER_OS</span>
+<nav class="hidden md:flex h-full items-end gap-md font-label-sm">
+<a class="text-primary font-bold border-b-2 border-primary pb-1 h-full flex items-center px-sm" href="#">Resource Pool</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors h-full flex items-center px-sm" href="#">Incident Log</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors h-full flex items-center px-sm" href="#">Reports</a>
+</nav>
+</div>
+<div class="flex items-center gap-md">
+<div class="flex items-center gap-sm mr-md border-r border-surface-variant pr-md">
+<button class="w-8 h-8 rounded flex items-center justify-center text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors">
+<span class="material-symbols-outlined" style="font-size: 20px;">search</span>
+</button>
+<button class="w-8 h-8 rounded flex items-center justify-center text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors">
+<span class="material-symbols-outlined" style="font-size: 20px;">notifications</span>
+</button>
+<button class="w-8 h-8 rounded flex items-center justify-center text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors">
+<span class="material-symbols-outlined" style="font-size: 20px;">sync</span>
+</button>
+</div>
+<button class="px-md py-xs rounded border border-on-surface text-on-surface font-label-md hover:bg-surface-container transition-colors">Emergency Stop</button>
+<button class="px-md py-xs rounded bg-primary-container text-on-primary-container font-label-md hover:opacity-90 transition-opacity font-bold">Clock In</button>
+<div class="w-8 h-8 rounded-full bg-surface-container ml-sm overflow-hidden border border-outline-variant">
+<img alt="Shift Lead Avatar" class="w-full h-full object-cover" data-alt="A highly detailed close-up portrait of a professional supervisor in a sterile, brightly lit environment. The lighting is high-key and technical, casting minimal shadows and emphasizing a clinical, modern aesthetic. The subject is wearing a crisp, dark technical garment that contrasts sharply against a pure white background. The overall mood is serious, efficient, and precise, aligning with an industrial light-mode interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6OcAq8SoqBe2S-v5-xZBCFAwCpRh3EM0DHRPinJIXXttce9O0ZkcD4CrEo6iN4am4OJaSKL1AWEQmAcZO_KLFyscXjiBV8PDZYdLV8ATg6dmclN9Hjm1AywuOID5wrHBY7uh77M7u7HArLG7Lnyw4Hc-7umPkuJGh-_enoUNchtZWIIYl8DPtgiChYUVh7A7RG5ZFaoJRdKrmiS85kiltpT2Ny2WRHQcPAmp_Bhm70Ll98EczXNRfvNItUD1jA20l7JRMcinxa_2h"/>
+</div>
+</div>
+</header>
+<!-- SideNavBar -->
+<nav class="h-screen w-64 fixed left-0 top-0 flex flex-col h-full border-r border-outline-variant bg-surface text-primary z-30">
+<div class="p-md border-b border-surface-variant flex items-center gap-sm">
+<div class="w-10 h-10 rounded bg-primary-container flex items-center justify-center text-on-primary-container font-bold text-headline-sm">OP</div>
+<div>
+<h1 class="text-headline-sm font-headline-sm font-bold text-on-surface leading-none">OP-CONSOLE</h1>
+<p class="text-label-sm font-label-sm text-on-surface-variant mt-1">V2.4 Shift Lead</p>
+</div>
+</div>
+<div class="p-md">
+<button class="w-full py-2 px-4 rounded border border-outline border-dashed text-outline font-label-md flex items-center justify-center gap-2 hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined" style="font-size: 18px;">add</span> Add Resource
+            </button>
+</div>
+<div class="flex-grow py-sm font-label-md">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span> Dashboard
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined">groups</span> Shift Resource
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 bg-primary-container text-on-primary-container font-bold border-r-4 border-primary opacity-90 transition-all duration-150" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">format_align_left</span> Gantt View
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined">calendar_view_day</span> Schedule List
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined">query_stats</span> Analytics
+            </a>
+</div>
+<div class="border-t border-surface-variant py-sm font-label-md">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span> Settings
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined">help</span> Support
+            </a>
+</div>
+</nav>
+<!-- Main Canvas (3 Columns) -->
+<main class="flex h-screen pt-16 pl-64 w-full bg-background overflow-hidden">
+<!-- Column 1: Resources -->
+<aside class="w-[320px] flex-shrink-0 bg-surface-container-lowest border-r border-surface-variant flex flex-col h-full relative z-10 shadow-[4px_0_12px_-4px_rgba(0,0,0,0.05)]">
+<div class="p-md border-b border-surface-variant">
+<h2 class="text-headline-sm font-headline-sm font-bold text-on-surface mb-md">Shift Resources</h2>
+<div class="relative mb-sm">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline" style="font-size: 18px;">search</span>
+<input class="w-full pl-10 pr-3 py-2 rounded border border-surface-variant bg-surface text-body-sm font-body-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-outline" placeholder="Search mechanics..." type="text"/>
+</div>
+<div class="flex gap-2">
+<div class="flex items-center gap-1 px-2 py-1 bg-surface-container-high rounded text-label-sm font-label-sm text-on-surface">
+<span class="material-symbols-outlined" style="font-size: 14px;">filter_alt</span> Plant BKJ
+                        <button class="ml-1 hover:text-error"><span class="material-symbols-outlined" style="font-size: 12px;">close</span></button>
+</div>
+<button class="px-2 py-1 border border-surface-variant rounded text-label-sm font-label-sm text-on-surface-variant hover:bg-surface-container">Supervisor View</button>
+</div>
+</div>
+<div class="flex-grow overflow-y-auto">
+<!-- Resource Item -->
+<div class="p-md border-b border-surface-variant hover:bg-surface transition-colors cursor-pointer group">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container overflow-hidden border border-surface-variant">
+<img alt="Anne Partners" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" data-alt="A professional headshot of a female mechanic wearing safety glasses and a uniform. The lighting is extremely bright and clinical, emphasizing a modern industrial environment. The background is a stark, pure white, providing high contrast to the dark technical fabric of her uniform. The mood is focused and capable, fitting a high-performance laboratory or workstation aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDHv8M7aNTNDglbjibzm0tWOhz3SuVvobgPN85mHiXNncKOE28-xmtVbC8bpwwMwoXpnT-iTc_NUg0Jy6jvSJ_9Fw05vc8XG7QTpf7Aisiz2-qS7w4GyX8Qy_2_VMoAYdWmnOhvpSSDwibA7wZhuUocQmLrdpaDx8o5TO7t2khCWHZLeT47hoKPnTHBie3pXv0TXZO1mBlnjY8_69idVblEAq_4A3BJeh7mP-CD-JqZAWmQ4Y7dPqynENEOvPVYbOahXHcH5DI5dHL"/>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start">
+<h3 class="text-label-md font-label-md text-on-surface font-bold">Anne Partners</h3>
+<span class="px-2 py-0.5 rounded-sm bg-primary-container text-on-primary-container text-[10px] font-label-sm uppercase tracking-wider">Fully Scheduled</span>
+</div>
+<p class="text-label-sm font-label-sm text-on-surface-variant mt-1">Lvl 4 Lead Mech</p>
+</div>
+</div>
+</div>
+<!-- Resource Item -->
+<div class="p-md border-b border-surface-variant hover:bg-surface transition-colors cursor-pointer bg-surface-container-low group border-l-2 border-l-primary">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container overflow-hidden border border-surface-variant">
+<img alt="Dan Smith" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" data-alt="A brightly lit, clinical portrait of a male technical worker with short hair. He is positioned against a seamless light grey surface. The photography style is highly detailed and brutalist, focusing on texture and clarity with zero distracting elements. The overall tone is sterile, efficient, and precise, matching an industrial light-mode design system." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZ_fH-Vq-UH5nf7asF_UOsa10Fg2a2tOfPzc4jpFdjMNO0F_-i8XHtx15jADltFCEcFosKqbliBiOnZ94823dd0McCA_iI8bnnt5qx9fxW0yeaRFQXKt6eQEBvbFsLNSyiUSRapeg4yrMRZMOWAj8Kd4B9sbikgTNgwecx8QKzIFIagHQmGVNrRJ_WA2JkJ4kJBFlyz8LCyOCJ9OL7Eri3vcnNYYBOtgSUNNnOYzXHJJGKP6NUOgpvV0jXWalq5Gt8hm7PBnNyz13W"/>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start">
+<h3 class="text-label-md font-label-md text-on-surface font-bold">Dan Smith</h3>
+<span class="px-2 py-0.5 rounded-sm bg-error-container text-on-error-container text-[10px] font-label-sm uppercase tracking-wider">Not Scheduled</span>
+</div>
+<p class="text-label-sm font-label-sm text-on-surface-variant mt-1">Lvl 2 Technician</p>
+</div>
+</div>
+</div>
+<!-- Resource Item -->
+<div class="p-md border-b border-surface-variant hover:bg-surface transition-colors cursor-pointer group">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container overflow-hidden border border-surface-variant">
+<img alt="Mary Long" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" data-alt="A modern, high-key lighting portrait of a female engineer in a clean-room style environment. The image features incredibly sharp details and a minimal color palette dominated by whites, grays, and deep black uniform accents. The visual style conveys technical precision and reliability within a bright, spacious professional setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBLzRcVTxTBY9dsCDxEWNTYFHKjk0tm8rZRdZev1M98iGYNTyDuw7xO4IL2US-W-GuLPEaer00XosXVNBTmEw-6pUYYTbcWKK5a_3M0DIvpSAh3Iv1-eKWQE_IXCDth3tXeqMhJMS4EoJY8Od74K_Av4QLP5Wc4dqCrpdmJ1KUZqDAxuPejdFzHVKcMYg9JuZ8SP_tJIQ9UC3u6HvIQ2QN7ZvedHk47yfNTGo8_oV4CUHgNIKurAmuEfmcR7aNdK7J3j7H2vK7sl-cL"/>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start">
+<h3 class="text-label-md font-label-md text-on-surface font-bold">Mary Long</h3>
+<span class="px-2 py-0.5 rounded-sm bg-surface-container-highest text-on-surface-variant text-[10px] font-label-sm uppercase tracking-wider">On Leave</span>
+</div>
+<p class="text-label-sm font-label-sm text-on-surface-variant mt-1">Specialist</p>
+</div>
+</div>
+</div>
+</div>
+</aside>
+<!-- Column 2: Gantt View -->
+<section class="flex-grow flex flex-col h-full bg-surface overflow-hidden relative">
+<!-- Gantt Header (Controls) -->
+<div class="h-[60px] border-b border-surface-variant flex items-center justify-between px-md bg-surface-container-lowest flex-shrink-0">
+<div class="flex items-center gap-4">
+<div class="flex items-center border border-surface-variant rounded">
+<button class="p-1 hover:bg-surface-container text-on-surface-variant border-r border-surface-variant transition-colors"><span class="material-symbols-outlined" style="font-size: 18px;">chevron_left</span></button>
+<span class="px-3 font-label-md text-on-surface font-bold">Mon, Nov 9 - Wed, Nov 11</span>
+<button class="p-1 hover:bg-surface-container text-on-surface-variant border-l border-surface-variant transition-colors"><span class="material-symbols-outlined" style="font-size: 18px;">chevron_right</span></button>
+</div>
+<button class="text-label-sm font-label-sm text-primary hover:underline uppercase tracking-wider">Today</button>
+</div>
+<div class="flex items-center gap-4 text-label-sm font-label-sm">
+<div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded-xs bg-outline"></div><span class="text-on-surface-variant">Extended</span></div>
+<div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded-xs bg-primary"></div><span class="text-on-surface-variant">Regular Territory</span></div>
+<div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded-xs bg-primary-container"></div><span class="text-on-surface-variant">PTO</span></div>
+</div>
+</div>
+<!-- Gantt Timeline Area -->
+<div class="flex-grow overflow-auto bg-surface relative">
+<!-- Time Header -->
+<div class="gantt-grid border-b border-surface-variant bg-surface-container-lowest sticky top-0 z-10 h-10 items-center">
+<div class="px-md font-label-sm text-on-surface-variant border-r border-surface-variant h-full flex items-center bg-surface-container-lowest">Resource</div>
+<div class="text-center font-label-sm text-on-surface-variant border-r border-surface-variant h-full flex items-center justify-center">08:00</div>
+<div class="text-center font-label-sm text-on-surface-variant border-r border-surface-variant h-full flex items-center justify-center">09:00</div>
+<div class="text-center font-label-sm text-on-surface-variant border-r border-surface-variant h-full flex items-center justify-center">10:00</div>
+<div class="text-center font-label-sm text-on-surface-variant border-r border-surface-variant h-full flex items-center justify-center">11:00</div>
+<div class="text-center font-label-sm text-on-surface-variant border-r border-surface-variant h-full flex items-center justify-center bg-surface-container-low">12:00</div>
+<div class="text-center font-label-sm text-on-surface-variant border-r border-surface-variant h-full flex items-center justify-center">13:00</div>
+<div class="text-center font-label-sm text-on-surface-variant border-r border-surface-variant h-full flex items-center justify-center">14:00</div>
+<div class="text-center font-label-sm text-on-surface-variant border-r border-surface-variant h-full flex items-center justify-center">15:00</div>
+<div class="text-center font-label-sm text-on-surface-variant border-r border-surface-variant h-full flex items-center justify-center">16:00</div>
+<div class="text-center font-label-sm text-on-surface-variant h-full flex items-center justify-center">17:00</div>
+</div>
+<!-- Grid Background Lines -->
+<div class="absolute inset-0 top-10 gantt-grid pointer-events-none">
+<div class="border-r border-surface-variant"></div>
+<div class="border-r border-surface-variant border-dashed opacity-50"></div>
+<div class="border-r border-surface-variant border-dashed opacity-50"></div>
+<div class="border-r border-surface-variant border-dashed opacity-50"></div>
+<div class="border-r border-surface-variant border-dashed opacity-50"></div>
+<div class="border-r border-surface-variant bg-surface-container-low opacity-30"></div>
+<div class="border-r border-surface-variant border-dashed opacity-50"></div>
+<div class="border-r border-surface-variant border-dashed opacity-50"></div>
+<div class="border-r border-surface-variant border-dashed opacity-50"></div>
+<div class="border-r border-surface-variant border-dashed opacity-50"></div>
+<div></div>
+</div>
+<!-- Rows -->
+<!-- Row 1: Anne -->
+<div class="gantt-grid h-[72px] border-b border-surface-variant items-center relative hover:bg-surface-container-lowest transition-colors">
+<div class="px-md font-label-md text-on-surface font-bold border-r border-surface-variant h-full flex items-center bg-surface-container-lowest z-10 sticky left-0">
+                        Anne P.
+                    </div>
+<!-- Block: Regular (08:00 - 12:00) -->
+<div class="absolute h-10 bg-primary text-on-primary rounded border border-surface-variant flex items-center px-2 shadow-sm z-10" style="left: 180px; width: calc((100% - 180px) * 0.4); top: 16px;">
+<span class="font-label-sm truncate">SFT-3061098 • Plant A</span>
+</div>
+<!-- Block: Extended (13:00 - 17:00) -->
+<div class="absolute h-10 bg-outline text-on-primary rounded border border-surface-variant flex items-center px-2 shadow-sm z-10" style="left: calc(180px + ((100% - 180px) * 0.5)); width: calc((100% - 180px) * 0.4); top: 16px;">
+<span class="font-label-sm truncate">EXT-9921 • Maintenance</span>
+</div>
+</div>
+<!-- Row 2: Dan (Selected) -->
+<div class="gantt-grid h-[72px] border-b border-surface-variant items-center relative bg-surface-container-low bg-opacity-50">
+<div class="px-md font-label-md text-on-surface font-bold border-r border-primary border-l-2 h-full flex items-center bg-surface-container-lowest z-10 sticky left-0">
+                        Dan S.
+                    </div>
+<!-- Block: Regular (09:00 - 16:00) SELECTED -->
+<div class="absolute h-10 bg-primary-container text-on-primary-container rounded border-2 border-primary flex items-center px-2 shadow-[0_0_0_2px_rgba(245,200,0,0.3)] z-20" style="left: calc(180px + ((100% - 180px) * 0.1)); width: calc((100% - 180px) * 0.7); top: 16px;">
+<span class="font-label-sm font-bold truncate">SFT-3061099 • BKJ Core</span>
+<span class="material-symbols-outlined ml-auto" style="font-size: 16px;">settings</span>
+</div>
+</div>
+<!-- Row 3: Mary -->
+<div class="gantt-grid h-[72px] border-b border-surface-variant items-center relative hover:bg-surface-container-lowest transition-colors">
+<div class="px-md font-label-md text-on-surface font-bold border-r border-surface-variant h-full flex items-center bg-surface-container-lowest z-10 sticky left-0 text-on-surface-variant">
+                        Mary L.
+                    </div>
+<!-- Block: PTO (08:00 - 17:00) -->
+<div class="absolute h-10 bg-surface-container-highest text-on-surface-variant rounded border border-surface-variant border-dashed flex items-center px-2 z-10" style="left: 180px; width: calc((100% - 180px) * 0.9); top: 16px;">
+<span class="material-symbols-outlined mr-2" style="font-size: 16px;">beach_access</span>
+<span class="font-label-sm truncate">Approved PTO</span>
+</div>
+</div>
+<!-- Row 4: Empty slot for visual structure -->
+<div class="gantt-grid h-[72px] border-b border-surface-variant items-center relative hover:bg-surface-container-lowest transition-colors">
+<div class="px-md font-label-md text-on-surface font-bold border-r border-surface-variant h-full flex items-center bg-surface-container-lowest z-10 sticky left-0 text-on-surface-variant">
+                        Unit 4
+                    </div>
+</div>
+</div>
+</section>
+<!-- Column 3: Quick Details -->
+<aside class="w-[300px] flex-shrink-0 bg-surface-container-lowest border-l border-surface-variant flex flex-col h-full shadow-[-4px_0_12px_-4px_rgba(0,0,0,0.05)] relative z-10">
+<div class="p-md border-b border-surface-variant bg-surface flex justify-between items-center">
+<h2 class="text-label-md font-label-md text-on-surface font-bold uppercase tracking-widest">Shift Details</h2>
+<button class="text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined" style="font-size: 20px;">more_vert</span></button>
+</div>
+<div class="p-md flex-grow overflow-y-auto">
+<div class="flex items-center gap-2 mb-lg">
+<div class="w-8 h-8 rounded bg-primary-container text-on-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-size: 18px;">engineering</span>
+</div>
+<div>
+<div class="text-headline-sm font-headline-sm font-bold text-on-surface leading-tight">SFT-3061099</div>
+<div class="text-label-sm font-label-sm text-on-surface-variant">Regular Territory</div>
+</div>
+</div>
+<!-- Bento-style data grid -->
+<div class="grid grid-cols-2 gap-sm mb-lg">
+<div class="bg-surface border border-surface-variant rounded p-sm">
+<div class="text-[10px] font-label-sm text-on-surface-variant uppercase mb-1">Start Time</div>
+<div class="font-label-md text-on-surface font-bold">09:00</div>
+<div class="text-[10px] font-label-sm text-on-surface-variant mt-1">Nov 10</div>
+</div>
+<div class="bg-surface border border-surface-variant rounded p-sm">
+<div class="text-[10px] font-label-sm text-on-surface-variant uppercase mb-1">End Time</div>
+<div class="font-label-md text-on-surface font-bold">16:00</div>
+<div class="text-[10px] font-label-sm text-on-surface-variant mt-1">Nov 10</div>
+</div>
+<div class="bg-surface border border-surface-variant rounded p-sm col-span-2 flex items-center justify-between">
+<div>
+<div class="text-[10px] font-label-sm text-on-surface-variant uppercase mb-1">Duration</div>
+<div class="font-label-md text-on-surface font-bold">7.0 hrs</div>
+</div>
+<div class="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-[spin_3s_linear_infinite]"></div>
+</div>
+</div>
+<div class="mb-lg">
+<div class="text-label-sm font-label-sm text-on-surface-variant uppercase border-b border-surface-variant pb-xs mb-sm">Assigned Resource</div>
+<div class="flex items-center gap-3 p-sm border border-surface-variant rounded bg-surface hover:border-primary transition-colors cursor-pointer">
+<div class="w-8 h-8 rounded-full bg-surface-container overflow-hidden">
+<img alt="Dan Smith" class="w-full h-full object-cover" data-alt="A brightly lit, clinical portrait of a male technical worker with short hair. He is positioned against a seamless light grey surface. The photography style is highly detailed and brutalist, focusing on texture and clarity with zero distracting elements. The overall tone is sterile, efficient, and precise, matching an industrial light-mode design system." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGjCUej71JFPAThZ6uz-GSdoijGcM73EeuTC97vezePELbTgoN5TlRdWVFJ8jxU_lvbhKAZFyBOjcG301TUDpg1fnrNDgWobcdoJlKztjq5QhU2RDqZL0g8dDARaQitkUKxls601viu71YeSnDfhiDedrvry-n_l-npK0ACBPZWWSUXtzf2z2veyf2Eg2_WPuIIDRlIQhDb8d_qyM0bfYQkLZgJzVk9uOvfEvKCxK_Pw7eCH5wJ06ssoxMsCxJ7l5srRqYUNfyyDhQ"/>
+</div>
+<div>
+<div class="font-label-md text-on-surface font-bold">Dan Smith</div>
+<div class="text-[10px] font-label-sm text-on-surface-variant">Lvl 2 Tech • Plant BKJ</div>
+</div>
+</div>
+</div>
+<div>
+<div class="text-label-sm font-label-sm text-on-surface-variant uppercase border-b border-surface-variant pb-xs mb-sm">Location / Task</div>
+<div class="bg-surface border border-surface-variant rounded p-sm font-label-md text-on-surface text-sm mb-2">
+                        BKJ Core Facility, Zone 4. Routine mechanical stress test and diagnostic sweep on main centrifuge.
+                    </div>
+<a class="text-label-sm font-label-sm text-primary hover:underline flex items-center gap-1" href="#">
+<span class="material-symbols-outlined" style="font-size: 14px;">map</span> View Schematic
+                    </a>
+</div>
+</div>
+<div class="p-md border-t border-surface-variant bg-surface flex gap-sm">
+<button class="flex-1 py-2 px-4 rounded border border-on-surface text-on-surface font-label-md hover:bg-surface-container transition-colors text-center">Edit</button>
+<button class="flex-1 py-2 px-4 rounded bg-primary-container text-on-primary-container font-label-md font-bold hover:opacity-90 transition-opacity text-center">Approve</button>
+</div>
+</aside>
+</main>
+</body></html>

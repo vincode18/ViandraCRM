@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Shift Schedule List</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-container": "#656464",
+                        "surface": "#f9f9f9",
+                        "on-tertiary-container": "#555757",
+                        "surface-container-low": "#f3f3f3",
+                        "tertiary-container": "#cdcdcd",
+                        "surface-container-highest": "#e2e2e2",
+                        "primary-fixed": "#ffe081",
+                        "on-error": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-surface-variant": "#4d4632",
+                        "outline": "#7f7660",
+                        "surface-container-high": "#e8e8e8",
+                        "inverse-primary": "#eec200",
+                        "secondary-fixed-dim": "#c8c6c5",
+                        "on-secondary-fixed": "#1c1b1b",
+                        "secondary-fixed": "#e5e2e1",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed-variant": "#564500",
+                        "secondary": "#5f5e5e",
+                        "on-secondary-fixed-variant": "#474646",
+                        "on-error-container": "#93000a",
+                        "surface-dim": "#dadada",
+                        "tertiary-fixed-dim": "#c6c6c6",
+                        "on-background": "#1a1c1c",
+                        "primary-fixed-dim": "#eec200",
+                        "surface-bright": "#f9f9f9",
+                        "inverse-surface": "#2f3131",
+                        "surface-variant": "#e2e2e2",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-container": "#f5c800",
+                        "inverse-on-surface": "#f1f1f1",
+                        "on-tertiary-fixed-variant": "#454747",
+                        "primary": "#725c00",
+                        "on-surface": "#1a1c1c",
+                        "outline-variant": "#d1c6ab",
+                        "on-primary": "#ffffff",
+                        "surface-container": "#eeeeee",
+                        "on-primary-container": "#695400",
+                        "surface-tint": "#725c00",
+                        "tertiary-fixed": "#e2e2e2",
+                        "background": "#f9f9f9",
+                        "error": "#ba1a1a",
+                        "secondary-container": "#e5e2e1",
+                        "on-tertiary-fixed": "#1a1c1c",
+                        "tertiary": "#5d5f5f",
+                        "on-primary-fixed": "#231b00"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "xl": "32px",
+                        "md": "16px",
+                        "gutter": "16px",
+                        "sm": "8px",
+                        "xs": "4px",
+                        "base": "8px",
+                        "margin": "24px",
+                        "lg": "24px"
+                    },
+                    "fontFamily": {
+                        "body-sm": ["Hanken Grotesk"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "label-md": ["JetBrains Mono"],
+                        "body-lg": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "body-md": ["Hanken Grotesk"],
+                        "headline-sm": ["Hanken Grotesk"],
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "label-sm": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "label-sm": ["12px", { "lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-sm antialiased h-screen flex overflow-hidden">
+<!-- SideNavBar (Shared Component) -->
+<nav class="h-screen w-64 fixed left-0 top-0 flex flex-col h-full border-r border-outline-variant bg-surface z-50">
+<div class="px-lg py-md border-b border-outline-variant">
+<h1 class="text-headline-sm font-headline-sm font-bold text-on-surface">OP-CONSOLE</h1>
+<p class="text-label-sm font-label-sm text-on-surface-variant mt-1">V2.4 Shift Lead</p>
+</div>
+<div class="p-md">
+<button class="w-full bg-primary-container text-on-primary-container py-2 px-4 rounded-DEFAULT font-label-md hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                Add Resource
+            </button>
+</div>
+<ul class="flex-1 overflow-y-auto no-scrollbar py-sm">
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors text-label-md font-label-md" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                    Dashboard
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors text-label-md font-label-md" href="#">
+<span class="material-symbols-outlined">groups</span>
+                    Shift Resource
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors text-label-md font-label-md" href="#">
+<span class="material-symbols-outlined">format_align_left</span>
+                    Gantt View
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 bg-primary-container text-on-primary-container font-bold border-r-4 border-primary text-label-md font-label-md opacity-90 transition-all duration-150" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">calendar_view_day</span>
+                    Schedule List
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors text-label-md font-label-md" href="#">
+<span class="material-symbols-outlined">query_stats</span>
+                    Analytics
+                </a>
+</li>
+</ul>
+<ul class="mt-auto border-t border-outline-variant py-sm">
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors text-label-md font-label-md" href="#">
+<span class="material-symbols-outlined">settings</span>
+                    Settings
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors text-label-md font-label-md" href="#">
+<span class="material-symbols-outlined">help</span>
+                    Support
+                </a>
+</li>
+</ul>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 ml-64 flex flex-col h-screen">
+<!-- TopAppBar (Shared Component) -->
+<header class="fixed top-0 right-0 left-64 h-16 bg-surface-container-lowest border-b border-outline-variant flex justify-between items-center px-lg z-40">
+<div class="flex items-center gap-md">
+<span class="font-label-md text-primary font-bold tracking-tighter text-label-md">SHIFT_MANAGER_OS</span>
+<div class="h-6 w-px bg-outline-variant mx-2"></div>
+<nav class="flex gap-4">
+<a class="text-on-surface-variant hover:text-primary transition-colors text-label-sm font-label-sm" href="#">Resource Pool</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors text-label-sm font-label-sm" href="#">Incident Log</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors text-label-sm font-label-sm" href="#">Reports</a>
+</nav>
+</div>
+<div class="flex items-center gap-md">
+<div class="relative hidden lg:block">
+<input class="bg-surface border border-outline-variant text-body-sm font-body-sm rounded-DEFAULT py-1 px-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-48 transition-all" placeholder="Search..." type="text"/>
+<span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-[18px] text-on-surface-variant">search</span>
+</div>
+<div class="flex gap-2">
+<button class="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container-high rounded-DEFAULT transition-all">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container-high rounded-DEFAULT transition-all">
+<span class="material-symbols-outlined">sync</span>
+</button>
+</div>
+<div class="h-6 w-px bg-outline-variant mx-2"></div>
+<button class="border border-on-surface text-on-surface hover:bg-surface-container-highest px-3 py-1.5 rounded-DEFAULT text-label-sm font-label-sm transition-colors">Emergency Stop</button>
+<button class="bg-primary-container text-on-primary-container hover:opacity-90 px-4 py-1.5 rounded-DEFAULT text-label-sm font-label-sm transition-opacity font-bold">Clock In</button>
+<img alt="Shift Lead Avatar" class="w-8 h-8 rounded-full border border-outline-variant ml-2 object-cover" data-alt="A professional headshot of an industrial shift lead, neutral expression, modern bright factory setting in the background. High key lighting, clinical aesthetic, 50mm lens. The image feels grounded and reliable, fitting a technical operations console." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsgX0J8VNYMm_KzPnDLYs4M7ZTBWXPfM4rmLEeEZSWCpp0WTaqh6jJSXYuEoWlMQlo5ht5_ql_jlIUQHcmJbSNuxIMcGvXhsO_Y1z2BnmX9r3OXWjw5ryFf1QcUsRfZSfmBoKtrXiR3EnUoNWwR2iW418F5X26V8njZpVT6HPJtSTNA9k3hPydpySFWeqgFwCliCjeOiEPLAFfbHcOYh947a1ZIRxjMlCkP-R5unjLg1aFPSM0-TXcqxYueXLuEuS83oVzMj4-zb3c"/>
+</div>
+</header>
+<!-- Canvas -->
+<main class="flex-1 mt-16 p-margin overflow-y-auto bg-background flex gap-margin">
+<!-- Contextual Sidebar (Left) -->
+<aside class="w-64 flex-shrink-0 flex flex-col gap-md hidden xl:flex">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-DEFAULT p-md">
+<h3 class="text-label-md font-label-md font-bold mb-4 flex items-center gap-2 text-on-surface">
+<span class="material-symbols-outlined text-[18px]">factory</span>
+                        PLANT RESOURCES
+                    </h3>
+<div class="space-y-4">
+<div>
+<div class="flex justify-between items-center mb-2">
+<span class="text-body-sm font-body-sm font-semibold">Assembly Line A</span>
+<span class="text-label-sm font-label-sm bg-surface-container-highest px-2 py-0.5 rounded-DEFAULT">12 Active</span>
+</div>
+<div class="space-y-2">
+<label class="flex items-center gap-2 cursor-pointer group">
+<input checked="" class="rounded-sm border-outline text-primary-container focus:ring-primary focus:ring-offset-0 bg-surface w-4 h-4" type="checkbox"/>
+<span class="text-body-sm font-body-sm text-on-surface-variant group-hover:text-on-surface">Mechanics</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input checked="" class="rounded-sm border-outline text-primary-container focus:ring-primary focus:ring-offset-0 bg-surface w-4 h-4" type="checkbox"/>
+<span class="text-body-sm font-body-sm text-on-surface-variant group-hover:text-on-surface">Electricians</span>
+</label>
+</div>
+</div>
+<div class="pt-4 border-t border-outline-variant">
+<div class="flex justify-between items-center mb-2">
+<span class="text-body-sm font-body-sm font-semibold">Maintenance Bay</span>
+<span class="text-label-sm font-label-sm bg-surface-container-highest px-2 py-0.5 rounded-DEFAULT">4 Active</span>
+</div>
+<div class="space-y-2">
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="rounded-sm border-outline text-primary-container focus:ring-primary focus:ring-offset-0 bg-surface w-4 h-4" type="checkbox"/>
+<span class="text-body-sm font-body-sm text-on-surface-variant group-hover:text-on-surface">Supervisors</span>
+</label>
+</div>
+</div>
+</div>
+</div>
+</aside>
+<!-- Schedule Grid (Center) -->
+<section class="flex-1 bg-surface-container-lowest border border-outline-variant rounded-DEFAULT flex flex-col overflow-hidden min-w-[800px]">
+<!-- Schedule Controls -->
+<div class="border-b border-outline-variant p-md flex justify-between items-center bg-surface">
+<div class="flex gap-2">
+<button class="px-3 py-1.5 border border-outline-variant rounded-DEFAULT text-label-md font-label-md hover:bg-surface-container-highest transition-colors flex items-center gap-1 bg-surface-container-lowest">
+<span class="material-symbols-outlined text-[16px]">chevron_left</span>
+</button>
+<div class="px-4 py-1.5 border border-outline-variant rounded-DEFAULT text-label-md font-label-md font-bold bg-surface-container-lowest flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">calendar_month</span>
+                            MAY 08 - MAY 12, 2023
+                        </div>
+<button class="px-3 py-1.5 border border-outline-variant rounded-DEFAULT text-label-md font-label-md hover:bg-surface-container-highest transition-colors flex items-center gap-1 bg-surface-container-lowest">
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+</div>
+<div class="flex gap-2">
+<button class="px-3 py-1.5 border border-outline-variant rounded-DEFAULT text-label-md font-label-md hover:bg-surface-container-highest transition-colors bg-surface-container-lowest">Filter</button>
+<button class="px-3 py-1.5 bg-on-surface text-surface rounded-DEFAULT text-label-md font-label-md hover:opacity-90 transition-opacity">Export</button>
+</div>
+</div>
+<!-- Days Header Grid -->
+<div class="grid grid-cols-5 border-b border-outline-variant bg-surface-container-low text-label-md font-label-md text-center">
+<div class="py-3 border-r border-outline-variant font-bold">SUN, MAY 08</div>
+<div class="py-3 border-r border-outline-variant font-bold">MON, MAY 09</div>
+<div class="py-3 border-r border-outline-variant font-bold bg-primary-container/20 text-on-surface">TUE, MAY 10</div>
+<div class="py-3 border-r border-outline-variant font-bold">WED, MAY 11</div>
+<div class="py-3 font-bold">THU, MAY 12</div>
+</div>
+<!-- Schedule Area -->
+<div class="flex-1 overflow-y-auto no-scrollbar relative bg-surface p-sm">
+<!-- Work Type Group Header -->
+<div class="text-label-sm font-label-sm font-bold text-on-surface-variant mb-3 px-2 flex items-center gap-2 sticky top-0 bg-surface/90 backdrop-blur-sm z-10 py-1">
+<span class="material-symbols-outlined text-[14px]">build</span>
+                        MECHANICS - FIRST SHIFT
+                    </div>
+<!-- Columns Grid -->
+<div class="grid grid-cols-5 gap-sm min-h-[300px]">
+<!-- SUN -->
+<div class="flex flex-col gap-2">
+<!-- Shift Card -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-DEFAULT p-3 hover:border-primary transition-colors cursor-pointer group">
+<div class="flex justify-between items-start mb-2">
+<span class="text-label-sm font-label-sm bg-surface-container-high px-1.5 py-0.5 rounded-DEFAULT text-on-surface-variant font-bold">09:00 - 18:00</span>
+<span class="material-symbols-outlined text-[16px] text-outline opacity-0 group-hover:opacity-100 transition-opacity">more_vert</span>
+</div>
+<div class="text-body-sm font-body-sm font-semibold mb-1">M. Rossi</div>
+<div class="text-label-sm font-label-sm text-on-surface-variant truncate">Line A Maintenance</div>
+</div>
+</div>
+<!-- MON -->
+<div class="flex flex-col gap-2">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-DEFAULT p-3 hover:border-primary transition-colors cursor-pointer group">
+<div class="flex justify-between items-start mb-2">
+<span class="text-label-sm font-label-sm bg-surface-container-high px-1.5 py-0.5 rounded-DEFAULT text-on-surface-variant font-bold">09:00 - 18:00</span>
+</div>
+<div class="text-body-sm font-body-sm font-semibold mb-1">M. Rossi</div>
+<div class="text-label-sm font-label-sm text-on-surface-variant truncate">Line A Maintenance</div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-DEFAULT p-3 hover:border-primary transition-colors cursor-pointer group border-l-4 border-l-error">
+<div class="flex justify-between items-start mb-2">
+<span class="text-label-sm font-label-sm bg-error-container text-on-error-container px-1.5 py-0.5 rounded-DEFAULT font-bold">10:00 - 19:00</span>
+</div>
+<div class="text-body-sm font-body-sm font-semibold mb-1">S. Chen</div>
+<div class="text-label-sm font-label-sm text-error truncate font-bold">Urgent Repair</div>
+</div>
+</div>
+<!-- TUE (Active Day styling) -->
+<div class="flex flex-col gap-2 bg-primary-container/5 -mx-1 px-1 rounded-DEFAULT py-1">
+<div class="bg-surface-container-lowest border border-primary-container rounded-DEFAULT p-3 shadow-sm cursor-pointer group relative">
+<div class="absolute -left-1 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-DEFAULT"></div>
+<div class="flex justify-between items-start mb-2">
+<span class="text-label-sm font-label-sm bg-primary-container px-1.5 py-0.5 rounded-DEFAULT text-on-primary-container font-bold">09:00 - 18:00</span>
+</div>
+<div class="text-body-sm font-body-sm font-semibold mb-1">M. Rossi</div>
+<div class="text-label-sm font-label-sm text-on-surface-variant truncate">Line A Maintenance</div>
+<div class="mt-2 flex gap-1">
+<span class="w-2 h-2 rounded-full bg-primary mt-1"></span>
+<span class="text-label-sm font-label-sm text-on-surface-variant">In Progress</span>
+</div>
+</div>
+</div>
+<!-- WED -->
+<div class="flex flex-col gap-2">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-DEFAULT p-3 hover:border-primary transition-colors cursor-pointer group border-dashed">
+<div class="flex justify-between items-start mb-2">
+<span class="text-label-sm font-label-sm bg-surface-container px-1.5 py-0.5 rounded-DEFAULT text-on-surface-variant font-bold">TBD</span>
+</div>
+<div class="text-body-sm font-body-sm font-semibold text-outline italic">Unassigned</div>
+<div class="text-label-sm font-label-sm text-on-surface-variant truncate mt-1">Line B Insp.</div>
+</div>
+</div>
+<!-- THU -->
+<div class="flex flex-col gap-2">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-DEFAULT p-3 hover:border-primary transition-colors cursor-pointer group">
+<div class="flex justify-between items-start mb-2">
+<span class="text-label-sm font-label-sm bg-surface-container-high px-1.5 py-0.5 rounded-DEFAULT text-on-surface-variant font-bold">09:00 - 18:00</span>
+</div>
+<div class="text-body-sm font-body-sm font-semibold mb-1">M. Rossi</div>
+<div class="text-label-sm font-label-sm text-on-surface-variant truncate">Line A Maintenance</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Alerts Panel (Right) -->
+<aside class="w-72 flex-shrink-0 flex flex-col gap-md hidden 2xl:flex">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-DEFAULT p-md h-full flex flex-col">
+<h3 class="text-label-md font-label-md font-bold mb-4 flex items-center justify-between text-on-surface">
+<span class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">warning</span>
+                            UPCOMING ALERTS
+                        </span>
+<span class="bg-error text-on-error text-label-sm px-2 py-0.5 rounded-full">2</span>
+</h3>
+<div class="flex-1 overflow-y-auto no-scrollbar space-y-3">
+<!-- Alert Card -->
+<div class="p-3 border border-outline-variant rounded-DEFAULT bg-surface">
+<div class="flex items-start gap-2 mb-1">
+<span class="material-symbols-outlined text-error text-[16px] mt-0.5">error</span>
+<div class="text-label-sm font-label-sm font-bold text-on-surface">Coverage Gap</div>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant ml-6">Missing electrician for Line B, Wed May 11.</p>
+<button class="mt-2 ml-6 text-label-sm font-label-sm text-primary font-bold hover:underline">Resolve</button>
+</div>
+<!-- Alert Card -->
+<div class="p-3 border border-outline-variant rounded-DEFAULT bg-surface">
+<div class="flex items-start gap-2 mb-1">
+<span class="material-symbols-outlined text-primary text-[16px] mt-0.5" style="font-variation-settings: 'FILL' 1;">timer</span>
+<div class="text-label-sm font-label-sm font-bold text-on-surface">Overtime Risk</div>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant ml-6">S. Chen approaching 40hr limit on Thu May 12.</p>
+<button class="mt-2 ml-6 text-label-sm font-label-sm text-primary font-bold hover:underline">Review</button>
+</div>
+</div>
+</div>
+</aside>
+</main>
+</div>
+</body></html>

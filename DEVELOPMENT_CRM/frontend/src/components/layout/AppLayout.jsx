@@ -8,7 +8,8 @@ export default function AppLayout() {
   const location = useLocation();
   const isCaseDetail = /^\/cases\/[^/]+$/.test(location.pathname) && location.pathname !== '/cases/new';
   const isWorkOrderDetail = /^\/workorders\/[^/]+$/.test(location.pathname) && location.pathname !== '/workorders/new';
-  const isDetailPage = isCaseDetail || isWorkOrderDetail;
+  const isFieldService = location.pathname === '/fieldservice';
+  const isDetailPage = isCaseDetail || isWorkOrderDetail || isFieldService;
 
   return (
     <div className="flex flex-col min-h-screen" style={{ backgroundColor: 'var(--bg-base)', color: 'var(--text-main)' }}>

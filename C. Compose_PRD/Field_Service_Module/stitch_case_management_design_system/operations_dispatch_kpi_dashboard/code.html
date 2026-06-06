@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Operations &amp; Dispatch KPI Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "tertiary-container": "#cdcdcd",
+                        "primary-container": "#f5c800",
+                        "surface-variant": "#e2e2e2",
+                        "on-error": "#ffffff",
+                        "on-surface-variant": "#4d4632",
+                        "on-secondary": "#ffffff",
+                        "surface-container": "#eeeeee",
+                        "on-secondary-container": "#656464",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "background": "#f9f9f9",
+                        "on-error-container": "#93000a",
+                        "surface-bright": "#f9f9f9",
+                        "tertiary": "#5d5f5f",
+                        "inverse-surface": "#2f3131",
+                        "secondary-fixed-dim": "#c8c6c5",
+                        "on-primary-fixed": "#231b00",
+                        "on-secondary-fixed": "#1c1b1b",
+                        "error-container": "#ffdad6",
+                        "surface-tint": "#725c00",
+                        "surface-container-low": "#f3f3f3",
+                        "on-tertiary-fixed": "#1a1c1c",
+                        "secondary-container": "#e5e2e1",
+                        "primary-fixed": "#ffe081",
+                        "inverse-on-surface": "#f1f1f1",
+                        "error": "#ba1a1a",
+                        "surface-container-high": "#e8e8e8",
+                        "on-tertiary-fixed-variant": "#454747",
+                        "primary": "#725c00",
+                        "surface-container-highest": "#e2e2e2",
+                        "on-primary-container": "#695400",
+                        "on-secondary-fixed-variant": "#474646",
+                        "on-tertiary-container": "#555757",
+                        "tertiary-fixed": "#e2e2e2",
+                        "surface": "#f9f9f9",
+                        "primary-fixed-dim": "#eec200",
+                        "surface-dim": "#dadada",
+                        "secondary": "#5f5e5e",
+                        "outline": "#7f7660",
+                        "on-surface": "#1a1c1c",
+                        "on-background": "#1a1c1c",
+                        "inverse-primary": "#eec200",
+                        "outline-variant": "#d1c6ab",
+                        "on-primary-fixed-variant": "#564500",
+                        "secondary-fixed": "#e5e2e1",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed-dim": "#c6c6c6"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    spacing: {
+                        "xs": "4px",
+                        "xl": "32px",
+                        "margin": "24px",
+                        "sm": "8px",
+                        "md": "16px",
+                        "base": "8px",
+                        "gutter": "16px",
+                        "lg": "24px",
+                        "grid-col-1": "280px"
+                    },
+                    fontFamily: {
+                        "headline-sm": ["Hanken Grotesk"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "body-md": ["Hanken Grotesk"],
+                        "label-sm": ["JetBrains Mono"],
+                        "body-sm": ["Hanken Grotesk"],
+                        "label-md": ["JetBrains Mono"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"]
+                    },
+                    fontSize: {
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined[data-weight="fill"] {
+            font-variation-settings: 'FILL' 1;
+        }
+        
+        /* Utility for chart representations */
+        .chart-placeholder {
+            background-image: radial-gradient(var(--tw-colors-surface-variant) 1px, transparent 1px);
+            background-size: 8px 8px;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex antialiased">
+<!-- SideNavBar -->
+<nav aria-label="Main Navigation" class="hidden md:flex flex-col h-screen py-lg w-[280px] bg-surface border-r border-border-muted flex-shrink-0 z-10 sticky top-0">
+<!-- Header -->
+<div class="px-md mb-xl flex items-center gap-sm">
+<div aria-label="Console System Icon" class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center flex-shrink-0" data-icon="settings">
+<span class="material-symbols-outlined text-on-primary-container font-bold" data-weight="fill">settings</span>
+</div>
+<div>
+<h1 class="font-headline-sm text-headline-sm font-bold text-on-surface uppercase tracking-tight">OPERATIONS</h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant">v4.2.0-stable</p>
+</div>
+</div>
+<!-- CTA -->
+<div class="px-md mb-xl">
+<button class="w-full bg-primary-container text-on-primary-fixed font-label-md text-label-md py-sm px-md rounded hover:bg-primary-fixed transition-colors duration-200 flex items-center justify-center gap-sm font-bold shadow-sm">
+<span class="material-symbols-outlined text-sm">add</span>
+                New Work Order
+            </button>
+</div>
+<!-- Main Tabs -->
+<ul class="flex-1 space-y-xs px-sm overflow-y-auto">
+<li>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all active:scale-95 duration-150 rounded" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-md text-label-md">Overview</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all active:scale-95 duration-150 rounded" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span class="font-label-md text-label-md">Schedule</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all active:scale-95 duration-150 rounded" href="#">
+<span class="material-symbols-outlined" data-icon="minor_crash">minor_crash</span>
+<span class="font-label-md text-label-md">Dispatch</span>
+</a>
+</li>
+<!-- Active Tab -->
+<li>
+<a class="flex items-center gap-md px-md py-sm bg-primary-container text-on-primary-container font-semibold rounded-l-none border-l-4 border-primary transition-all active:scale-95 duration-150 rounded-r" href="#">
+<span class="material-symbols-outlined" data-icon="analytics" data-weight="fill">analytics</span>
+<span class="font-label-md text-label-md font-bold">Analytics</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all active:scale-95 duration-150 rounded" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+<span class="font-label-md text-label-md">Reports</span>
+</a>
+</li>
+</ul>
+<!-- Footer Tabs -->
+<div class="mt-auto px-sm pt-md border-t border-surface-variant space-y-xs">
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all active:scale-95 duration-150 rounded" href="#">
+<span class="material-symbols-outlined" data-icon="headset_mic">headset_mic</span>
+<span class="font-label-md text-label-md">Support</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all active:scale-95 duration-150 rounded" href="#">
+<span class="material-symbols-outlined" data-icon="dns">dns</span>
+<span class="font-label-md text-label-md">System Status</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 flex flex-col min-h-screen overflow-x-hidden">
+<!-- Top App Bar (Mobile Nav Alternative) -->
+<header class="md:hidden flex justify-between items-center w-full px-margin h-[64px] bg-surface-container-lowest border-b-2 border-surface-variant sticky top-0 z-20">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="analytics" data-weight="fill">analytics</span>
+<span class="font-headline-md text-headline-md font-black text-primary uppercase tracking-tighter">ANALYTICS</span>
+</div>
+<button class="p-xs text-on-surface-variant hover:text-primary transition-colors duration-200">
+<span class="material-symbols-outlined text-2xl" data-icon="menu">menu</span>
+</button>
+</header>
+<div class="flex-1 p-margin md:p-xl max-w-[1600px] mx-auto w-full flex flex-col gap-lg">
+<!-- Page Header -->
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-md pb-md border-b border-surface-variant">
+<div>
+<h2 class="font-headline-lg text-headline-lg font-bold text-on-surface tracking-tight">KPI Dashboard</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-xs">Real-time operations and dispatch metrics.</p>
+</div>
+<div class="flex items-center gap-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase px-sm py-xs bg-surface-container rounded border border-surface-variant">Last updated: Just now</span>
+<button aria-label="Refresh" class="p-xs text-on-surface hover:text-primary transition-colors border border-surface-variant rounded hover:bg-surface-container-lowest bg-surface">
+<span class="material-symbols-outlined" data-icon="refresh">refresh</span>
+</button>
+</div>
+</div>
+<!-- KPI Metric Cards (Top Row) -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-gutter">
+<!-- Metric 1 -->
+<div class="bg-surface-container-lowest border border-surface-variant p-md rounded flex flex-col relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-sm opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl" data-icon="event_available">event_available</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-sm">Scheduled</span>
+<div class="flex items-baseline gap-sm">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface">42</span>
+<span class="font-label-sm text-label-sm text-primary flex items-center"><span class="material-symbols-outlined text-[14px]">arrow_upward</span> 12%</span>
+</div>
+</div>
+<!-- Metric 2 -->
+<div class="bg-surface-container-lowest border border-surface-variant p-md rounded flex flex-col relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-sm opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl" data-icon="local_shipping">local_shipping</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-sm">Dispatched</span>
+<div class="flex items-baseline gap-sm">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface">28</span>
+<span class="font-label-sm text-label-sm text-primary flex items-center"><span class="material-symbols-outlined text-[14px]">arrow_upward</span> 5%</span>
+</div>
+</div>
+<!-- Metric 3 -->
+<div class="bg-surface-container-lowest border border-surface-variant p-md rounded flex flex-col relative overflow-hidden border-l-4 border-l-error">
+<div class="absolute top-0 right-0 p-sm opacity-10">
+<span class="material-symbols-outlined text-6xl text-error" data-icon="warning">warning</span>
+</div>
+<span class="font-label-sm text-label-sm text-error uppercase tracking-wider mb-sm">Overdue</span>
+<div class="flex items-baseline gap-sm">
+<span class="font-headline-lg text-headline-lg font-bold text-error">3</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Requires attention</span>
+</div>
+</div>
+</div>
+<!-- Visualizations Main Body (Bento Grid) -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+<!-- Resource Utilization (Donut Chart) -->
+<div class="bg-surface-container-lowest border border-surface-variant rounded p-md flex flex-col lg:col-span-1 min-h-[300px]">
+<div class="flex justify-between items-center mb-md border-b border-surface-variant pb-sm">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Resource Utilization</h3>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="pie_chart">pie_chart</span>
+</div>
+<div class="flex-1 flex items-center justify-center relative">
+<!-- CSS representation of a donut chart -->
+<div class="w-48 h-48 rounded-full border-[16px] border-surface-container relative flex items-center justify-center" style="border-top-color: var(--tw-colors-primary-container); border-right-color: var(--tw-colors-primary-container); border-bottom-color: var(--tw-colors-primary-container); transform: rotate(45deg);">
+<div class="absolute w-full h-full rounded-full flex items-center justify-center" style="transform: rotate(-45deg);">
+<div class="text-center">
+<span class="font-headline-lg text-headline-lg font-bold block leading-none">75%</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Assigned</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Average Dispatch Time (Trend Line) -->
+<div class="bg-surface-container-lowest border border-surface-variant rounded p-md flex flex-col lg:col-span-2 min-h-[300px]">
+<div class="flex justify-between items-center mb-md border-b border-surface-variant pb-sm">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Average Dispatch Time</h3>
+<div class="flex gap-sm">
+<span class="font-label-sm text-label-sm px-xs py-1 bg-primary-container text-on-primary-container rounded">Today</span>
+<span class="font-label-sm text-label-sm px-xs py-1 text-on-surface-variant hover:bg-surface-container cursor-pointer rounded transition-colors">Week</span>
+</div>
+</div>
+<div class="flex-1 chart-placeholder relative flex items-end p-sm pt-xl border-l border-b border-surface-variant">
+<!-- Abstract Line Chart Representation -->
+<div class="w-full h-full flex items-end justify-between gap-1 relative z-10">
+<!-- SVG for smooth curve representation -->
+<svg class="absolute inset-0 w-full h-full" preserveaspectratio="none" viewbox="0 0 100 100">
+<path d="M0,80 Q20,70 40,50 T80,30 T100,40 L100,100 L0,100 Z" fill="var(--tw-colors-primary-container)" fill-opacity="0.1"></path>
+<path d="M0,80 Q20,70 40,50 T80,30 T100,40" fill="none" stroke="var(--tw-colors-primary)" stroke-width="2"></path>
+</svg>
+<!-- Data points -->
+<div class="w-2 h-2 rounded-full bg-primary z-20 absolute" style="left: 0%; bottom: 20%;"></div>
+<div class="w-2 h-2 rounded-full bg-primary z-20 absolute" style="left: 40%; bottom: 50%;"></div>
+<div class="w-2 h-2 rounded-full bg-primary z-20 absolute" style="left: 80%; bottom: 70%;"></div>
+<div class="w-2 h-2 rounded-full bg-primary z-20 absolute" style="left: 100%; bottom: 60%;"></div>
+</div>
+<!-- Y-axis labels abstract -->
+<div class="absolute left-[-30px] top-0 bottom-0 flex flex-col justify-between text-[10px] text-on-surface-variant font-label-sm">
+<span>45m</span>
+<span>30m</span>
+<span>15m</span>
+<span>0</span>
+</div>
+</div>
+</div>
+<!-- SLA Compliance (Bar Chart) -->
+<div class="bg-surface-container-lowest border border-surface-variant rounded p-md flex flex-col lg:col-span-1 min-h-[300px]">
+<div class="flex justify-between items-center mb-md border-b border-surface-variant pb-sm">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">SLA Compliance</h3>
+<span class="font-headline-sm text-headline-sm font-bold text-primary">95%</span>
+</div>
+<div class="flex-1 flex flex-col justify-end gap-sm chart-placeholder border-b border-surface-variant pb-sm">
+<!-- Bar representations -->
+<div class="flex items-end justify-around h-full pt-md px-md">
+<div class="w-8 bg-surface-variant rounded-t relative group">
+<div class="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 font-label-sm text-[10px] opacity-0 group-hover:opacity-100 transition-opacity">88%</div>
+<div class="w-full bg-primary-container rounded-t absolute bottom-0" style="height: 88%;"></div>
+</div>
+<div class="w-8 bg-surface-variant rounded-t relative group">
+<div class="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 font-label-sm text-[10px] opacity-0 group-hover:opacity-100 transition-opacity">92%</div>
+<div class="w-full bg-primary-container rounded-t absolute bottom-0" style="height: 92%;"></div>
+</div>
+<div class="w-8 bg-surface-variant rounded-t relative group">
+<div class="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 font-label-sm text-[10px] opacity-0 group-hover:opacity-100 transition-opacity">95%</div>
+<div class="w-full bg-primary rounded-t absolute bottom-0" style="height: 95%;"></div>
+</div>
+<div class="w-8 bg-surface-variant rounded-t relative group">
+<div class="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 font-label-sm text-[10px] opacity-0 group-hover:opacity-100 transition-opacity">91%</div>
+<div class="w-full bg-primary-container rounded-t absolute bottom-0" style="height: 91%;"></div>
+</div>
+</div>
+</div>
+<div class="flex justify-around mt-sm font-label-sm text-[10px] text-on-surface-variant">
+<span>Mon</span>
+<span>Tue</span>
+<span>Wed (On-Time)</span>
+<span>Thu</span>
+</div>
+</div>
+<!-- Data Table -->
+<div class="bg-surface-container-lowest border border-surface-variant rounded flex flex-col lg:col-span-2 overflow-hidden">
+<div class="flex justify-between items-center p-md border-b border-surface-variant bg-surface-container-lowest">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Operational Efficiency</h3>
+<button class="font-label-sm text-label-sm text-primary hover:underline uppercase flex items-center gap-xs">
+                            Export <span class="material-symbols-outlined text-[14px]" data-icon="download">download</span>
+</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low font-label-sm text-label-sm text-on-surface-variant uppercase border-b border-surface-variant">
+<th class="p-sm px-md font-medium">Date</th>
+<th class="p-sm px-md font-medium">Region</th>
+<th class="p-sm px-md font-medium text-right">Daily Revenue</th>
+<th class="p-sm px-md font-medium text-right">Empty Travel %</th>
+<th class="p-sm px-md font-medium text-center">Status</th>
+</tr>
+</thead>
+<tbody class="font-body-sm text-body-sm text-on-surface">
+<tr class="border-b border-surface-variant hover:bg-surface-bright transition-colors">
+<td class="p-sm px-md font-label-sm">2024-10-24</td>
+<td class="p-sm px-md">North Sector</td>
+<td class="p-sm px-md text-right font-label-sm">$14,250</td>
+<td class="p-sm px-md text-right font-label-sm">12.4%</td>
+<td class="p-sm px-md text-center">
+<span class="inline-block px-xs py-[2px] bg-primary-container text-on-primary-fixed rounded font-label-sm text-[10px] uppercase">Optimal</span>
+</td>
+</tr>
+<tr class="border-b border-surface-variant hover:bg-surface-bright transition-colors">
+<td class="p-sm px-md font-label-sm">2024-10-24</td>
+<td class="p-sm px-md">East Sector</td>
+<td class="p-sm px-md text-right font-label-sm">$9,800</td>
+<td class="p-sm px-md text-right font-label-sm text-error">18.2%</td>
+<td class="p-sm px-md text-center">
+<span class="inline-block px-xs py-[2px] bg-surface-variant text-on-surface rounded font-label-sm text-[10px] uppercase">Review</span>
+</td>
+</tr>
+<tr class="border-b border-surface-variant hover:bg-surface-bright transition-colors">
+<td class="p-sm px-md font-label-sm">2024-10-23</td>
+<td class="p-sm px-md">South Sector</td>
+<td class="p-sm px-md text-right font-label-sm">$11,400</td>
+<td class="p-sm px-md text-right font-label-sm">14.1%</td>
+<td class="p-sm px-md text-center">
+<span class="inline-block px-xs py-[2px] bg-primary-container text-on-primary-fixed rounded font-label-sm text-[10px] uppercase">Optimal</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-bright transition-colors">
+<td class="p-sm px-md font-label-sm">2024-10-23</td>
+<td class="p-sm px-md">West Sector</td>
+<td class="p-sm px-md text-right font-label-sm">$16,100</td>
+<td class="p-sm px-md text-right font-label-sm">9.8%</td>
+<td class="p-sm px-md text-center">
+<span class="inline-block px-xs py-[2px] bg-primary-container text-on-primary-fixed rounded font-label-sm text-[10px] uppercase">Optimal</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer -->
+<footer class="bg-surface-container-lowest border-t border-border-muted full-width bottom-0 mt-auto">
+<div class="flex justify-between items-center px-margin py-2 w-full text-[10px] uppercase">
+<span class="font-label-meta text-label-meta text-on-surface-variant">© 2024 UT INDUSTRIAL SYSTEMS. ALL RIGHTS RESERVED.</span>
+<div class="flex gap-md font-body-notes text-body-notes text-secondary">
+<a class="text-on-surface-variant hover:text-primary underline transition-opacity" href="#">Security</a>
+<a class="text-on-surface-variant hover:text-primary underline transition-opacity" href="#">Terms</a>
+<a class="text-on-surface-variant hover:text-primary underline transition-opacity" href="#">API Documentation</a>
+</div>
+</div>
+</footer>
+</main>
+</body></html>

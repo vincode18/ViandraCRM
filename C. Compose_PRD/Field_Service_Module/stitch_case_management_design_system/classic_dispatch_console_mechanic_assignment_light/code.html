@@ -1,0 +1,408 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>UT Service Console - Mechanic Assignment</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed-dim": "#c6c6c6",
+                        "secondary-fixed-dim": "#c8c6c5",
+                        "on-background": "#1a1c1c",
+                        "on-surface-variant": "#4d4632",
+                        "on-error-container": "#93000a",
+                        "surface-tint": "#725c00",
+                        "surface-container-high": "#e8e8e8",
+                        "surface-bright": "#f9f9f9",
+                        "on-primary": "#ffffff",
+                        "surface-variant": "#e2e2e2",
+                        "secondary-container": "#e5e2e1",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-highest": "#e2e2e2",
+                        "surface": "#f9f9f9",
+                        "outline": "#7f7660",
+                        "on-secondary-fixed-variant": "#474646",
+                        "on-surface": "#1a1c1c",
+                        "primary-container": "#f5c800",
+                        "surface-container-low": "#f3f3f3",
+                        "on-tertiary-container": "#555757",
+                        "primary": "#725c00",
+                        "outline-variant": "#d1c6ab",
+                        "secondary-fixed": "#e5e2e1",
+                        "inverse-primary": "#eec200",
+                        "tertiary": "#5d5f5f",
+                        "error": "#ba1a1a",
+                        "secondary": "#5f5e5e",
+                        "on-tertiary-fixed-variant": "#454747",
+                        "inverse-surface": "#2f3131",
+                        "on-secondary-fixed": "#1c1b1b",
+                        "tertiary-fixed": "#e2e2e2",
+                        "on-error": "#ffffff",
+                        "tertiary-container": "#cdcdcd",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-container": "#656464",
+                        "surface-container": "#eeeeee",
+                        "primary-fixed": "#ffe081",
+                        "surface-dim": "#dadada",
+                        "primary-fixed-dim": "#eec200",
+                        "on-primary-container": "#695400",
+                        "error-container": "#ffdad6",
+                        "on-secondary": "#ffffff",
+                        "inverse-on-surface": "#f1f1f1",
+                        "background": "#f9f9f9",
+                        "on-primary-fixed-variant": "#564500",
+                        "on-primary-fixed": "#231b00",
+                        "on-tertiary-fixed": "#1a1c1c"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "md": "16px",
+                        "lg": "24px",
+                        "xs": "4px",
+                        "margin": "24px",
+                        "gutter": "16px",
+                        "sm": "8px",
+                        "base": "8px",
+                        "xl": "32px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Hanken Grotesk"],
+                        "label-md": ["JetBrains Mono"],
+                        "headline-sm": ["Hanken Grotesk"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "body-sm": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "body-md": ["Hanken Grotesk"],
+                        "label-sm": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined[data-weight="fill"] {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom scrollbar for technical feel */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f9f9f9;
+            border-left: 1px solid #e0e0e0;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #dadada;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #c6c6c6;
+        }
+        
+        .gantt-grid {
+            background-size: 60px 100%;
+            background-image: linear-gradient(to right, #e2e2e2 1px, transparent 1px);
+        }
+        
+        .gantt-row:not(:last-child) {
+            border-bottom: 1px solid #e2e2e2;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md h-screen flex flex-col overflow-hidden antialiased">
+<!-- TopNavBar (Shared Component) -->
+<header class="bg-surface-dim border-b-2 border-primary-container h-16 shrink-0 flex items-center px-lg justify-between z-50">
+<div class="flex items-center gap-md">
+<button class="text-on-background hover:bg-surface-raised transition-colors p-sm rounded"><span class="material-symbols-outlined" data-icon="apps">apps</span></button>
+<h1 class="font-headline-md text-headline-md font-black tracking-tight text-black">DISPATCH CONSOLE</h1>
+</div>
+<!-- Search Bar -->
+<div class="flex-1 max-w-md mx-lg relative hidden md:block">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant text-label-md" data-icon="search">search</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant focus:border-on-background focus:ring-0 rounded-DEFAULT py-sm pl-xl pr-sm font-label-md text-label-md text-on-background placeholder-on-surface-variant shadow-sm h-10 transition-colors" placeholder="Search resources, jobs..." type="text">
+</div>
+<nav class="hidden lg:flex items-center gap-sm">
+<a class="text-primary font-label-md text-label-md border-b-2 border-primary px-sm py-xs hover:bg-surface-raised transition-colors flex items-center gap-xs" href="#">Console</a>
+<a class="text-on-surface-variant font-label-md text-label-md px-sm py-xs hover:bg-surface-raised transition-colors flex items-center gap-xs" href="#">Resources</a>
+<a class="text-on-surface-variant font-label-md text-label-md px-sm py-xs hover:bg-surface-raised transition-colors flex items-center gap-xs" href="#">Territories</a>
+<a class="text-on-surface-variant font-label-md text-label-md px-sm py-xs hover:bg-surface-raised transition-colors flex items-center gap-xs" href="#">Reports</a>
+</nav>
+<div class="flex items-center gap-sm ml-lg">
+<button class="text-on-background hover:bg-surface-raised p-xs rounded transition-colors"><span class="material-symbols-outlined" data-icon="notifications">notifications</span></button>
+<button class="text-on-background hover:bg-surface-raised p-xs rounded transition-colors"><span class="material-symbols-outlined" data-icon="settings">settings</span></button>
+<button class="text-on-background hover:bg-surface-raised p-xs rounded transition-colors"><span class="material-symbols-outlined" data-icon="help">help</span></button>
+<div class="w-8 h-8 rounded-full bg-surface-container-high border border-outline overflow-hidden ml-sm cursor-pointer">
+<img alt="Dispatcher Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD4GUv0HVksXIfEdOKKvSiLU0vO5fJCy1abHOdXkvFZO9zgmM36SY5O3m54mHsC8u3EqMd9Ebo4yTNjKQOZX37NKJhm_fk9-Ewc0ebL9JVUgARXEbGq-i_SrnP6B-9tnQz29CLSRRsTl_eu3_73GqFWTdpTLGtRTzqKI1esFkQ68RBJFIYrL76D-8dAuJyxwJp84I7JPEiVi3hLuArq5T0U7UEzacfo9QzgdSb7I5SzokS_9rRzWOE8_KxsV1QOHgtKpy01o8QjpUQa">
+</div>
+</div>
+</header>
+<!-- Layer 2: App Bar -->
+<div class="bg-surface-container-low border-b border-surface-variant shrink-0 px-lg h-12 flex items-center justify-between">
+<div class="flex items-center gap-md h-full">
+<span class="font-headline-sm text-headline-sm text-on-background border-r border-surface-variant pr-md">UT Service Console</span>
+<div class="flex h-full gap-sm">
+<button class="h-full px-sm border-b-2 border-primary-container text-on-background font-label-md text-label-md flex items-center hover:bg-surface-variant transition-colors">
+                    Classic Dispatch Console
+                    <span class="material-symbols-outlined text-sm ml-xs" data-icon="close">close</span>
+</button>
+<button class="h-full px-sm text-on-surface-variant font-label-md text-label-md flex items-center hover:bg-surface-variant transition-colors border-b-2 border-transparent">
+                    SA-09283
+                    <span class="material-symbols-outlined text-sm ml-xs" data-icon="close">close</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Layer 3: Dispatch Toolbar -->
+<div class="bg-surface border-b border-surface-variant shrink-0 px-lg py-sm flex items-center justify-between">
+<div class="flex items-center gap-md">
+<!-- Policy Dropdown -->
+<div class="flex items-center gap-xs bg-surface-container-lowest border border-outline-variant rounded px-sm py-xs cursor-pointer hover:border-on-background transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant text-label-md" data-icon="policy">policy</span>
+<span class="font-label-md text-label-md text-on-background">Policy: Customer Put</span>
+<span class="material-symbols-outlined text-on-surface-variant text-label-md" data-icon="arrow_drop_down">arrow_drop_down</span>
+</div>
+<!-- GANTT/MAP Toggle -->
+<div class="flex bg-surface-container-high rounded p-xs">
+<button class="px-sm py-xs bg-surface-container-lowest shadow-sm rounded text-on-background font-label-md text-label-md flex items-center gap-xs"><span class="material-symbols-outlined text-[16px]" data-icon="view_timeline">view_timeline</span> GANTT</button>
+<button class="px-sm py-xs text-on-surface-variant rounded hover:bg-surface-variant font-label-md text-label-md transition-colors flex items-center gap-xs"><span class="material-symbols-outlined text-[16px]" data-icon="map">map</span> MAP</button>
+</div>
+</div>
+<!-- Date Navigation -->
+<div class="flex items-center gap-sm">
+<button class="p-xs text-on-surface-variant hover:bg-surface-variant rounded transition-colors border border-outline-variant bg-surface-container-lowest"><span class="material-symbols-outlined" data-icon="chevron_left">chevron_left</span></button>
+<button class="px-md py-xs bg-primary-container text-on-primary-container font-label-md text-label-md rounded border border-on-background font-bold hover:bg-primary-fixed-dim transition-colors">Today</button>
+<span class="font-label-md text-label-md text-on-background min-w-[120px] text-center">Tue, 20 May 2026</span>
+<button class="p-xs text-on-surface-variant hover:bg-surface-variant rounded transition-colors border border-outline-variant bg-surface-container-lowest"><span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span></button>
+<button class="p-xs text-on-surface-variant hover:bg-surface-variant rounded transition-colors border border-outline-variant bg-surface-container-lowest ml-sm"><span class="material-symbols-outlined" data-icon="calendar_month">calendar_month</span></button>
+</div>
+<div class="flex items-center gap-sm">
+<button class="px-sm py-xs border border-on-background text-on-background font-label-md text-label-md rounded hover:bg-surface-variant transition-colors flex items-center gap-xs"><span class="material-symbols-outlined text-[16px]" data-icon="filter_alt">filter_alt</span> Filter</button>
+</div>
+</div>
+<!-- Main Content Area -->
+<div class="flex-1 flex overflow-hidden">
+<!-- Left Panel: SA List -->
+<div class="w-80 border-r border-surface-variant bg-surface-bright flex flex-col shrink-0">
+<!-- Header -->
+<div class="p-sm border-b border-surface-variant flex items-center justify-between bg-surface-container-low shrink-0">
+<span class="font-label-md text-label-md text-on-surface-variant font-bold">SERVICE APPOINTMENTS (42)</span>
+<button class="text-on-surface-variant hover:text-on-background transition-colors"><span class="material-symbols-outlined text-[18px]" data-icon="more_vert">more_vert</span></button>
+</div>
+<!-- List -->
+<div class="flex-1 overflow-y-auto">
+<!-- Item 1 -->
+<div class="p-sm border-b border-surface-variant hover:bg-surface-container-lowest transition-colors flex gap-sm items-start cursor-grab">
+<span class="material-symbols-outlined text-on-surface-variant text-[16px] mt-xs cursor-grab" data-icon="drag_indicator">drag_indicator</span>
+<input class="mt-xs rounded-sm border-on-background text-primary-container focus:ring-primary-container cursor-pointer w-4 h-4" type="checkbox">
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start mb-xs">
+<span class="font-label-md text-label-md text-on-background font-bold truncate">SA-09283</span>
+<span class="px-xs py-[2px] bg-primary-container text-on-primary-container font-label-sm text-label-sm rounded-sm font-bold shrink-0">NEW</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">PM Service - Excv C320</p>
+<div class="flex items-center gap-xs mt-xs text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px]" data-icon="schedule">schedule</span> 2H
+                            <span class="material-symbols-outlined text-[14px] ml-sm" data-icon="location_on">location_on</span> Site A
+                        </div>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="p-sm border-b border-surface-variant hover:bg-surface-container-lowest transition-colors flex gap-sm items-start cursor-grab">
+<span class="material-symbols-outlined text-on-surface-variant text-[16px] mt-xs cursor-grab" data-icon="drag_indicator">drag_indicator</span>
+<input class="mt-xs rounded-sm border-on-background text-primary-container focus:ring-primary-container cursor-pointer w-4 h-4" type="checkbox">
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start mb-xs">
+<span class="font-label-md text-label-md text-on-background font-bold truncate">SA-09284</span>
+<span class="px-xs py-[2px] bg-tertiary-container text-on-tertiary-container font-label-sm text-label-sm rounded-sm font-bold shrink-0">DISPATCHED</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Emergency Repair - Hyd</p>
+<div class="flex items-center gap-xs mt-xs text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px]" data-icon="schedule">schedule</span> 4H
+                            <span class="material-symbols-outlined text-[14px] ml-sm" data-icon="location_on">location_on</span> Site B
+                        </div>
+</div>
+</div>
+<!-- Item 3 -->
+<div class="p-sm border-b border-surface-variant hover:bg-surface-container-lowest transition-colors flex gap-sm items-start cursor-grab">
+<span class="material-symbols-outlined text-on-surface-variant text-[16px] mt-xs cursor-grab" data-icon="drag_indicator">drag_indicator</span>
+<input class="mt-xs rounded-sm border-on-background text-primary-container focus:ring-primary-container cursor-pointer w-4 h-4" type="checkbox">
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start mb-xs">
+<span class="font-label-md text-label-md text-on-background font-bold truncate">SA-09285</span>
+<span class="px-xs py-[2px] bg-primary-container text-on-primary-container font-label-sm text-label-sm rounded-sm font-bold shrink-0">NEW</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Inspection Routine</p>
+<div class="flex items-center gap-xs mt-xs text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px]" data-icon="schedule">schedule</span> 1.5H
+                            <span class="material-symbols-outlined text-[14px] ml-sm" data-icon="location_on">location_on</span> Base
+                        </div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Panel: Gantt Chart -->
+<div class="flex-1 flex flex-col bg-surface-container-lowest relative overflow-hidden">
+<!-- Time Header -->
+<div class="h-12 border-b border-surface-variant flex shrink-0 bg-surface-container-low">
+<!-- Mechanic Column Header -->
+<div class="w-64 border-r border-surface-variant shrink-0 p-sm flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-background font-bold">RESOURCES (24)</span>
+<button class="text-on-surface-variant hover:text-on-background"><span class="material-symbols-outlined text-[18px]" data-icon="filter_list">filter_list</span></button>
+</div>
+<!-- Time Scale Header -->
+<div class="flex-1 relative overflow-hidden bg-surface-bright flex items-end">
+<!-- Simulate hours -->
+<div class="absolute inset-0 flex">
+<!-- Each column is ~60px -->
+<div class="w-[60px] shrink-0 border-r border-surface-variant relative"><span class="absolute bottom-xs left-xs font-label-sm text-label-sm text-on-surface-variant">08:00</span></div>
+<div class="w-[60px] shrink-0 border-r border-surface-variant relative"><span class="absolute bottom-xs left-xs font-label-sm text-label-sm text-on-surface-variant">09:00</span></div>
+<div class="w-[60px] shrink-0 border-r border-surface-variant relative"><span class="absolute bottom-xs left-xs font-label-sm text-label-sm text-on-surface-variant">10:00</span></div>
+<div class="w-[60px] shrink-0 border-r border-surface-variant relative"><span class="absolute bottom-xs left-xs font-label-sm text-label-sm text-on-surface-variant">11:00</span></div>
+<div class="w-[60px] shrink-0 border-r border-surface-variant relative"><span class="absolute bottom-xs left-xs font-label-sm text-label-sm text-on-surface-variant">12:00</span></div>
+<div class="w-[60px] shrink-0 border-r border-surface-variant relative"><span class="absolute bottom-xs left-xs font-label-sm text-label-sm text-on-surface-variant">13:00</span></div>
+<div class="w-[60px] shrink-0 border-r border-surface-variant relative"><span class="absolute bottom-xs left-xs font-label-sm text-label-sm text-on-surface-variant">14:00</span></div>
+<div class="w-[60px] shrink-0 border-r border-surface-variant relative"><span class="absolute bottom-xs left-xs font-label-sm text-label-sm text-on-surface-variant">15:00</span></div>
+<div class="w-[60px] shrink-0 border-r border-surface-variant relative"><span class="absolute bottom-xs left-xs font-label-sm text-label-sm text-on-surface-variant">16:00</span></div>
+<div class="w-[60px] shrink-0 border-r border-surface-variant relative"><span class="absolute bottom-xs left-xs font-label-sm text-label-sm text-on-surface-variant">17:00</span></div>
+</div>
+<!-- Current Time Indicator Line (Header part) -->
+<div class="absolute bottom-0 h-2 w-[2px] bg-error left-[200px] z-20"></div>
+</div>
+</div>
+<!-- Gantt Body -->
+<div class="flex-1 flex overflow-y-auto relative">
+<!-- Fixed Mechanic Column -->
+<div class="w-64 border-r border-surface-variant shrink-0 bg-surface-bright z-10 flex flex-col">
+<!-- Resource 1 -->
+<div class="h-16 gantt-row p-sm flex items-center gap-sm hover:bg-surface-container-low transition-colors group">
+<div class="relative">
+<div class="w-10 h-10 rounded-full bg-surface-variant overflow-hidden border border-outline">
+<img alt="Mechanic A25" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA0F8LsxpmZ4njFgWa_jmxSR4dDw-4w9I4xxCYY1rMfhJhqdRs6TZQZiM_ejchEsrklusWEdoHy3DpNp4FC-O5sH60hElYFDdOTbvTXqc_1qohJ8VU3TDVxM1fwk-7QQVQsq6t84CUH2JnGyTrgnLyxeaeTLsaTYBF87uNOguG0pYKL3xeNsxLr1YTZsog7jNmuG6TdVNHfv7DrQC8f50huP_22MorZuxy7OPSb2W1hrzuhGOCgh6kngaK9W79z6iCUwzHXGVby6a8i">
+</div>
+<div class="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-primary-container border-2 border-surface-bright"></div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="font-label-md text-label-md text-on-background font-bold truncate">A25 P784FJC</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant truncate flex items-center gap-xs"><span class="material-symbols-outlined text-[12px]" data-icon="build">build</span> Heavy Equip</div>
+</div>
+<button class="opacity-0 group-hover:opacity-100 text-on-surface-variant"><span class="material-symbols-outlined text-[16px]" data-icon="more_horiz">more_horiz</span></button>
+</div>
+<!-- Resource 2 -->
+<div class="h-16 gantt-row p-sm flex items-center gap-sm hover:bg-surface-container-low transition-colors group">
+<div class="relative">
+<div class="w-10 h-10 rounded-full bg-surface-variant overflow-hidden border border-outline">
+<img alt="Mechanic AGUS" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCImeRjOhgSrRXZgmALtb6GIufsewLEtt09aPGO1Pm5M8kavka1vwrIWFjkmMmkbkQ4roeM152XgY6dXoZhRfhuG6_Jr_LrMdGAFXypCYtI_Vz8J3vnJGjgW9MMDtmqepMZc-gtMZLgwzzh0JSqj7ZYYe9PavY0fpjMi6J1vklMptkeM2sVmxzILrkQPwSjUEuQu3ro_OhjQe3X_TtH04E-5k-UYay4pg0SLNDYlm8Ia0Mp3MrBat41cuR1rFoo8TgNbJcmKbrtKqzF">
+</div>
+<div class="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-primary-container border-2 border-surface-bright"></div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="font-label-md text-label-md text-on-background font-bold truncate">AGUS MIZNI</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant truncate flex items-center gap-xs"><span class="material-symbols-outlined text-[12px]" data-icon="build">build</span> Preventative</div>
+</div>
+<button class="opacity-0 group-hover:opacity-100 text-on-surface-variant"><span class="material-symbols-outlined text-[16px]" data-icon="more_horiz">more_horiz</span></button>
+</div>
+<!-- Resource 3 -->
+<div class="h-16 gantt-row p-sm flex items-center gap-sm hover:bg-surface-container-low transition-colors group">
+<div class="relative">
+<div class="w-10 h-10 rounded-full bg-surface-variant overflow-hidden border border-outline">
+<img alt="Mechanic BUDI" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBjNaNOLtdWhO1mEO2OTqJCP3WfpS1sKQGASrkyrV2Mr2pDYiMXBTKub2qSA4q6ZLHU0-TIrEcDEDtOkn8YJxXgz6Nc9ud6KrW32jsop735XacDoHmj_RYQ9ys8C5jkqaEubKR8VTk0hF5KTMRyCKY8hDtD4xngAa8CR0h75W3wVUKg8VFFz0pVdzu_NquKB93ENn5UUmxY9ePWhrnXD_42uvHs1PnF-nrUe5VAoa2rMo2KgFtVk5QNc_-unPv4CnfDXwNcEq7e3mEZ">
+</div>
+<div class="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-[#4CAF50] border-2 border-surface-bright"></div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="font-label-md text-label-md text-on-background font-bold truncate">BUDI APVANS</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant truncate flex items-center gap-xs"><span class="material-symbols-outlined text-[12px]" data-icon="build">build</span> Diagnostics</div>
+</div>
+<button class="opacity-0 group-hover:opacity-100 text-on-surface-variant"><span class="material-symbols-outlined text-[16px]" data-icon="more_horiz">more_horiz</span></button>
+</div>
+</div>
+<!-- Scrollable Grid Area -->
+<div class="flex-1 overflow-x-auto relative gantt-grid min-w-[800px]">
+<!-- Current Time Indicator Line (Body part) -->
+<div class="absolute top-0 bottom-0 w-[2px] bg-error left-[200px] z-20 opacity-50 pointer-events-none"></div>
+<!-- Grid Rows -->
+<div class="h-16 gantt-row relative">
+<!-- SA Bar 1 (Scheduled) -->
+<div class="absolute top-2 h-12 bg-surface-tint text-on-primary rounded border border-on-background shadow-sm flex items-center px-sm overflow-hidden cursor-pointer hover:brightness-110 transition-all z-10" style="left: 60px; width: 120px;">
+<div class="flex flex-col">
+<span class="font-label-sm text-[10px] font-bold truncate">SA-09112</span>
+<span class="font-body-sm text-[11px] truncate opacity-90">Site Prep</span>
+</div>
+</div>
+</div>
+<div class="h-16 gantt-row relative">
+<!-- SA Bar 2 (In Progress) -->
+<div class="absolute top-2 h-12 bg-primary-container text-on-primary-container rounded border border-on-background shadow-sm flex items-center px-sm overflow-hidden cursor-pointer hover:brightness-110 transition-all z-10" style="left: 180px; width: 180px;">
+<div class="flex flex-col w-full">
+<div class="flex justify-between items-center w-full">
+<span class="font-label-sm text-[10px] font-bold truncate">SA-09284</span>
+<span class="material-symbols-outlined text-[12px]" data-icon="sync">sync</span>
+</div>
+<span class="font-body-sm text-[11px] truncate opacity-90">Emergency Repair</span>
+</div>
+<!-- Progress fill simulation -->
+<div class="absolute left-0 bottom-0 h-1 bg-on-primary-container w-1/3 opacity-50"></div>
+</div>
+</div>
+<div class="h-16 gantt-row relative">
+<!-- SA Bar 3 (Completed) -->
+<div class="absolute top-2 h-12 bg-surface-variant text-on-background rounded border border-outline shadow-sm flex items-center px-sm overflow-hidden cursor-pointer hover:brightness-110 transition-all z-10 opacity-70" style="left: 0px; width: 150px;">
+<div class="flex flex-col w-full">
+<div class="flex justify-between items-center w-full">
+<span class="font-label-sm text-[10px] font-bold truncate line-through">SA-09001</span>
+<span class="material-symbols-outlined text-[12px] text-primary" data-icon="check_circle">check_circle</span>
+</div>
+<span class="font-body-sm text-[11px] truncate opacity-90">Morning Inspect</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer Tray (Unassigned/Rules) -->
+<div class="h-8 bg-surface-dim border-t border-surface-variant shrink-0 px-lg flex items-center justify-between font-label-sm text-label-sm text-on-surface-variant">
+<div class="flex items-center gap-md">
+<span class="flex items-center gap-xs"><span class="w-2 h-2 rounded-full bg-primary-container inline-block"></span> Unassigned (42)</span>
+<span class="flex items-center gap-xs"><span class="w-2 h-2 rounded-full bg-error inline-block"></span> Rule Violations (2)</span>
+</div>
+<div>
+<span class="">Sync Status: <span class="text-[#4CAF50] font-bold">Online</span></span>
+</div>
+</div>
+
+
+</body></html>

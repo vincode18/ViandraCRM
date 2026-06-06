@@ -3,9 +3,12 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   Edit, ChevronDown, RefreshCw, MapPin, Phone, Mail, User, Calendar,
   Clock, FileText, ClipboardList, Wrench, Package, AlertCircle, MoreVertical,
-  ChevronRight, CheckCircle, AlertTriangle
+  ChevronRight, CheckCircle, AlertTriangle, Plus, CalendarClock
 } from 'lucide-react';
 import api from '../utils/api';
+import BookAppointmentModal from '../components/BookAppointmentModal';
+import SAStatusBadge from '../components/SAStatusBadge';
+import { formatDateTime } from '../utils/saData';
 
 // Work Order Status Mapping (UIC-001)
 const WO_STATUS_MAPPING = {
@@ -63,6 +66,8 @@ export default function WorkOrderDetailPage() {
   const [activeTab, setActiveTab] = useState('details');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [bookOpen, setBookOpen] = useState(false);
+  const [feedEntries, setFeedEntries] = useState([]);
 
   const fallbackDetail = {
     workOrderNumber: '01275781',
@@ -188,8 +193,22 @@ export default function WorkOrderDetailPage() {
     partsSupplied: [],
   };
 
+  // SA creation from the Feed tab (FRD-Field-Service-Tracking §5.5)
+  const handleBookAppointment = (sa) => {
+    setFeedEntries((prev) => [
+      { id: Date.now(), sa, text: `Service Appointment ${sa.appointmentNumber} booked for ${formatDateTime(sa.schedStart)}`, ts: new Date() },
+      ...prev,
+    ]);
+  };
+
   return (
     <div className="h-full flex flex-col" style={{ backgroundColor: 'var(--bg-base)', color: 'var(--text-main)' }}>
+      <BookAppointmentModal
+        open={bookOpen}
+        onClose={() => setBookOpen(false)}
+        onCreate={handleBookAppointment}
+        workOrder={{ workOrderNumber: woData.workOrderNumber, subject: woData.subject }}
+      />
       {/* Error banner */}
       {error && (
         <div className="pl-[15px] pr-6 py-2 text-sm" style={{ backgroundColor: 'rgba(245, 166, 35, 0.12)', color: 'var(--text-main)' }}>
@@ -250,7 +269,9 @@ export default function WorkOrderDetailPage() {
           <Card title="ASSET DETAILS" icon={<Wrench size={14} />}>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="font-bold text-sm">{woData.assetName}</span>
+                <button onClick={() => navigate('/assets/AST-00142')} className="font-bold text-sm hover:underline text-left" style={{ color: 'var(--accent)' }}>
+                  {woData.assetName}
+                </button>
                 <button className="p-1 rounded hover:bg-gray-500/20" style={{ color: 'var(--text-muted)' }}>
                   <Edit size={12} />
                 </button>
@@ -283,6 +304,36 @@ export default function WorkOrderDetailPage() {
               <div className="font-bold text-sm">{woData.accountName}</div>
               <div className="text-xs" style={{ color: 'var(--text-muted)' }}>Status: Active</div>
               <button className="text-xs mt-2" style={{ color: 'var(--accent)' }}>View Account Details →</button>
+            </div>
+          </Card>
+
+          {/* Service Area & Shift (linked from Service Area + Shift modules) */}
+          <Card title="SERVICE AREA & SHIFT" icon={<MapPin size={14} />}>
+            <div className="space-y-2.5">
+              <button onClick={() => navigate('/plants/PLT-0003')}
+                className="w-full flex items-center justify-between text-left text-xs px-2 py-2 rounded-lg transition-colors"
+                style={{ backgroundColor: 'var(--bg-light)', border: '1px solid var(--border)' }}>
+                <span className="flex items-center gap-2" style={{ color: 'var(--text-secondary)' }}>
+                  <MapPin size={13} style={{ color: 'var(--text-muted)' }} /> Plant: <strong>Sangkulirang Site</strong>
+                </span>
+                <ChevronRight size={13} style={{ color: 'var(--text-muted)' }} />
+              </button>
+              <button onClick={() => navigate('/territories/ST-0001')}
+                className="w-full flex items-center justify-between text-left text-xs px-2 py-2 rounded-lg transition-colors"
+                style={{ backgroundColor: 'var(--bg-light)', border: '1px solid var(--border)' }}>
+                <span className="flex items-center gap-2" style={{ color: 'var(--text-secondary)' }}>
+                  <MapPin size={13} style={{ color: 'var(--text-muted)' }} /> Territory: <strong>Sangkulirang FMC ST</strong>
+                </span>
+                <ChevronRight size={13} style={{ color: 'var(--text-muted)' }} />
+              </button>
+              <button onClick={() => navigate('/shifts/SFT-3061099')}
+                className="w-full flex items-center justify-between text-left text-xs px-2 py-2 rounded-lg transition-colors"
+                style={{ backgroundColor: 'var(--bg-light)', border: '1px solid var(--border)' }}>
+                <span className="flex items-center gap-2" style={{ color: 'var(--text-secondary)' }}>
+                  <Clock size={13} style={{ color: 'var(--text-muted)' }} /> Shift: <strong>SFT-3061099</strong>
+                </span>
+                <ChevronRight size={13} style={{ color: 'var(--text-muted)' }} />
+              </button>
             </div>
           </Card>
         </div>
@@ -336,8 +387,8 @@ export default function WorkOrderDetailPage() {
 
                 {/* Action Buttons */}
                 <div className="flex flex-wrap gap-2">
-                  <button className="px-4 py-2 rounded text-sm font-medium" style={{ backgroundColor: 'var(--accent)', color: '#1a1a1a' }}>
-                    Book Appointment
+                  <button onClick={() => setBookOpen(true)} className="px-4 py-2 rounded text-sm font-medium flex items-center gap-2" style={{ backgroundColor: 'var(--accent)', color: '#1a1a1a' }}>
+                    <CalendarClock size={15} /> Book Appointment
                   </button>
                   <button className="px-4 py-2 rounded text-sm font-medium" style={{ backgroundColor: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
                     Approve/Reject WO
@@ -355,8 +406,41 @@ export default function WorkOrderDetailPage() {
               </>
             )}
             {activeTab === 'feed' && (
-              <div className="rounded-lg p-4" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-                <p style={{ color: 'var(--text-muted)' }}>Feed tab content...</p>
+              <div className="space-y-4">
+                {/* Pinned Book Appointment action (FRD §5.2) */}
+                <div className="flex items-center justify-between rounded-lg p-3"
+                     style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+                  <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Activity Feed</span>
+                  <button onClick={() => setBookOpen(true)}
+                          className="px-3 py-1.5 rounded text-sm font-semibold flex items-center gap-1.5"
+                          style={{ backgroundColor: 'var(--accent)', color: '#1a1a1a' }}>
+                    <Plus size={14} /> Book Appointment
+                  </button>
+                </div>
+
+                {feedEntries.length === 0 ? (
+                  <div className="rounded-lg p-6 text-center text-sm" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
+                    No feed activity yet. Use <strong>Book Appointment</strong> to schedule a Service Appointment.
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {feedEntries.map((entry) => (
+                      <div key={entry.id} className="rounded-lg p-3 flex items-start gap-3"
+                           style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+                        <span className="mt-0.5" style={{ color: 'var(--accent-dark)' }}><CalendarClock size={16} /></span>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-sm" style={{ color: 'var(--text-main)' }}>{entry.text}</span>
+                            <SAStatusBadge status={entry.sa.status} />
+                          </div>
+                          <div className="text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                            {entry.ts.toLocaleString('en-GB')}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
             {activeTab === 'related' && (
