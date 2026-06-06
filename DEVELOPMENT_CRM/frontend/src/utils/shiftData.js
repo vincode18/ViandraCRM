@@ -16,6 +16,21 @@ export const SHIFT_STATUSES = ['Tentative', 'Confirmed', 'Cancelled'];
 export const TIME_SLOT_TYPES = ['Normal', 'Emergency', 'Extended', 'Holiday'];
 export const RECORDSET_FILTERS = ['Emergency Only', 'Certified Welders', 'Night Shift', 'Hydraulics Specialist'];
 
+// ── Shift type colour mapping (PRD-SM-002 §5.4) ──────────────────────
+export const SHIFT_TYPE_CONFIG = {
+  'Day Shift':         { color: '#1976D2', bg: 'rgba(25, 118, 210, 0.10)' },
+  'Normal':            { color: '#00897B', bg: 'rgba(0, 137, 123, 0.10)' },
+  'Emergency Standby': { color: '#C62828', bg: 'rgba(198, 40, 40, 0.10)' },
+  'Night Shift':       { color: '#6D28D9', bg: 'rgba(109, 40, 217, 0.10)' },
+  'On Call':           { color: '#F57C00', bg: 'rgba(245, 124, 0, 0.10)' },
+  'Unknown':           { color: '#757575', bg: 'rgba(117, 117, 117, 0.10)' },
+};
+
+export function getShiftTypeConfig(shift) {
+  const key = shift.shiftType || shift.label || shift.timeSlotType || '';
+  return SHIFT_TYPE_CONFIG[key] || SHIFT_TYPE_CONFIG['Unknown'];
+}
+
 // Gantt time axis — hourly columns
 export const SHIFT_GANTT_START_HOUR = 6;
 export const SHIFT_GANTT_END_HOUR = 22;
@@ -57,6 +72,33 @@ export const SAMPLE_SHIFTS = [
     backgroundColor: '#757575', recordsetFilter: '', serviceResourceId: 'SR-05', jobProfile: 'Inspection',
     serviceTerritoryId: 'ST-0001', plantLocation: 'Sangkulirang Site', shiftTemplate: 'DAY',
   },
+];
+
+// ── Weekly sample shifts (PRD-SM-002) — week of 2026-06-02 ──────────
+export const WEEKLY_SAMPLE_SHIFTS = [
+  // Monday 06-02
+  { name: 'SFT-W001', status: 'Confirmed', startTime: '2026-06-02T08:00', endTime: '2026-06-02T17:00', shiftType: 'Day Shift', label: 'Day Shift', serviceResourceId: 'SR-01', serviceTerritoryId: 'ST-0001' },
+  { name: 'SFT-W002', status: 'Confirmed', startTime: '2026-06-02T07:00', endTime: '2026-06-02T15:00', shiftType: 'Normal',    label: 'Normal',    serviceResourceId: 'SR-02', serviceTerritoryId: 'ST-0001' },
+  { name: 'SFT-W003', status: 'Confirmed', startTime: '2026-06-02T09:00', endTime: '2026-06-02T18:00', shiftType: 'Day Shift', label: 'Day Shift', serviceResourceId: 'SR-04', serviceTerritoryId: 'ST-0002' },
+  // Tuesday 06-03
+  { name: 'SFT-W004', status: 'Tentative', startTime: '2026-06-03T14:00', endTime: '2026-06-03T22:00', shiftType: 'Emergency Standby', label: 'Emergency Standby', serviceResourceId: 'SR-03', serviceTerritoryId: 'ST-0003' },
+  { name: 'SFT-W005', status: 'Confirmed', startTime: '2026-06-03T08:00', endTime: '2026-06-03T17:00', shiftType: 'Day Shift', label: 'Day Shift', serviceResourceId: 'SR-01', serviceTerritoryId: 'ST-0001' },
+  // Wednesday 06-04
+  { name: 'SFT-W006', status: 'Confirmed', startTime: '2026-06-04T20:00', endTime: '2026-06-05T04:00', shiftType: 'Night Shift', label: 'Night Shift', serviceResourceId: 'SR-05', serviceTerritoryId: 'ST-0001' },
+  { name: 'SFT-W007', status: 'Confirmed', startTime: '2026-06-04T09:00', endTime: '2026-06-04T18:00', shiftType: 'Normal',    label: 'Normal',    serviceResourceId: 'SR-02', serviceTerritoryId: 'ST-0001' },
+  // Thursday 06-05
+  { name: 'SFT-W008', status: 'Confirmed', startTime: '2026-06-05T08:00', endTime: '2026-06-05T17:00', shiftType: 'Day Shift', label: 'Day Shift', serviceResourceId: 'SR-01', serviceTerritoryId: 'ST-0001' },
+  { name: 'SFT-W009', status: 'Tentative', startTime: '2026-06-05T07:00', endTime: '2026-06-05T15:00', shiftType: 'On Call',   label: 'On Call',   serviceResourceId: 'SR-04', serviceTerritoryId: 'ST-0002' },
+  // Friday 06-06 (today)
+  { name: 'SFT-W010', status: 'Confirmed', startTime: '2026-06-06T08:00', endTime: '2026-06-06T17:00', shiftType: 'Day Shift', label: 'Day Shift', serviceResourceId: 'SR-01', serviceTerritoryId: 'ST-0001' },
+  { name: 'SFT-W011', status: 'Confirmed', startTime: '2026-06-06T07:00', endTime: '2026-06-06T15:00', shiftType: 'Normal',    label: 'Normal',    serviceResourceId: 'SR-02', serviceTerritoryId: 'ST-0001' },
+  { name: 'SFT-W012', status: 'Tentative', startTime: '2026-06-06T14:00', endTime: '2026-06-06T22:00', shiftType: 'Emergency Standby', label: 'Emergency Standby', serviceResourceId: 'SR-03', serviceTerritoryId: 'ST-0003' },
+  { name: 'SFT-W013', status: 'Confirmed', startTime: '2026-06-06T09:00', endTime: '2026-06-06T18:00', shiftType: 'Day Shift', label: 'Day Shift', serviceResourceId: 'SR-04', serviceTerritoryId: 'ST-0002' },
+  // Saturday 06-07
+  { name: 'SFT-W014', status: 'Confirmed', startTime: '2026-06-07T08:00', endTime: '2026-06-07T17:00', shiftType: 'Day Shift', label: 'Day Shift', serviceResourceId: 'SR-01', serviceTerritoryId: 'ST-0001' },
+  { name: 'SFT-W015', status: 'Tentative', startTime: '2026-06-07T20:00', endTime: '2026-06-08T04:00', shiftType: 'Night Shift', label: 'Night Shift', serviceResourceId: 'SR-05', serviceTerritoryId: 'ST-0001' },
+  // Sunday 06-08
+  { name: 'SFT-W016', status: 'Confirmed', startTime: '2026-06-08T09:00', endTime: '2026-06-08T17:00', shiftType: 'On Call',   label: 'On Call',   serviceResourceId: 'SR-04', serviceTerritoryId: 'ST-0002' },
 ];
 
 // ── Candidate grading (FRD-FSM-001 §4.3 / §7.2) ─────────────────────
