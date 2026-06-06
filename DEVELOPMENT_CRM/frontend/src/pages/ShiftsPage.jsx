@@ -1,8 +1,8 @@
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Clock, Plus, Search, X, ExternalLink, Star, GripVertical,
-  CalendarDays, ChevronLeft, ChevronRight,
+  CalendarDays, ChevronLeft, ChevronRight, Save, Trash2,
 } from 'lucide-react';
 import {
   SAMPLE_SHIFTS, WEEKLY_SAMPLE_SHIFTS, SHIFT_TYPE_CONFIG, SHIFT_CANDIDATES,
@@ -17,7 +17,7 @@ const COL_WIDTH = 64;
 const RES_COL = 200;
 const VIEW_MODES = ['Day', '3-Day', 'Week'];
 
-// ── Week navigation helpers ──────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────────
 function getMondayOf(date) {
   const d = new Date(date);
   const day = d.getDay();
@@ -50,7 +50,7 @@ function formatWeekRange(monday) {
   return `${mStr} – ${sStr}`;
 }
 
-// ── Shift type legend config ─────────────────────────────────────────
+const DAY_NAMES = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
 const LEGEND_ITEMS = [
   { label: 'Day Shift',         key: 'Day Shift' },
   { label: 'Normal',            key: 'Normal' },
@@ -64,6 +64,7 @@ export default function ShiftsPage() {
   const [shifts, setShifts] = useState(SAMPLE_SHIFTS);
   const [weeklyShifts, setWeeklyShifts] = useState(WEEKLY_SAMPLE_SHIFTS);
   const [selected, setSelected] = useState(null);
+  const [detailMode, setDetailMode] = useState('view'); // 'view' | 'edit'
   const [dragCand, setDragCand] = useState(null);
   const [hoverRow, setHoverRow] = useState(null);
   const [search, setSearch] = useState('');
@@ -72,9 +73,14 @@ export default function ShiftsPage() {
   const [modalPrefill, setModalPrefill] = useState(null);
   const [toast, setToast] = useState('');
   const [weekStart, setWeekStart] = useState(() => getMondayOf(new Date()));
+  const [threeDayStart, setThreeDayStart] = useState(() => getMondayOf(new Date()));
+  const [dayStart, setDayStart] = useState(() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; });
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
+  const [threeDayPickerOpen, setThreeDayPickerOpen] = useState(false);
+  const [pickerMonth, setPickerMonth] = useState(new Date());
   const timelineRef = useRef(null);
 
-  const today = useMemo(() => { const d = new Date(); d.setHours(0,0,0,0); return d; }, []);
+  const today = useMemo(() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; }, []);
 
   const notify = (msg) => { setToast(msg); setTimeout(() => setToast(''), 4000); };
 
@@ -82,10 +88,6 @@ export default function ShiftsPage() {
     const q = search.trim().toLowerCase();
     return SHIFT_CANDIDATES.filter(c => !q || c.name.toLowerCase().includes(q) || c.role.toLowerCase().includes(q));
   }, [search]);
-
-  const totalHours = (viewMode === 'Week' ? weeklyShifts : shifts)
-    .filter(s => s.status !== 'Cancelled')
-    .reduce((acc, s) => acc + shiftDurationHours(s), 0);
 
   const isCurrentWeek = isSameDay(weekStart, getMondayOf(today));
 
@@ -119,6 +121,32 @@ export default function ShiftsPage() {
     notify(`Shift ${shift.name} created.`);
   };
 
+  const updateShift = (updatedShift) => {
+    if (viewMode === 'Week') {
+      setWeeklyShifts(prev => prev.map(s => s.name === updatedShift.name ? updatedShift : s));
+    } else {
+      setShifts(prev => prev.map(s => s.name === updatedShift.name ? updatedShift : s));
+    }
+    setSelected(updatedShift);
+    setDetailMode('view');
+    notify(`Shift ${updatedShift.name} updated.`);
+  };
+
+  const shiftList = viewMode === 'Week' ? weeklyShifts : shifts;
+
+  // Handle Escape key
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') {
+        setSelected(null);
+        setDatePickerOpen(false);
+        setThreeDayPickerOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, []);
+
   return (
     <div className="h-full flex flex-col" style={{ backgroundColor: 'var(--bg-base)' }}>
       {/* Toolbar */}
@@ -132,7 +160,12 @@ export default function ShiftsPage() {
           </div>
           <div className="flex rounded overflow-hidden" style={{ border: '1px solid var(--border)' }}>
             {VIEW_MODES.map((m, i) => (
-              <button key={m} type="button" onClick={() => setViewMode(m)}
+              <button key={m} type="button"
+                onClick={() => {
+                  setViewMode(m);
+                  setThreeDayPickerOpen(false);
+                  setDatePickerOpen(false);
+                }}
                 className="px-4 py-1.5 text-sm font-medium transition-colors"
                 style={{
                   backgroundColor: viewMode === m ? 'var(--accent)' : 'var(--bg-base)',
@@ -144,17 +177,31 @@ export default function ShiftsPage() {
           </div>
         </div>
 
-        {/* Centre: week navigator (Week mode only) */}
+        {/* Centre: week/3-day/day navigator */}
         {viewMode === 'Week' && (
-          <div className="flex items-center gap-1.5 mx-auto">
+          <div className="flex items-center gap-1.5 mx-auto relative">
             <button type="button" onClick={() => setWeekStart(d => addDays(d, -7))} aria-label="Previous week"
               className="flex items-center justify-center rounded"
               style={{ width: 32, height: 32, backgroundColor: 'var(--bg-light)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
               <ChevronLeft size={14} />
             </button>
-            <span className="text-sm font-medium text-center" style={{ minWidth: 180, color: 'var(--text-secondary)' }}>
+            <button type="button"
+              onClick={() => setDatePickerOpen(o => !o)}
+              style={{ minWidth: 180, textAlign: 'center', color: 'var(--text-secondary)', cursor: 'pointer', textDecoration: datePickerOpen ? 'underline dashed' : 'none' }}
+              className="text-sm font-medium">
               {formatWeekRange(weekStart)}
-            </span>
+            </button>
+            {datePickerOpen && (
+              <DatePicker
+                month={pickerMonth}
+                onMonthChange={setPickerMonth}
+                onSelectDate={(d) => {
+                  setWeekStart(getMondayOf(d));
+                  setDatePickerOpen(false);
+                }}
+                currentWeekStart={weekStart}
+              />
+            )}
             <button type="button" onClick={() => setWeekStart(d => addDays(d, 7))} aria-label="Next week"
               className="flex items-center justify-center rounded"
               style={{ width: 32, height: 32, backgroundColor: 'var(--bg-light)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
@@ -171,13 +218,78 @@ export default function ShiftsPage() {
           </div>
         )}
 
+        {viewMode === '3-Day' && (
+          <div className="flex items-center gap-1.5 mx-auto relative">
+            <button type="button" onClick={() => setThreeDayStart(d => addDays(d, -1))} aria-label="Previous day"
+              className="flex items-center justify-center rounded"
+              style={{ width: 32, height: 32, backgroundColor: 'var(--bg-light)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
+              <ChevronLeft size={14} />
+            </button>
+            <button type="button"
+              onClick={() => setThreeDayPickerOpen(o => !o)}
+              style={{ minWidth: 180, textAlign: 'center', color: 'var(--text-secondary)' }}
+              className="text-sm font-medium">
+              {threeDayStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – {addDays(threeDayStart, 2).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+            </button>
+            {threeDayPickerOpen && (
+              <DatePickerThreeDay
+                month={pickerMonth}
+                onMonthChange={setPickerMonth}
+                onSelectDate={(d) => {
+                  setThreeDayStart(d);
+                  setThreeDayPickerOpen(false);
+                }}
+                selectedStart={threeDayStart}
+              />
+            )}
+            <button type="button" onClick={() => setThreeDayStart(d => addDays(d, 1))} aria-label="Next day"
+              className="flex items-center justify-center rounded"
+              style={{ width: 32, height: 32, backgroundColor: 'var(--bg-light)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
+              <ChevronRight size={14} />
+            </button>
+            <button type="button" onClick={() => setThreeDayStart(today)}
+              className="px-3 text-xs font-bold uppercase tracking-wide rounded"
+              style={{
+                height: 32, backgroundColor: 'var(--bg-light)', border: '1px solid var(--border)',
+                color: isSameDay(threeDayStart, today) ? 'var(--text-muted)' : 'var(--text-secondary)',
+                cursor: isSameDay(threeDayStart, today) ? 'default' : 'pointer',
+              }}>TODAY</button>
+          </div>
+        )}
+
+        {viewMode === 'Day' && (
+          <div className="flex items-center gap-1.5 mx-auto">
+            <button type="button" onClick={() => setDayStart(d => addDays(d, -1))} aria-label="Previous day"
+              className="flex items-center justify-center rounded"
+              style={{ width: 32, height: 32, backgroundColor: 'var(--bg-light)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
+              <ChevronLeft size={14} />
+            </button>
+            <span className="text-sm font-medium text-center" style={{ minWidth: 180, color: 'var(--text-secondary)' }}>
+              {dayStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+            </span>
+            <button type="button" onClick={() => setDayStart(d => addDays(d, 1))} aria-label="Next day"
+              className="flex items-center justify-center rounded"
+              style={{ width: 32, height: 32, backgroundColor: 'var(--bg-light)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
+              <ChevronRight size={14} />
+            </button>
+            <button type="button" onClick={() => setDayStart(today)}
+              disabled={isSameDay(dayStart, today)}
+              className="px-3 text-xs font-bold uppercase tracking-wide rounded"
+              style={{
+                height: 32, backgroundColor: 'var(--bg-light)', border: '1px solid var(--border)',
+                color: isSameDay(dayStart, today) ? 'var(--text-muted)' : 'var(--text-secondary)',
+                cursor: isSameDay(dayStart, today) ? 'default' : 'pointer',
+              }}>TODAY</button>
+          </div>
+        )}
+
         {/* Right: stats + CTA */}
-        <div className={`flex items-center gap-3 ${viewMode === 'Week' ? '' : 'ml-auto'}`}>
+        <div className={`flex items-center gap-3 ${['Week', '3-Day'].includes(viewMode) ? '' : 'ml-auto'}`}>
           <span className="flex items-center gap-1.5 text-sm font-semibold" style={{ color: 'var(--text-secondary)' }}>
             <Clock size={13} style={{ color: 'var(--text-tertiary)' }} />
-            {totalHours.toFixed(1)}h
+            {shiftList.filter(s => s.status !== 'Cancelled').reduce((acc, s) => acc + shiftDurationHours(s), 0).toFixed(1)}h
             <span className="text-xs font-normal" style={{ color: 'var(--text-muted)' }}>
-              {viewMode === 'Week' ? 'this week' : 'scheduled'}
+              scheduled
             </span>
           </span>
           <span className="flex items-center gap-1.5 text-sm" style={{ color: 'var(--text-secondary)' }}>
@@ -196,31 +308,62 @@ export default function ShiftsPage() {
         <div role="status" className="px-4 py-2 text-sm" style={{ backgroundColor: 'rgba(245,200,0,0.15)', color: 'var(--text-main)' }}>{toast}</div>
       )}
 
-      {/* Body */}
-      {viewMode === 'Week' ? (
-        <WeeklyCalendarGrid
-          weekStart={weekStart}
-          shifts={weeklyShifts}
-          resources={SERVICE_RESOURCES}
-          today={today}
-          onShiftClick={(s) => setSelected(s)}
-          onCellClick={(resourceId, dateStr) => {
-            setModalPrefill({ serviceResourceId: resourceId, startTime: `${dateStr}T08:00`, endTime: `${dateStr}T17:00` });
-            setModalOpen(true);
-          }}
-        />
-      ) : (
-        <GanttView
-          shifts={shifts} candidates={candidates} search={search} setSearch={setSearch}
-          dragCand={dragCand} setDragCand={setDragCand} hoverRow={hoverRow} setHoverRow={setHoverRow}
-          timelineRef={timelineRef} selected={selected} setSelected={setSelected}
-          handleDrop={handleDrop} navigate={navigate}
-        />
-      )}
+      {/* Body — Full width grid */}
+      <div className="flex-1 overflow-hidden relative" style={{ backgroundColor: 'var(--bg-base)' }}>
+        {viewMode === 'Week' && (
+          <WeeklyCalendarGrid
+            weekStart={weekStart}
+            shifts={weeklyShifts}
+            resources={SERVICE_RESOURCES}
+            today={today}
+            onShiftClick={(s) => { setSelected(s); setDetailMode('view'); }}
+            onCellClick={(resourceId, dateStr) => {
+              setModalPrefill({ serviceResourceId: resourceId, startTime: `${dateStr}T08:00`, endTime: `${dateStr}T17:00` });
+              setModalOpen(true);
+            }}
+          />
+        )}
+        {viewMode === '3-Day' && (
+          <ThreeDayCalendarGrid
+            startDate={threeDayStart}
+            shifts={weeklyShifts}
+            resources={SERVICE_RESOURCES}
+            today={today}
+            onShiftClick={(s) => { setSelected(s); setDetailMode('view'); }}
+            onCellClick={(resourceId, dateStr) => {
+              setModalPrefill({ serviceResourceId: resourceId, startTime: `${dateStr}T08:00`, endTime: `${dateStr}T17:00` });
+              setModalOpen(true);
+            }}
+          />
+        )}
+        {viewMode === 'Day' && (
+          <DayGanttView
+            dayStart={dayStart}
+            shifts={shifts}
+            candidates={candidates}
+            search={search}
+            setSearch={setSearch}
+            dragCand={dragCand}
+            setDragCand={setDragCand}
+            hoverRow={hoverRow}
+            setHoverRow={setHoverRow}
+            timelineRef={timelineRef}
+            handleDrop={handleDrop}
+          />
+        )}
 
-      {selected && (
-        <ShiftSidePanel shift={selected} onClose={() => setSelected(null)} navigate={navigate} />
-      )}
+        {/* Right-side detail panel */}
+        {selected && (
+          <ShiftDetailPanel
+            shift={selected}
+            mode={detailMode}
+            onClose={() => { setSelected(null); setDetailMode('view'); }}
+            onEdit={() => setDetailMode('edit')}
+            onUpdate={updateShift}
+            navigate={navigate}
+          />
+        )}
+      </div>
 
       {modalOpen && (
         <NewShiftModal prefill={modalPrefill} onClose={() => setModalOpen(false)}
@@ -231,9 +374,158 @@ export default function ShiftsPage() {
   );
 }
 
-// ── Weekly Calendar Grid (PRD-SM-002 §4) ────────────────────────────
-const DAY_NAMES = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+// ── Date Picker Popover (Week mode) ──────────────────────────────────
+function DatePicker({ month, onMonthChange, onSelectDate, currentWeekStart }) {
+  const days = getDaysInMonth(month);
+  const firstDay = new Date(month.getFullYear(), month.getMonth(), 1).getDay();
+  const cells = [...Array(firstDay), ...days];
 
+  const currentWeekEnd = addDays(currentWeekStart, 6);
+
+  return (
+    <div style={{
+      position: 'absolute', top: '100%', left: 0, marginTop: 8, zIndex: 600,
+      backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)',
+      borderRadius: 8, boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+      padding: 12, minWidth: 300, animation: 'fadeIn 200ms ease-out'
+    }}>
+      <div className="flex items-center justify-between mb-3">
+        <button type="button" onClick={() => onMonthChange(addDays(month, -32))} className="p-1"
+          style={{ color: 'var(--text-tertiary)' }}>
+          <ChevronLeft size={14} />
+        </button>
+        <span className="text-sm font-semibold" style={{ color: 'var(--text-main)' }}>
+          {month.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+        </span>
+        <button type="button" onClick={() => onMonthChange(addDays(month, 32))} className="p-1"
+          style={{ color: 'var(--text-tertiary)' }}>
+          <ChevronRight size={14} />
+        </button>
+      </div>
+
+      <div className="grid grid-cols-7 gap-1 mb-3 text-center">
+        {['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map(d => (
+          <span key={d} className="text-[10px] font-bold uppercase" style={{ color: 'var(--text-muted)' }}>{d}</span>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-7 gap-1 mb-3">
+        {cells.map((day, i) => (
+          <button key={i} type="button"
+            disabled={!day}
+            onClick={() => day && onSelectDate(new Date(month.getFullYear(), month.getMonth(), day))}
+            style={{
+              width: 32, height: 32, borderRadius: 4, fontSize: 12,
+              backgroundColor: !day ? 'transparent' :
+                isSameDay(new Date(month.getFullYear(), month.getMonth(), day), new Date(month.getFullYear(), month.getMonth(), 1)) &&
+                new Date(month.getFullYear(), month.getMonth(), day) >= currentWeekStart &&
+                new Date(month.getFullYear(), month.getMonth(), day) <= currentWeekEnd ? 'var(--accent-pale)' : 'transparent',
+              color: !day ? 'var(--text-muted)' :
+                new Date(month.getFullYear(), month.getMonth(), day) >= currentWeekStart &&
+                new Date(month.getFullYear(), month.getMonth(), day) <= currentWeekEnd ? 'var(--accent-dark)' : 'var(--text-secondary)',
+              cursor: day ? 'pointer' : 'default',
+              border: 'none',
+              fontWeight: new Date(month.getFullYear(), month.getMonth(), day) >= currentWeekStart &&
+                new Date(month.getFullYear(), month.getMonth(), day) <= currentWeekEnd ? 600 : 400,
+            }}>
+            {day || ''}
+          </button>
+        ))}
+      </div>
+
+      <button type="button" onClick={() => onSelectDate(new Date())}
+        className="w-full text-xs font-semibold px-3 py-2 rounded"
+        style={{ backgroundColor: 'var(--accent)', color: '#1A1A1A', border: 'none', cursor: 'pointer' }}>
+        Today
+      </button>
+    </div>
+  );
+}
+
+// ── 3-Day Date Picker Popover ────────────────────────────────────────
+function DatePickerThreeDay({ month, onMonthChange, onSelectDate, selectedStart }) {
+  const days = getDaysInMonth(month);
+  const firstDay = new Date(month.getFullYear(), month.getMonth(), 1).getDay();
+  const cells = [...Array(firstDay), ...days];
+  const selectedEnd = addDays(selectedStart, 2);
+
+  return (
+    <div style={{
+      position: 'absolute', top: '100%', left: 0, marginTop: 8, zIndex: 600,
+      backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)',
+      borderRadius: 8, boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+      padding: 12, minWidth: 280, animation: 'fadeIn 200ms ease-out'
+    }}>
+      <div className="text-xs font-bold uppercase tracking-wide mb-3" style={{ color: 'var(--text-muted)' }}>
+        Select 3-Day Start
+      </div>
+
+      <div className="flex items-center justify-between mb-3">
+        <button type="button" onClick={() => onMonthChange(addDays(month, -32))} className="p-1"
+          style={{ color: 'var(--text-tertiary)' }}>
+          <ChevronLeft size={14} />
+        </button>
+        <span className="text-xs font-semibold" style={{ color: 'var(--text-main)' }}>
+          {month.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+        </span>
+        <button type="button" onClick={() => onMonthChange(addDays(month, 32))} className="p-1"
+          style={{ color: 'var(--text-tertiary)' }}>
+          <ChevronRight size={14} />
+        </button>
+      </div>
+
+      <div className="grid grid-cols-7 gap-0.5 mb-3 text-center">
+        {['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map(d => (
+          <span key={d} className="text-[10px] font-bold uppercase" style={{ color: 'var(--text-muted)' }}>{d}</span>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-7 gap-0.5 mb-3">
+        {cells.map((day, i) => {
+          const cellDate = day ? new Date(month.getFullYear(), month.getMonth(), day) : null;
+          const isStart = day && isSameDay(cellDate, selectedStart);
+          const inRange = day && cellDate >= selectedStart && cellDate <= selectedEnd;
+          return (
+            <button key={i} type="button"
+              disabled={!day}
+              onClick={() => day && onSelectDate(cellDate)}
+              style={{
+                width: 30, height: 30, borderRadius: 4, fontSize: 11,
+                backgroundColor: !day ? 'transparent' :
+                  isStart ? 'var(--accent)' :
+                  inRange ? 'var(--accent-pale)' : 'transparent',
+                color: !day ? 'var(--text-muted)' :
+                  isStart ? '#1A1A1A' :
+                  inRange ? 'var(--accent-dark)' : 'var(--text-secondary)',
+                cursor: day ? 'pointer' : 'default',
+                border: 'none',
+                fontWeight: isStart ? 700 : 400,
+              }}>
+              {day || ''}
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="text-xs mb-3" style={{ color: 'var(--text-tertiary)' }}>
+        Selected: {selectedStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – {selectedEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} →
+      </div>
+
+      <button type="button" onClick={() => onSelectDate(selectedStart)}
+        className="w-full text-xs font-semibold px-3 py-2 rounded"
+        style={{ backgroundColor: 'var(--accent)', color: '#1A1A1A', border: 'none', cursor: 'pointer' }}>
+        Apply
+      </button>
+    </div>
+  );
+}
+
+function getDaysInMonth(date) {
+  const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+  return Array.from({ length: lastDay }, (_, i) => i + 1);
+}
+
+// ── Weekly Calendar Grid ─────────────────────────────────────────────
 function WeeklyCalendarGrid({ weekStart, shifts, resources, today, onShiftClick, onCellClick }) {
   const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
@@ -243,7 +535,6 @@ function WeeklyCalendarGrid({ weekStart, shifts, resources, today, onShiftClick,
         <table style={{ borderCollapse: 'collapse', minWidth: '100%', animation: 'fadeIn 300ms ease-out' }}>
           <thead>
             <tr>
-              {/* B1: Resource column header */}
               <th style={{
                 position: 'sticky', left: 0, top: 0, zIndex: 20,
                 minWidth: 180, padding: '10px 12px',
@@ -256,7 +547,6 @@ function WeeklyCalendarGrid({ weekStart, shifts, resources, today, onShiftClick,
                   RESOURCE
                 </span>
               </th>
-              {/* B2: Day column headers */}
               {days.map((day, i) => {
                 const isToday = isSameDay(day, today);
                 const dayStr = toDateStr(day);
@@ -293,7 +583,6 @@ function WeeklyCalendarGrid({ weekStart, shifts, resources, today, onShiftClick,
               const initials = res.name.split(' ').filter(Boolean).map(w => w[0].toUpperCase()).slice(0, 2).join('');
               return (
                 <tr key={res.id}>
-                  {/* B3: Resource cell */}
                   <td style={{
                     position: 'sticky', left: 0, zIndex: 10,
                     verticalAlign: 'top', padding: 12, minWidth: 180,
@@ -320,13 +609,12 @@ function WeeklyCalendarGrid({ weekStart, shifts, resources, today, onShiftClick,
                             backgroundColor: weeklyCount > 0 ? 'var(--accent-pale)' : 'var(--bg-lighter)',
                             color: weeklyCount > 0 ? 'var(--accent-dark)' : 'var(--text-muted)',
                           }}>
-                            {weeklyCount} shift{weeklyCount !== 1 ? 's' : ''} this week
+                            {weeklyCount} shift{weeklyCount !== 1 ? 's' : ''}
                           </span>
                         </div>
                       </div>
                     </div>
                   </td>
-                  {/* B4: Day cells */}
                   {days.map((day, i) => {
                     const isToday = isSameDay(day, today);
                     const dayStr = toDateStr(day);
@@ -350,6 +638,100 @@ function WeeklyCalendarGrid({ weekStart, shifts, resources, today, onShiftClick,
   );
 }
 
+// ── 3-Day Calendar Grid ──────────────────────────────────────────────
+function ThreeDayCalendarGrid({ startDate, shifts, resources, today, onShiftClick, onCellClick }) {
+  const days = Array.from({ length: 3 }, (_, i) => addDays(startDate, i));
+
+  return (
+    <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 overflow-auto">
+        <table style={{ borderCollapse: 'collapse', minWidth: '100%', animation: 'fadeIn 300ms ease-out' }}>
+          <thead>
+            <tr>
+              <th style={{
+                position: 'sticky', left: 0, top: 0, zIndex: 20,
+                minWidth: 180, padding: '10px 12px',
+                backgroundColor: 'var(--bg-base)',
+                border: '1px solid var(--border)',
+                borderBottom: '2px solid var(--border)',
+              }}>
+                <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-muted)' }}>
+                  RESOURCE
+                </span>
+              </th>
+              {days.map((day, i) => {
+                const isToday = isSameDay(day, today);
+                const dayStr = toDateStr(day);
+                const count = shifts.filter(s => s.startTime.startsWith(dayStr)).length;
+                return (
+                  <th key={i} aria-current={isToday ? 'date' : undefined}
+                    style={{
+                      position: 'sticky', top: 0, zIndex: 10,
+                      flex: 1, minWidth: 200, padding: '8px',
+                      textAlign: 'center',
+                      backgroundColor: isToday ? 'var(--accent-pale)' : 'var(--bg-base)',
+                      border: '1px solid var(--border)',
+                      borderBottom: isToday ? '2px solid var(--accent)' : '2px solid var(--border)',
+                    }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: isToday ? 'var(--accent-dark)' : 'var(--text-muted)' }}>
+                      {DAY_NAMES[day.getDay() === 0 ? 6 : day.getDay() - 1]}
+                    </div>
+                    <div style={{ fontSize: 20, fontWeight: isToday ? 700 : 400, color: isToday ? 'var(--accent-dark)' : 'var(--text-secondary)' }}>
+                      {day.getDate()}
+                    </div>
+                    {count > 0 && (
+                      <div style={{ fontSize: 9, color: 'var(--text-muted)' }}>
+                        {count} shift{count !== 1 ? 's' : ''}
+                      </div>
+                    )}
+                  </th>
+                );
+              })}
+            </tr>
+          </thead>
+          <tbody>
+            {resources.map((res) => (
+              <tr key={res.id}>
+                <td style={{
+                  position: 'sticky', left: 0, zIndex: 10,
+                  verticalAlign: 'top', padding: 12, minWidth: 180,
+                  backgroundColor: 'var(--bg-base)', border: '1px solid var(--border)',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                    <div style={{
+                      width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      backgroundColor: 'var(--accent-pale)', border: '1px solid var(--accent)',
+                      fontSize: 10, fontWeight: 700, color: 'var(--accent-dark)',
+                    }}>{res.name.split(' ').map(w => w[0]).slice(0, 2).join('')}</div>
+                    <div style={{ minWidth: 0, fontSize: 12 }}>
+                      <div style={{ fontWeight: 600, color: 'var(--text-main)', truncate: true }}>{res.name}</div>
+                      <div style={{ fontSize: 10, color: 'var(--text-tertiary)' }}>{res.level}</div>
+                    </div>
+                  </div>
+                </td>
+                {days.map((day, i) => {
+                  const isToday = isSameDay(day, today);
+                  const dayStr = toDateStr(day);
+                  const dayShifts = shifts.filter(s => s.serviceResourceId === res.id && s.startTime.startsWith(dayStr));
+                  const isEmpty = dayShifts.length === 0;
+                  return (
+                    <DayCell key={i} isToday={isToday} isEmpty={isEmpty} dayShifts={dayShifts}
+                      onEmpty={() => onCellClick(res.id, dayStr)}
+                      onShiftClick={onShiftClick} />
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <LegendBar />
+    </div>
+  );
+}
+
+// ── Day Cell ─────────────────────────────────────────────────────────
 function DayCell({ isToday, isEmpty, dayShifts, onEmpty, onShiftClick, ariaLabel }) {
   const [hover, setHover] = useState(false);
   return (
@@ -381,6 +763,7 @@ function DayCell({ isToday, isEmpty, dayShifts, onEmpty, onShiftClick, ariaLabel
   );
 }
 
+// ── Shift Card ───────────────────────────────────────────────────────
 function ShiftCard({ shift, onClick }) {
   const [hover, setHover] = useState(false);
   const cfg = getShiftTypeConfig(shift);
@@ -407,7 +790,6 @@ function ShiftCard({ shift, onClick }) {
         outline: 'none',
         display: 'flex', flexDirection: 'column', gap: 2,
       }}>
-      {/* Row 1: shift ID + tentative badge */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 4 }}>
         <span style={{ fontFamily: 'ui-monospace, SFMono-Regular, monospace', fontSize: 10, fontWeight: 600, color: cfg.color, letterSpacing: '0.02em' }}>
           {shift.name}
@@ -418,11 +800,9 @@ function ShiftCard({ shift, onClick }) {
           </span>
         )}
       </div>
-      {/* Row 2: time range */}
       <div style={{ fontSize: 11, fontWeight: 400, color: 'var(--text-tertiary)' }}>
         {formatShiftTime(shift.startTime)}–{formatShiftTime(shift.endTime)}
       </div>
-      {/* Row 3: shift type label */}
       <div style={{ fontSize: 11, fontWeight: 600, color: cfg.color }}>
         {shift.label || shift.shiftType || shift.timeSlotType}
       </div>
@@ -430,9 +810,10 @@ function ShiftCard({ shift, onClick }) {
   );
 }
 
+// ── Legend Bar ───────────────────────────────────────────────────────
 function LegendBar() {
   return (
-    <div style={{ borderTop: '1px solid var(--border)', padding: '10px 24px 4px', marginTop: 8 }}>
+    <div style={{ borderTop: '1px solid var(--border)', padding: '10px 24px 4px', marginTop: 0 }}>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px 16px' }}>
         {LEGEND_ITEMS.map(({ label, key }) => {
           const cfg = SHIFT_TYPE_CONFIG[key];
@@ -443,7 +824,6 @@ function LegendBar() {
             </div>
           );
         })}
-        {/* Tentative special item */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <div style={{ width: 10, height: 10, borderRadius: 2, border: '1px dashed var(--border)', backgroundColor: 'transparent', flexShrink: 0 }} />
           <span style={{ fontSize: 11, fontWeight: 500, color: 'var(--text-tertiary)' }}>Tentative</span>
@@ -453,11 +833,11 @@ function LegendBar() {
   );
 }
 
-// ── Gantt view (Day / 3-Day) ─────────────────────────────────────────
-function GanttView({ shifts, candidates, search, setSearch, dragCand, setDragCand, hoverRow, setHoverRow, timelineRef, selected, setSelected, handleDrop, navigate }) {
+// ── Day Gantt View ───────────────────────────────────────────────────
+function DayGanttView({ dayStart, shifts, candidates, search, setSearch, dragCand, setDragCand, hoverRow, setHoverRow, timelineRef, handleDrop }) {
+  const [selected, setSelected] = useState(null);
   return (
     <div className="flex-1 flex overflow-hidden">
-      {/* LEFT — Candidate panel */}
       <aside className="w-72 flex-shrink-0 flex flex-col overflow-hidden"
              style={{ borderRight: '1px solid var(--border)', backgroundColor: 'var(--bg-panel)' }}>
         <div className="p-3 space-y-2" style={{ borderBottom: '1px solid var(--border)' }}>
@@ -491,24 +871,12 @@ function GanttView({ shifts, candidates, search, setSearch, dragCand, setDragCan
                   <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold flex-shrink-0"
                         style={{ backgroundColor: band.bg, color: band.color }}>{c.score}</span>
                 </div>
-                <div className="flex items-center justify-between mt-1.5 pl-9">
-                  <span className="text-[11px]" style={{ color: 'var(--text-tertiary)' }}>{c.options} options</span>
-                  {c.score >= 90 && (
-                    <button className="text-[11px] flex items-center gap-1 font-medium" style={{ color: 'var(--accent-dark)' }}>
-                      <Star size={11} /> Assign Recommended
-                    </button>
-                  )}
-                </div>
               </div>
             );
           })}
-          <p className="text-[11px] pt-2" style={{ color: 'var(--text-muted)' }}>
-            Drag a candidate onto a resource row to open the New Shift form for that time slot.
-          </p>
         </div>
       </aside>
 
-      {/* CENTER — Gantt */}
       <main className="flex-1 overflow-auto">
         <div className="inline-block min-w-full">
           <div className="flex sticky top-0 z-10" style={{ backgroundColor: 'var(--bg-panel)', borderBottom: '1px solid var(--border)' }}>
@@ -571,7 +939,7 @@ function GanttView({ shifts, candidates, search, setSearch, dragCand, setDragCan
                         <div className="text-[10px] font-mono font-semibold truncate flex items-center gap-1">
                           {s.isHoliday && <Star size={9} />}{s.name}
                         </div>
-                        <div className="text-[10px] truncate opacity-90">{formatShiftTime(s.startTime)}–{formatShiftTime(s.endTime)} · {s.label || s.timeSlotType}</div>
+                        <div className="text-[10px] truncate opacity-90">{formatShiftTime(s.startTime)}–{formatShiftTime(s.endTime)}</div>
                       </button>
                     );
                   })}
@@ -582,73 +950,206 @@ function GanttView({ shifts, candidates, search, setSearch, dragCand, setDragCan
         </div>
       </main>
 
-      {selected && <ShiftSidePanel shift={selected} onClose={() => setSelected(null)} navigate={navigate} />}
+      {selected && <ShiftDetailPanel shift={selected} mode="view" onClose={() => setSelected(null)} onEdit={() => {}} onUpdate={() => {}} navigate={() => {}} />}
     </div>
   );
 }
 
-// ── Shift detail side panel ──────────────────────────────────────────
-function ShiftSidePanel({ shift, onClose, navigate }) {
-  const res = SERVICE_RESOURCES.find(r => r.id === shift.serviceResourceId);
-  const terr = territoryById(shift.serviceTerritoryId);
-  const sb = shiftStatusStyle(shift.status);
-  const Row = ({ label, value }) => (
-    <div className="flex items-start justify-between gap-3 py-1">
-      <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>{label}</span>
-      <span className="text-xs text-right font-medium" style={{ color: 'var(--text-secondary)' }}>{value || '—'}</span>
-    </div>
-  );
-  const Header = ({ children }) => (
-    <div className="text-[10px] font-bold uppercase tracking-widest font-mono mt-4 mb-1" style={{ color: 'var(--text-muted)' }}>{children}</div>
-  );
+// ── Shift Detail Panel (Right-side, fixed position) ──────────────────
+function ShiftDetailPanel({ shift, mode, onClose, onEdit, onUpdate, navigate }) {
+  const [formData, setFormData] = useState(shift);
+  const [saving, setSaving] = useState(false);
   const cfg = getShiftTypeConfig(shift);
+  const sb = shiftStatusStyle(shift.status);
+  const res = SERVICE_RESOURCES.find(r => r.id === shift.serviceResourceId);
+
+  const handleSave = () => {
+    setSaving(true);
+    setTimeout(() => {
+      onUpdate(formData);
+      setSaving(false);
+    }, 500);
+  };
+
   return (
-    <aside className="w-[340px] flex-shrink-0 flex flex-col overflow-hidden"
-           style={{ borderLeft: '1px solid var(--border)', backgroundColor: 'var(--bg-panel)', boxShadow: '-8px 0 24px rgba(0,0,0,0.08)', animation: 'slideInRight 0.25s ease-out' }}>
-      <div className="px-4 py-3 flex items-start justify-between" style={{ borderBottom: '1px solid var(--border)', backgroundColor: 'var(--bg-card)' }}>
-        <div>
-          <div className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>Shift Details</div>
-          <div className="flex items-center gap-2 mt-0.5">
-            <span className="font-mono text-sm font-semibold" style={{ color: 'var(--text-main)' }}>{shift.name}</span>
-            <span className="px-2 py-0.5 rounded-full text-[11px] font-medium" style={{ backgroundColor: sb.bg, color: sb.color }}>{shift.status}</span>
-          </div>
+    <div
+      style={{
+        position: 'fixed', top: 0, right: 0, width: 320, height: '100vh', zIndex: 500,
+        backgroundColor: 'var(--bg-card)', borderLeft: '1px solid var(--border)',
+        boxShadow: '-4px 0 24px rgba(0,0,0,0.10)',
+        animation: 'slideInRight 250ms ease-out',
+        display: 'flex', flexDirection: 'column',
+        pt: 16,
+      }}
+      onClick={(e) => e.stopPropagation()}>
+      {/* Header */}
+      <div style={{ padding: '16px 16px 12px', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
+        <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-muted)', marginBottom: 4 }}>
+          {mode === 'edit' ? 'EDIT SHIFT' : 'SHIFT DETAILS'}
         </div>
-        <button type="button" onClick={onClose} aria-label="Close" className="p-1 rounded hover:bg-gray-500/20" style={{ color: 'var(--text-muted)' }}><X size={16} /></button>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+          <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-main)' }}>{shift.name}</span>
+          <button type="button" onClick={onClose} aria-label="Close"
+            style={{
+              width: 28, height: 28, borderRadius: 4, backgroundColor: 'var(--bg-light)',
+              border: '1px solid var(--border)', color: 'var(--text-tertiary)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}>
+            <X size={16} />
+          </button>
+        </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-4 pb-4">
-        <div className="mt-3 rounded px-3 py-2" style={{ backgroundColor: cfg.bg, borderLeft: `3px solid ${cfg.color}` }}>
-          <div className="text-[11px] font-mono font-semibold" style={{ color: cfg.color }}>{formatShiftTime(shift.startTime)} – {formatShiftTime(shift.endTime)}</div>
-          <div className="text-[11px] font-semibold" style={{ color: cfg.color }}>{shift.label || shift.shiftType || shift.timeSlotType}</div>
-        </div>
+      {/* Content */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px' }}>
+        {mode === 'view' ? (
+          <>
+            {/* Status Badge */}
+            <div style={{ marginTop: 12, marginBottom: 12 }}>
+              <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 4, backgroundColor: sb.bg, color: sb.color }}>
+                {shift.status}
+              </span>
+            </div>
 
-        <Header>Shift Information</Header>
-        <Row label="Start Time" value={formatShiftTime(shift.startTime)} />
-        <Row label="End Time" value={formatShiftTime(shift.endTime)} />
-        <Row label="Duration" value={`${shiftDurationHours(shift)} hrs`} />
-        <Row label="Shift Type" value={shift.shiftType || shift.label || shift.timeSlotType} />
-        <Row label="Status" value={shift.status} />
+            {/* Type Card */}
+            <div style={{ borderLeft: `3px solid ${cfg.color}`, backgroundColor: cfg.bg, borderRadius: 4, padding: '10px 12px', marginBottom: 16 }}>
+              <div style={{ fontSize: 14, fontWeight: 600, color: cfg.color }}>
+                {formatShiftTime(shift.startTime)} – {formatShiftTime(shift.endTime)}
+              </div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: cfg.color, marginTop: 4 }}>
+                {shift.label || shift.shiftType || shift.timeSlotType}
+              </div>
+            </div>
 
-        <Header>Resource & Territory</Header>
-        <Row label="Service Resource" value={res?.name} />
-        <Row label="Service Territory" value={terr?.territory_name} />
+            {/* Info Rows */}
+            <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-muted)', marginBottom: 8, marginTop: 12 }}>
+              SHIFT INFORMATION
+            </div>
+            {[
+              ['Start Time', formatShiftTime(shift.startTime)],
+              ['End Time', formatShiftTime(shift.endTime)],
+              ['Date', toDateStr(new Date(shift.startTime)).split('T')[0]],
+              ['Resource', res?.name || '—'],
+              ['Role', res?.level || '—'],
+              ['Status', shift.status],
+              ['Shift Type', shift.label || shift.shiftType],
+            ].map(([k, v]) => (
+              <div key={k} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: 6, borderBottom: '1px solid var(--border)', marginBottom: 6 }}>
+                <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>{k}</span>
+                <span style={{ fontSize: 11, color: 'var(--text-secondary)', fontWeight: 500, textAlign: 'right' }}>{v}</span>
+              </div>
+            ))}
+          </>
+        ) : (
+          <>
+            {/* Edit Form */}
+            <div style={{ marginTop: 16, space: 16 }}>
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ fontSize: 11, color: 'var(--text-tertiary)', marginBottom: 4, display: 'block' }}>Shift Type</label>
+                <select value={formData.shiftType || ''} onChange={(e) => setFormData({ ...formData, shiftType: e.target.value })}
+                  className="input-field" style={{ width: '100%', padding: '8px 10px', borderRadius: 4, border: '1px solid var(--border)', backgroundColor: 'var(--bg-base)', color: 'var(--text-secondary)' }}>
+                  {Object.keys(SHIFT_TYPE_CONFIG).filter(k => k !== 'Unknown').map(k => <option key={k}>{k}</option>)}
+                </select>
+              </div>
+
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ fontSize: 11, color: 'var(--text-tertiary)', marginBottom: 4, display: 'block' }}>Date</label>
+                <input type="date" value={toDateStr(new Date(formData.startTime)).split('T')[0]}
+                  onChange={(e) => {
+                    const oldStart = new Date(formData.startTime);
+                    const newDate = new Date(e.target.value);
+                    const startHour = oldStart.getHours();
+                    const startMin = oldStart.getMinutes();
+                    newDate.setHours(startHour, startMin, 0);
+                    const startStr = newDate.toISOString();
+                    const oldEnd = new Date(formData.endTime);
+                    const endHour = oldEnd.getHours();
+                    const endMin = oldEnd.getMinutes();
+                    newDate.setHours(endHour, endMin, 0);
+                    setFormData({ ...formData, startTime: startStr, endTime: newDate.toISOString() });
+                  }}
+                  className="input-field" style={{ width: '100%', padding: '8px 10px', borderRadius: 4, border: '1px solid var(--border)', backgroundColor: 'var(--bg-base)', color: 'var(--text-secondary)' }} />
+              </div>
+
+              <div style={{ marginBottom: 16, display: 'flex', gap: 8 }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: 11, color: 'var(--text-tertiary)', marginBottom: 4, display: 'block' }}>Start Time</label>
+                  <input type="time" value={new Date(formData.startTime).toTimeString().slice(0, 5)}
+                    onChange={(e) => {
+                      const [h, m] = e.target.value.split(':');
+                      const d = new Date(formData.startTime);
+                      d.setHours(parseInt(h), parseInt(m), 0);
+                      setFormData({ ...formData, startTime: d.toISOString() });
+                    }}
+                    className="input-field" style={{ width: '100%', padding: '8px 10px', borderRadius: 4, border: '1px solid var(--border)', backgroundColor: 'var(--bg-base)', color: 'var(--text-secondary)' }} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: 11, color: 'var(--text-tertiary)', marginBottom: 4, display: 'block' }}>End Time</label>
+                  <input type="time" value={new Date(formData.endTime).toTimeString().slice(0, 5)}
+                    onChange={(e) => {
+                      const [h, m] = e.target.value.split(':');
+                      const d = new Date(formData.endTime);
+                      d.setHours(parseInt(h), parseInt(m), 0);
+                      setFormData({ ...formData, endTime: d.toISOString() });
+                    }}
+                    className="input-field" style={{ width: '100%', padding: '8px 10px', borderRadius: 4, border: '1px solid var(--border)', backgroundColor: 'var(--bg-base)', color: 'var(--text-secondary)' }} />
+                </div>
+              </div>
+
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ fontSize: 11, color: 'var(--text-tertiary)', marginBottom: 4, display: 'block' }}>Status</label>
+                <select value={formData.status} onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                  className="input-field" style={{ width: '100%', padding: '8px 10px', borderRadius: 4, border: '1px solid var(--border)', backgroundColor: 'var(--bg-base)', color: 'var(--text-secondary)' }}>
+                  {SHIFT_STATUSES.map(s => <option key={s}>{s}</option>)}
+                </select>
+              </div>
+
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ fontSize: 11, color: 'var(--text-tertiary)', marginBottom: 4, display: 'block' }}>Resource</label>
+                <select value={formData.serviceResourceId} onChange={(e) => setFormData({ ...formData, serviceResourceId: e.target.value })}
+                  className="input-field" style={{ width: '100%', padding: '8px 10px', borderRadius: 4, border: '1px solid var(--border)', backgroundColor: 'var(--bg-base)', color: 'var(--text-secondary)' }}>
+                  {SERVICE_RESOURCES.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
+                </select>
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
-      <div className="px-4 py-3 flex items-center justify-between" style={{ borderTop: '1px solid var(--border)' }}>
-        <div className="flex gap-2">
-          <button className="btn-secondary px-3 py-1.5 text-xs">Edit</button>
-          <button className="btn-primary px-3 py-1.5 text-xs">Approve</button>
-        </div>
-        <button onClick={() => navigate(`/shifts/${encodeURIComponent(shift.name)}`)}
-                className="text-xs flex items-center gap-1 hover:underline" style={{ color: 'var(--accent-dark)' }}>
-          Open Record <ExternalLink size={12} />
-        </button>
+      {/* Footer */}
+      <div style={{ borderTop: '1px solid var(--border)', padding: 16, display: 'flex', gap: 8, flexShrink: 0 }}>
+        {mode === 'view' ? (
+          <>
+            <button type="button" onClick={onEdit}
+              className="flex-1 text-sm font-semibold rounded"
+              style={{ padding: '11px 16px', backgroundColor: 'var(--accent)', color: '#1A1A1A', border: 'none', cursor: 'pointer', minHeight: 44 }}>
+              Edit Shift
+            </button>
+            <button type="button"
+              className="flex-1 text-sm font-medium rounded"
+              style={{ padding: '11px 16px', backgroundColor: 'var(--bg-light)', color: 'var(--color-danger, #C62828)', border: '1px solid var(--color-danger, #C62828)', cursor: 'pointer', minHeight: 44 }}>
+              Delete
+            </button>
+          </>
+        ) : (
+          <>
+            <button type="button" onClick={handleSave} disabled={saving}
+              className="flex-1 text-sm font-semibold rounded flex items-center justify-center gap-2"
+              style={{ padding: '11px 16px', backgroundColor: saving ? 'rgba(245,200,0,0.6)' : 'var(--accent)', color: '#1A1A1A', border: 'none', cursor: saving ? 'default' : 'pointer', minHeight: 44, opacity: saving ? 0.75 : 1 }}>
+              {saving ? <><Clock size={14} /> Saving…</> : <><Save size={14} /> Save Changes</>}
+            </button>
+            <button type="button" onClick={() => { setFormData(shift); onEdit(); }}
+              className="flex-1 text-sm font-medium rounded"
+              style={{ padding: '11px 16px', backgroundColor: 'var(--bg-light)', color: 'var(--text-secondary)', border: '1px solid var(--border)', cursor: 'pointer', minHeight: 44 }}>
+              Cancel
+            </button>
+          </>
+        )}
       </div>
-    </aside>
+    </div>
   );
 }
 
-// ── New Shift modal ──────────────────────────────────────────────────
+// ── New Shift Modal ──────────────────────────────────────────────────
 function NewShiftModal({ prefill, onClose, onCreate, existingCount }) {
   const [form, setForm] = useState({
     startTime: prefill?.startTime || `${SHIFT_GANTT_DAY}T07:00`,
@@ -659,71 +1160,68 @@ function NewShiftModal({ prefill, onClose, onCreate, existingCount }) {
     label: 'Day Shift',
     serviceTerritoryId: 'ST-0001',
     timeSlotType: 'Normal',
-    isNonStandard: false,
-    isHoliday: false,
-    recordsetFilter: '',
-    backgroundColor: '#0070D2',
-    plantLocation: 'Sangkulirang Site',
   });
-  const set = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }));
 
   const submit = () => {
     const name = `SFT-${3061104 + existingCount}`;
     onCreate({ ...form, name });
   };
 
-  const dur = (() => {
-    const s = new Date(form.startTime).getTime(), e = new Date(form.endTime).getTime();
-    return Number.isNaN(s) || Number.isNaN(e) ? 0 : Math.round(((e - s) / 3600000) * 10) / 10;
-  })();
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} onClick={onClose}>
+    <div className="fixed inset-0 z-1000 flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} onClick={onClose}>
       <div className="w-full max-w-2xl rounded-lg overflow-hidden flex flex-col max-h-[90vh]"
            style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }} onClick={(e) => e.stopPropagation()}>
         <div className="px-5 py-3 flex items-center justify-between" style={{ borderBottom: '1px solid var(--border)' }}>
-          <h2 className="text-base font-bold flex items-center gap-2" style={{ color: 'var(--text-main)' }}>
-            <Clock size={17} style={{ color: 'var(--accent-dark)' }} /> New Shift
-          </h2>
-          <button onClick={onClose} aria-label="Close" style={{ color: 'var(--text-muted)' }}><X size={18} /></button>
+          <h2 className="text-base font-bold" style={{ color: 'var(--text-main)' }}>New Shift</h2>
+          <button onClick={onClose} aria-label="Close" style={{ color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer' }}><X size={18} /></button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-5 py-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <L label="Start Time"><input type="datetime-local" className="input-field" value={form.startTime} onChange={set('startTime')} /></L>
-          <L label="End Time"><input type="datetime-local" className="input-field" value={form.endTime} onChange={set('endTime')} /></L>
-          <L label="Status"><select className="input-field" value={form.status} onChange={set('status')}>{SHIFT_STATUSES.map(s => <option key={s}>{s}</option>)}</select></L>
-          <L label="Shift Type">
-            <select className="input-field" value={form.shiftType} onChange={(e) => setForm(f => ({ ...f, shiftType: e.target.value, label: e.target.value }))}>
-              {Object.keys(SHIFT_TYPE_CONFIG).filter(k => k !== 'Unknown').map(k => <option key={k}>{k}</option>)}
-            </select>
-          </L>
-          <L label="Service Resource"><select className="input-field" value={form.serviceResourceId} onChange={set('serviceResourceId')}>{SERVICE_RESOURCES.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}</select></L>
-          <L label="Recordset Filter"><select className="input-field" value={form.recordsetFilter} onChange={set('recordsetFilter')}><option value="">None</option>{RECORDSET_FILTERS.map(s => <option key={s}>{s}</option>)}</select></L>
-
-          <div className="sm:col-span-2">
-            <div className="text-[11px] mb-2" style={{ color: 'var(--text-tertiary)' }}>Preview · {dur} hrs</div>
-            <div style={{ borderLeft: `3px solid ${SHIFT_TYPE_CONFIG[form.shiftType]?.color || '#757575'}`, backgroundColor: SHIFT_TYPE_CONFIG[form.shiftType]?.bg || 'rgba(117,117,117,0.1)', borderRadius: 4, padding: '6px 10px', display: 'inline-flex', flexDirection: 'column', gap: 2 }}>
-              <span style={{ fontFamily: 'monospace', fontSize: 10, fontWeight: 600, color: SHIFT_TYPE_CONFIG[form.shiftType]?.color }}>{`SFT-PREVIEW`}</span>
-              <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>{formatShiftTime(form.startTime)}–{formatShiftTime(form.endTime)}</span>
-              <span style={{ fontSize: 11, fontWeight: 600, color: SHIFT_TYPE_CONFIG[form.shiftType]?.color }}>{form.shiftType}</span>
-            </div>
+        <div className="flex-1 overflow-y-auto px-5 py-4">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <label>
+              <span style={{ display: 'block', fontSize: 11, marginBottom: 4, color: 'var(--text-tertiary)' }}>Shift Type</span>
+              <select value={form.shiftType} onChange={(e) => setForm({ ...form, shiftType: e.target.value })}
+                className="input-field" style={{ width: '100%', padding: '8px 10px', borderRadius: 4, border: '1px solid var(--border)', backgroundColor: 'var(--bg-base)', color: 'var(--text-secondary)' }}>
+                {Object.keys(SHIFT_TYPE_CONFIG).filter(k => k !== 'Unknown').map(k => <option key={k}>{k}</option>)}
+              </select>
+            </label>
+            <label>
+              <span style={{ display: 'block', fontSize: 11, marginBottom: 4, color: 'var(--text-tertiary)' }}>Date</span>
+              <input type="date" value={SHIFT_GANTT_DAY} className="input-field"
+                style={{ width: '100%', padding: '8px 10px', borderRadius: 4, border: '1px solid var(--border)', backgroundColor: 'var(--bg-base)', color: 'var(--text-secondary)' }} />
+            </label>
+            <label>
+              <span style={{ display: 'block', fontSize: 11, marginBottom: 4, color: 'var(--text-tertiary)' }}>Start Time</span>
+              <input type="time" value={form.startTime.split('T')[1] || '07:00'} className="input-field"
+                style={{ width: '100%', padding: '8px 10px', borderRadius: 4, border: '1px solid var(--border)', backgroundColor: 'var(--bg-base)', color: 'var(--text-secondary)' }} />
+            </label>
+            <label>
+              <span style={{ display: 'block', fontSize: 11, marginBottom: 4, color: 'var(--text-tertiary)' }}>End Time</span>
+              <input type="time" value={form.endTime.split('T')[1] || '17:00'} className="input-field"
+                style={{ width: '100%', padding: '8px 10px', borderRadius: 4, border: '1px solid var(--border)', backgroundColor: 'var(--bg-base)', color: 'var(--text-secondary)' }} />
+            </label>
+            <label>
+              <span style={{ display: 'block', fontSize: 11, marginBottom: 4, color: 'var(--text-tertiary)' }}>Status</span>
+              <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}
+                className="input-field" style={{ width: '100%', padding: '8px 10px', borderRadius: 4, border: '1px solid var(--border)', backgroundColor: 'var(--bg-base)', color: 'var(--text-secondary)' }}>
+                {SHIFT_STATUSES.map(s => <option key={s}>{s}</option>)}
+              </select>
+            </label>
+            <label>
+              <span style={{ display: 'block', fontSize: 11, marginBottom: 4, color: 'var(--text-tertiary)' }}>Resource</span>
+              <select value={form.serviceResourceId} onChange={(e) => setForm({ ...form, serviceResourceId: e.target.value })}
+                className="input-field" style={{ width: '100%', padding: '8px 10px', borderRadius: 4, border: '1px solid var(--border)', backgroundColor: 'var(--bg-base)', color: 'var(--text-secondary)' }}>
+                {SERVICE_RESOURCES.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
+              </select>
+            </label>
           </div>
         </div>
 
         <div className="px-5 py-3 flex items-center justify-end gap-2" style={{ borderTop: '1px solid var(--border)' }}>
-          <button className="btn-secondary px-4 py-2 text-sm" onClick={onClose}>Cancel</button>
-          <button className="btn-primary px-4 py-2 text-sm" onClick={submit}>Create Shift</button>
+          <button className="px-4 py-2 text-sm rounded" style={{ backgroundColor: 'var(--bg-light)', border: '1px solid var(--border)', color: 'var(--text-secondary)', cursor: 'pointer' }} onClick={onClose}>Cancel</button>
+          <button className="px-4 py-2 text-sm font-semibold rounded" style={{ backgroundColor: 'var(--accent)', color: '#1A1A1A', border: 'none', cursor: 'pointer' }} onClick={submit}>Create Shift</button>
         </div>
       </div>
     </div>
-  );
-}
-
-function L({ label, children }) {
-  return (
-    <label className="block">
-      <span className="block text-[11px] mb-1" style={{ color: 'var(--text-tertiary)' }}>{label}</span>
-      {children}
-    </label>
   );
 }
