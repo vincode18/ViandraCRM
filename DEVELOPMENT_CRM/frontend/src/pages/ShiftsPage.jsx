@@ -17,6 +17,17 @@ const COL_WIDTH = 64;
 const RES_COL = 200;
 const VIEW_MODES = ['Day', '3-Day', 'Week'];
 
+const GRID_TABLE_STYLE = {
+  borderCollapse: 'collapse',
+  width: '100%',
+  height: '100%',
+  minHeight: '100%',
+  tableLayout: 'fixed',
+  animation: 'fadeIn 300ms ease-out',
+};
+
+const RESOURCE_COL_STYLE = { width: RES_COL, minWidth: RES_COL, maxWidth: RES_COL };
+
 // ── Helpers ──────────────────────────────────────────────────────────
 function getMondayOf(date) {
   const d = new Date(date);
@@ -148,7 +159,7 @@ export default function ShiftsPage() {
   }, []);
 
   return (
-    <div className="h-full flex flex-col" style={{ backgroundColor: 'var(--bg-base)' }}>
+    <div className="h-full min-h-0 flex flex-col overflow-hidden" style={{ backgroundColor: 'var(--bg-base)' }}>
       {/* Toolbar */}
       <div className="flex items-center gap-3 px-6 py-3 flex-wrap"
            style={{ borderBottom: '1px solid var(--border)', backgroundColor: 'var(--bg-panel)' }}>
@@ -308,48 +319,54 @@ export default function ShiftsPage() {
         <div role="status" className="px-4 py-2 text-sm" style={{ backgroundColor: 'rgba(245,200,0,0.15)', color: 'var(--text-main)' }}>{toast}</div>
       )}
 
-      {/* Body — Full width grid */}
-      <div className="flex-1 overflow-hidden relative" style={{ backgroundColor: 'var(--bg-base)' }}>
+      {/* Body — full-bleed grid */}
+      <div className="flex-1 min-h-0 overflow-hidden relative" style={{ backgroundColor: 'var(--bg-base)' }}>
         {viewMode === 'Week' && (
-          <WeeklyCalendarGrid
-            weekStart={weekStart}
-            shifts={weeklyShifts}
-            resources={SERVICE_RESOURCES}
-            today={today}
-            onShiftClick={(s) => { setSelected(s); setDetailMode('view'); }}
-            onCellClick={(resourceId, dateStr) => {
-              setModalPrefill({ serviceResourceId: resourceId, startTime: `${dateStr}T08:00`, endTime: `${dateStr}T17:00` });
-              setModalOpen(true);
-            }}
-          />
+          <div className="absolute inset-0">
+            <WeeklyCalendarGrid
+              weekStart={weekStart}
+              shifts={weeklyShifts}
+              resources={SERVICE_RESOURCES}
+              today={today}
+              onShiftClick={(s) => { setSelected(s); setDetailMode('view'); }}
+              onCellClick={(resourceId, dateStr) => {
+                setModalPrefill({ serviceResourceId: resourceId, startTime: `${dateStr}T08:00`, endTime: `${dateStr}T17:00` });
+                setModalOpen(true);
+              }}
+            />
+          </div>
         )}
         {viewMode === '3-Day' && (
-          <ThreeDayCalendarGrid
-            startDate={threeDayStart}
-            shifts={weeklyShifts}
-            resources={SERVICE_RESOURCES}
-            today={today}
-            onShiftClick={(s) => { setSelected(s); setDetailMode('view'); }}
-            onCellClick={(resourceId, dateStr) => {
-              setModalPrefill({ serviceResourceId: resourceId, startTime: `${dateStr}T08:00`, endTime: `${dateStr}T17:00` });
-              setModalOpen(true);
-            }}
-          />
+          <div className="absolute inset-0">
+            <ThreeDayCalendarGrid
+              startDate={threeDayStart}
+              shifts={weeklyShifts}
+              resources={SERVICE_RESOURCES}
+              today={today}
+              onShiftClick={(s) => { setSelected(s); setDetailMode('view'); }}
+              onCellClick={(resourceId, dateStr) => {
+                setModalPrefill({ serviceResourceId: resourceId, startTime: `${dateStr}T08:00`, endTime: `${dateStr}T17:00` });
+                setModalOpen(true);
+              }}
+            />
+          </div>
         )}
         {viewMode === 'Day' && (
-          <DayGanttView
-            dayStart={dayStart}
-            shifts={shifts}
-            candidates={candidates}
-            search={search}
-            setSearch={setSearch}
-            dragCand={dragCand}
-            setDragCand={setDragCand}
-            hoverRow={hoverRow}
-            setHoverRow={setHoverRow}
-            timelineRef={timelineRef}
-            handleDrop={handleDrop}
-          />
+          <div className="absolute inset-0">
+            <DayGanttView
+              dayStart={dayStart}
+              shifts={shifts}
+              candidates={candidates}
+              search={search}
+              setSearch={setSearch}
+              dragCand={dragCand}
+              setDragCand={setDragCand}
+              hoverRow={hoverRow}
+              setHoverRow={setHoverRow}
+              timelineRef={timelineRef}
+              handleDrop={handleDrop}
+            />
+          </div>
         )}
 
         {/* Right-side detail panel */}
@@ -528,16 +545,17 @@ function getDaysInMonth(date) {
 // ── Weekly Calendar Grid ─────────────────────────────────────────────
 function WeeklyCalendarGrid({ weekStart, shifts, resources, today, onShiftClick, onCellClick }) {
   const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
+  const rowHeight = `${100 / Math.max(resources.length, 1)}%`;
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden">
-      <div className="flex-1 overflow-auto">
-        <table style={{ borderCollapse: 'collapse', minWidth: '100%', animation: 'fadeIn 300ms ease-out' }}>
+    <div className="h-full min-h-0 flex flex-col overflow-hidden">
+      <div className="flex-1 min-h-0 overflow-auto">
+        <table style={GRID_TABLE_STYLE}>
           <thead>
             <tr>
               <th style={{
                 position: 'sticky', left: 0, top: 0, zIndex: 20,
-                minWidth: 180, padding: '10px 12px',
+                ...RESOURCE_COL_STYLE, padding: '10px 12px',
                 backgroundColor: 'var(--bg-base)',
                 border: '1px solid var(--border)',
                 borderBottom: '2px solid var(--border)',
@@ -555,7 +573,7 @@ function WeeklyCalendarGrid({ weekStart, shifts, resources, today, onShiftClick,
                   <th key={i} aria-current={isToday ? 'date' : undefined}
                     style={{
                       position: 'sticky', top: 0, zIndex: 10,
-                      minWidth: 140, padding: '8px',
+                      padding: '8px',
                       textAlign: 'center', verticalAlign: 'bottom',
                       backgroundColor: isToday ? 'var(--accent-pale)' : 'var(--bg-base)',
                       border: '1px solid var(--border)',
@@ -582,10 +600,11 @@ function WeeklyCalendarGrid({ weekStart, shifts, resources, today, onShiftClick,
               const weeklyCount = shifts.filter(s => s.serviceResourceId === res.id).length;
               const initials = res.name.split(' ').filter(Boolean).map(w => w[0].toUpperCase()).slice(0, 2).join('');
               return (
-                <tr key={res.id}>
+                <tr key={res.id} style={{ height: rowHeight }}>
                   <td style={{
                     position: 'sticky', left: 0, zIndex: 10,
-                    verticalAlign: 'top', padding: 12, minWidth: 180,
+                    verticalAlign: 'top', padding: 12,
+                    ...RESOURCE_COL_STYLE,
                     backgroundColor: 'var(--bg-base)', border: '1px solid var(--border)',
                   }}>
                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
@@ -641,16 +660,17 @@ function WeeklyCalendarGrid({ weekStart, shifts, resources, today, onShiftClick,
 // ── 3-Day Calendar Grid ──────────────────────────────────────────────
 function ThreeDayCalendarGrid({ startDate, shifts, resources, today, onShiftClick, onCellClick }) {
   const days = Array.from({ length: 3 }, (_, i) => addDays(startDate, i));
+  const rowHeight = `${100 / Math.max(resources.length, 1)}%`;
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden">
-      <div className="flex-1 overflow-auto">
-        <table style={{ borderCollapse: 'collapse', minWidth: '100%', animation: 'fadeIn 300ms ease-out' }}>
+    <div className="h-full min-h-0 flex flex-col overflow-hidden">
+      <div className="flex-1 min-h-0 overflow-auto">
+        <table style={GRID_TABLE_STYLE}>
           <thead>
             <tr>
               <th style={{
                 position: 'sticky', left: 0, top: 0, zIndex: 20,
-                minWidth: 180, padding: '10px 12px',
+                ...RESOURCE_COL_STYLE, padding: '10px 12px',
                 backgroundColor: 'var(--bg-base)',
                 border: '1px solid var(--border)',
                 borderBottom: '2px solid var(--border)',
@@ -667,7 +687,7 @@ function ThreeDayCalendarGrid({ startDate, shifts, resources, today, onShiftClic
                   <th key={i} aria-current={isToday ? 'date' : undefined}
                     style={{
                       position: 'sticky', top: 0, zIndex: 10,
-                      flex: 1, minWidth: 200, padding: '8px',
+                      padding: '8px',
                       textAlign: 'center',
                       backgroundColor: isToday ? 'var(--accent-pale)' : 'var(--bg-base)',
                       border: '1px solid var(--border)',
@@ -691,10 +711,11 @@ function ThreeDayCalendarGrid({ startDate, shifts, resources, today, onShiftClic
           </thead>
           <tbody>
             {resources.map((res) => (
-              <tr key={res.id}>
+              <tr key={res.id} style={{ height: rowHeight }}>
                 <td style={{
                   position: 'sticky', left: 0, zIndex: 10,
-                  verticalAlign: 'top', padding: 12, minWidth: 180,
+                  verticalAlign: 'top', padding: 12,
+                  ...RESOURCE_COL_STYLE,
                   backgroundColor: 'var(--bg-base)', border: '1px solid var(--border)',
                 }}>
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
@@ -741,7 +762,8 @@ function DayCell({ isToday, isEmpty, dayShifts, onEmpty, onShiftClick, ariaLabel
       onMouseLeave={() => setHover(false)}
       aria-label={isEmpty ? ariaLabel : undefined}
       style={{
-        verticalAlign: 'top', padding: 6, minWidth: 140,
+        height: '100%',
+        verticalAlign: 'top', padding: 6,
         backgroundColor: isEmpty
           ? (hover ? 'var(--accent-pale)' : 'var(--bg-light)')
           : 'var(--bg-card)',
@@ -750,10 +772,9 @@ function DayCell({ isToday, isEmpty, dayShifts, onEmpty, onShiftClick, ariaLabel
         borderRight: isToday ? '2px solid var(--accent)' : undefined,
         cursor: isEmpty ? 'pointer' : 'default',
         transition: 'background 0.15s ease',
-        minHeight: 52,
       }}>
       {isEmpty ? (
-        <div style={{ minHeight: 52, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ height: '100%', minHeight: 52, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {hover && <span style={{ fontSize: 20, color: 'var(--text-muted)' }}>+</span>}
         </div>
       ) : (
@@ -813,7 +834,7 @@ function ShiftCard({ shift, onClick }) {
 // ── Legend Bar ───────────────────────────────────────────────────────
 function LegendBar() {
   return (
-    <div style={{ borderTop: '1px solid var(--border)', padding: '10px 24px 4px', marginTop: 0 }}>
+    <div className="flex-shrink-0" style={{ borderTop: '1px solid var(--border)', padding: '10px 24px', backgroundColor: 'var(--bg-base)' }}>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px 16px' }}>
         {LEGEND_ITEMS.map(({ label, key }) => {
           const cfg = SHIFT_TYPE_CONFIG[key];
@@ -837,7 +858,7 @@ function LegendBar() {
 function DayGanttView({ dayStart, shifts, candidates, search, setSearch, dragCand, setDragCand, hoverRow, setHoverRow, timelineRef, handleDrop }) {
   const [selected, setSelected] = useState(null);
   return (
-    <div className="flex-1 flex overflow-hidden">
+    <div className="h-full min-h-0 flex overflow-hidden">
       <aside className="w-72 flex-shrink-0 flex flex-col overflow-hidden"
              style={{ borderRight: '1px solid var(--border)', backgroundColor: 'var(--bg-panel)' }}>
         <div className="p-3 space-y-2" style={{ borderBottom: '1px solid var(--border)' }}>
