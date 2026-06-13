@@ -1,0 +1,78 @@
+{
+  "name": "UT Field Service",
+  "short_name": "Field Service",
+  "description": "UT Service Console - Field Service Mobile PWA",
+  "start_url": "/field-service/?source=pwa",
+  "scope": "/field-service/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#1A1A1A",
+  "theme_color": "#F5C800",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/mobile-my-jobs.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "categories": ["productivity", "business"],
+  "shortcuts": [
+    {
+      "name": "My Jobs",
+      "short_name": "Jobs",
+      "description": "View assigned work orders",
+      "url": "/field-service/jobs",
+      "icons": [
+        {
+          "src": "/icons/shortcut-jobs.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Today",
+      "short_name": "Today",
+      "description": "View today's schedule",
+      "url": "/field-service/today",
+      "icons": [
+        {
+          "src": "/icons/shortcut-today.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}

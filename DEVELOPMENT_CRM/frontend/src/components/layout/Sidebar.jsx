@@ -1,11 +1,13 @@
 import React from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { useBreakpoint } from '../../hooks/useBreakpoint';
 import {
   LayoutDashboard, FolderOpen, Wrench,
   Users, Building2, Package, BarChart2,
   ChevronRight, Filter, Clock, TrendingUp, Plus, AlertCircle,
   ArrowLeft, Clipboard, Box, Archive, ClipboardList, Calendar, FileText,
-  CalendarClock, MapPin, LayoutGrid, CheckCircle2, Factory, Map as MapIcon
+  CalendarClock, MapPin, LayoutGrid, CheckCircle2, Factory, Map as MapIcon,
+  Activity, Timer, Settings, UserCheck, DollarSign, FileText as QuoteIcon
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -15,9 +17,14 @@ const NAV_ITEMS = [
   { to: '/cases',      icon: FolderOpen,      label: 'Cases' },
   { to: '/workorders', icon: Wrench,           label: 'Work Orders' },
   { to: '/assets',     icon: Package,          label: 'Assets' },
-  { to: '/accounts',   icon: Building2,        label: 'Accounts',  disabled: true },
-  { to: '/users',      icon: Users,            label: 'Users',     adminOnly: true, disabled: true },
-  { to: '/reports',    icon: BarChart2,        label: 'Reports',   disabled: true },
+  { to: '/accounts',   icon: Building2,        label: 'Accounts' },
+  { to: '/contacts',   icon: Users,            label: 'Contacts' },
+  { to: '/opportunities', icon: TrendingUp,    label: 'Opportunities' },
+  { to: '/quotes',     icon: QuoteIcon,       label: 'Quotations' },
+  { to: '/emr',        icon: Activity,         label: 'EMR' },
+  { to: '/timesheets/approval', icon: Timer,   label: 'Timesheets' },
+  { to: '/reports',    icon: BarChart2,        label: 'Reports' },
+  { to: '/settings',   icon: Settings,         label: 'Admin Settings', adminOnly: true },
 ];
 
 const CASE_MODULE_NAV = [
@@ -152,6 +159,78 @@ const SHIFT_MODULE_NAV = [
   },
 ];
 
+const ACCOUNT_MODULE_NAV = [
+  {
+    section: 'ACCOUNTS',
+    items: [
+      { to: '/accounts', icon: Building2, label: 'All Accounts' },
+      { to: '/accounts?status=Active', icon: CheckCircle2, label: 'Active' },
+      { to: '/accounts?type=Customer', icon: Users, label: 'Customers' },
+      { to: '/accounts?type=Partner', icon: Users, label: 'Partners' },
+    ]
+  },
+  {
+    section: 'QUICK LINKS',
+    items: [
+      { to: '/contacts', icon: Users, label: 'Contacts' },
+      { to: '/cases', icon: FolderOpen, label: 'Cases' },
+    ]
+  },
+];
+
+const CONTACT_MODULE_NAV = [
+  {
+    section: 'CONTACTS',
+    items: [
+      { to: '/contacts', icon: Users, label: 'All Contacts' },
+      { to: '/contacts?status=Active', icon: CheckCircle2, label: 'Active' },
+      { to: '/contacts?role=Technician', icon: Users, label: 'Technicians' },
+    ]
+  },
+  {
+    section: 'QUICK LINKS',
+    items: [
+      { to: '/accounts', icon: Building2, label: 'Accounts' },
+    ]
+  },
+];
+
+const EMR_MODULE_NAV = [
+  {
+    section: 'EMR',
+    items: [
+      { to: '/emr', icon: Activity, label: 'All EMRs' },
+      { to: '/emr?status=Open', icon: Clock, label: 'Open' },
+      { to: '/emr?status=In Progress', icon: TrendingUp, label: 'In Progress' },
+      { to: '/emr?status=Submit EMR', icon: CheckCircle2, label: 'Submitted' },
+      { to: '/emr?status=Closed', icon: Archive, label: 'Closed' },
+    ]
+  },
+  {
+    section: 'QUICK LINKS',
+    items: [
+      { to: '/workorders', icon: Wrench, label: 'Work Orders' },
+      { to: '/assets', icon: Package, label: 'Assets' },
+    ]
+  },
+];
+
+const TIMESHEET_MODULE_NAV = [
+  {
+    section: 'TIMESHEETS',
+    items: [
+      { to: '/timesheets/approval', icon: Timer, label: 'Approval Queue' },
+      { to: '/workorders', icon: Wrench, label: 'Work Orders' },
+    ]
+  },
+  {
+    section: 'QUICK LINKS',
+    items: [
+      { to: '/fieldservice', icon: MapPin, label: 'Dispatch Console' },
+    ]
+  },
+];
+
 const ASSET_MODULE_NAV = [
   {
     section: 'ASSET MANAGEMENT',
@@ -171,11 +250,23 @@ const ASSET_MODULE_NAV = [
   },
 ];
 
-export default function Sidebar({ isOpen }) {
+export default function Sidebar({ isOpen, mode }) {
   const { user } = useAuth();
   const { currentModule } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
+  const breakpoint = useBreakpoint();
+
+  // Determine sidebar mode based on breakpoint if not explicitly provided
+  const sidebarMode = mode || (breakpoint === 'mobile' ? 'hidden' : breakpoint === 'tablet' ? 'rail' : 'full');
+
+  // On mobile, sidebar is always hidden (replaced by bottom nav)
+  if (breakpoint === 'mobile') {
+    return null;
+  }
+
+  // Determine width based on mode
+  const sidebarWidth = sidebarMode === 'rail' ? 'w-16' : 'w-60';
 
   // Detect if we're on a case detail page: /cases/:id (but not /cases/new or /cases/:id/edit)
   const caseDetailMatch = location.pathname.match(/^\/cases\/([^/]+)$/);
@@ -190,18 +281,34 @@ export default function Sidebar({ isOpen }) {
   const isServiceArea = /^\/(plants|workcenters|territories)/.test(path);
   const isShift = /^\/shifts/.test(path);
   const isAsset = /^\/assets/.test(path);
-  const effectiveModule = isServiceArea ? 'plant' : isShift ? 'shift' : isAsset ? 'asset' : currentModule;
+  const isAccount = /^\/accounts/.test(path);
+  const isContact = /^\/contacts/.test(path);
+  const isEMR = /^\/emr/.test(path);
+  const isTimesheet = /^\/timesheets/.test(path);
+  const isSettings = /^\/(settings|admin)/.test(path);
+  const effectiveModule = isServiceArea ? 'plant'
+    : isShift ? 'shift'
+    : isAsset ? 'asset'
+    : isAccount ? 'account'
+    : isContact ? 'contact'
+    : isEMR ? 'emr'
+    : isTimesheet ? 'timesheet'
+    : isSettings ? 'settings'
+    : currentModule;
 
   return (
     <aside
       aria-label="Sidebar navigation"
       className={`fixed top-16 left-0 h-[calc(100vh-4rem)]
                   flex flex-col z-30 transition-all duration-200 overflow-hidden
-                  ${isOpen ? 'w-60' : 'w-0 md:w-0'}`}
+                  ${sidebarWidth}`}
       style={{ backgroundColor: 'var(--bg-panel)', borderRight: '1px solid var(--border)' }}
     >
       <nav className="flex-1 overflow-y-auto py-4 px-3" aria-label="Main navigation">
-        {isCaseDetail ? (
+        {sidebarMode === 'rail' ? (
+          // Rail mode - icons only
+          <RailNav navigate={navigate} currentModule={currentModule} />
+        ) : isCaseDetail ? (
           // Case Detail Sidebar (FRD v2.0)
           <CaseDetailSidebar navigate={navigate} />
         ) : isWorkOrderDetail ? (
@@ -283,6 +390,86 @@ export default function Sidebar({ isOpen }) {
                            : 'text-gray-400 hover:bg-brand-card hover:text-white'}`
                       }
                     >
+                      <Icon size={16} aria-hidden="true" className="shrink-0" />
+                      <span className="truncate">{label}</span>
+                    </NavLink>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        ) : effectiveModule === 'account' ? (
+          ACCOUNT_MODULE_NAV.map((navSection) => (
+            <div key={navSection.section} className="mb-4">
+              <p className="text-[10px] font-semibold uppercase tracking-widest px-3 mb-2" style={{ color: 'var(--text-muted)' }}>
+                {navSection.section}
+              </p>
+              <ul className="space-y-0.5">
+                {navSection.items.map(({ to, icon: Icon, label }) => (
+                  <li key={label}>
+                    <NavLink to={to} className={({ isActive }) =>
+                      `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150 group
+                       ${isActive ? 'bg-brand-blue/15 text-brand-blue font-semibold border border-brand-blue/20' : 'text-gray-400 hover:bg-brand-card hover:text-white'}`}>
+                      <Icon size={16} aria-hidden="true" className="shrink-0" />
+                      <span className="truncate">{label}</span>
+                    </NavLink>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        ) : effectiveModule === 'contact' ? (
+          CONTACT_MODULE_NAV.map((navSection) => (
+            <div key={navSection.section} className="mb-4">
+              <p className="text-[10px] font-semibold uppercase tracking-widest px-3 mb-2" style={{ color: 'var(--text-muted)' }}>
+                {navSection.section}
+              </p>
+              <ul className="space-y-0.5">
+                {navSection.items.map(({ to, icon: Icon, label }) => (
+                  <li key={label}>
+                    <NavLink to={to} className={({ isActive }) =>
+                      `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150 group
+                       ${isActive ? 'bg-brand-blue/15 text-brand-blue font-semibold border border-brand-blue/20' : 'text-gray-400 hover:bg-brand-card hover:text-white'}`}>
+                      <Icon size={16} aria-hidden="true" className="shrink-0" />
+                      <span className="truncate">{label}</span>
+                    </NavLink>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        ) : effectiveModule === 'emr' ? (
+          EMR_MODULE_NAV.map((navSection) => (
+            <div key={navSection.section} className="mb-4">
+              <p className="text-[10px] font-semibold uppercase tracking-widest px-3 mb-2" style={{ color: 'var(--text-muted)' }}>
+                {navSection.section}
+              </p>
+              <ul className="space-y-0.5">
+                {navSection.items.map(({ to, icon: Icon, label }) => (
+                  <li key={label}>
+                    <NavLink to={to} className={({ isActive }) =>
+                      `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150 group
+                       ${isActive ? 'bg-brand-blue/15 text-brand-blue font-semibold border border-brand-blue/20' : 'text-gray-400 hover:bg-brand-card hover:text-white'}`}>
+                      <Icon size={16} aria-hidden="true" className="shrink-0" />
+                      <span className="truncate">{label}</span>
+                    </NavLink>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        ) : effectiveModule === 'timesheet' ? (
+          TIMESHEET_MODULE_NAV.map((navSection) => (
+            <div key={navSection.section} className="mb-4">
+              <p className="text-[10px] font-semibold uppercase tracking-widest px-3 mb-2" style={{ color: 'var(--text-muted)' }}>
+                {navSection.section}
+              </p>
+              <ul className="space-y-0.5">
+                {navSection.items.map(({ to, icon: Icon, label }) => (
+                  <li key={label}>
+                    <NavLink to={to} className={({ isActive }) =>
+                      `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150 group
+                       ${isActive ? 'bg-brand-blue/15 text-brand-blue font-semibold border border-brand-blue/20' : 'text-gray-400 hover:bg-brand-card hover:text-white'}`}>
                       <Icon size={16} aria-hidden="true" className="shrink-0" />
                       <span className="truncate">{label}</span>
                     </NavLink>
@@ -375,6 +562,28 @@ export default function Sidebar({ isOpen }) {
               </ul>
             </div>
           ))
+        ) : effectiveModule === 'settings' ? (
+          <>
+            <p className="text-[10px] font-semibold uppercase tracking-widest px-3 mb-3" style={{ color: 'var(--text-muted)' }}>
+              Admin Settings
+            </p>
+            <ul className="space-y-0.5">
+              {[
+                { to: '/settings', label: 'Field Access — By Role', icon: Settings },
+                { to: '/settings', label: 'Users List', icon: Users },
+                { to: '/settings', label: 'Organization', icon: Building2 },
+              ].map(({ to, label, icon: Icon }) => (
+                <li key={label}>
+                  <NavLink to={to} className={({ isActive }) =>
+                    `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150
+                     ${isActive ? 'bg-brand-blue/15 text-brand-blue font-semibold border border-brand-blue/20' : 'text-gray-400 hover:bg-brand-card hover:text-white'}`}>
+                    <Icon size={16} aria-hidden="true" className="shrink-0" />
+                    <span className="truncate">{label}</span>
+                  </NavLink>
+                </li>
+              ))}
+            </ul>
+          </>
         ) : currentModule === 'workorder' ? (
           // Work Order Module Navigation
           WORK_ORDER_MODULE_NAV.map((navSection) => (
@@ -449,23 +658,70 @@ export default function Sidebar({ isOpen }) {
 
       {/* User info footer */}
       <div className="p-4" style={{ borderTop: '1px solid var(--border)' }}>
-        <div className="flex items-center gap-3">
-          <div
-            className="w-8 h-8 rounded-full bg-brand-blue flex items-center justify-center
-                       text-white text-xs font-bold shrink-0"
-            aria-hidden="true"
-          >
-            {`${user?.firstName?.[0] ?? ''}${user?.lastName?.[0] ?? ''}`.toUpperCase() || 'U'}
+        {sidebarMode === 'rail' ? (
+          <div className="flex justify-center">
+            <div
+              className="w-8 h-8 rounded-full flex items-center justify-center
+                         text-white text-xs font-bold"
+              style={{ backgroundColor: 'var(--accent)' }}
+              aria-hidden="true"
+              title={`${user?.firstName} ${user?.lastName}`}
+            >
+              {`${user?.firstName?.[0] ?? ''}${user?.lastName?.[0] ?? ''}`.toUpperCase() || 'U'}
+            </div>
           </div>
-          <div className="min-w-0">
-            <p className="text-sm font-medium truncate" style={{ color: 'var(--text-main)' }}>
-              {user?.firstName} {user?.lastName}
-            </p>
-            <p className="text-xs truncate" style={{ color: 'var(--text-muted)' }}>{user?.role}</p>
+        ) : (
+          <div className="flex items-center gap-3">
+            <div
+              className="w-8 h-8 rounded-full bg-brand-blue flex items-center justify-center
+                         text-white text-xs font-bold shrink-0"
+              aria-hidden="true"
+            >
+              {`${user?.firstName?.[0] ?? ''}${user?.lastName?.[0] ?? ''}`.toUpperCase() || 'U'}
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-medium truncate" style={{ color: 'var(--text-main)' }}>
+                {user?.firstName} {user?.lastName}
+              </p>
+              <p className="text-xs truncate" style={{ color: 'var(--text-muted)' }}>{user?.role}</p>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </aside>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Rail Navigation (Icons Only)                                         */
+/* ------------------------------------------------------------------ */
+function RailNav({ navigate, currentModule }) {
+  const railItems = [
+    { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+    { to: '/cases', icon: FolderOpen, label: 'Cases' },
+    { to: '/workorders', icon: Wrench, label: 'Work Orders' },
+    { to: '/assets', icon: Package, label: 'Assets' },
+    { to: '/accounts', icon: Building2, label: 'Accounts' },
+    { to: '/contacts', icon: Users, label: 'Contacts' },
+    { to: '/reports', icon: BarChart2, label: 'Reports' },
+  ];
+
+  return (
+    <div className="flex flex-col items-center space-y-4">
+      {railItems.map(({ to, icon: Icon, label }) => (
+        <NavLink
+          key={to}
+          to={to}
+          className={({ isActive }) =>
+            `p-2 rounded-lg transition-all duration-150 group
+             ${isActive ? 'bg-brand-blue/15 text-brand-blue' : 'text-gray-400 hover:bg-brand-card hover:text-white'}`
+          }
+          title={label}
+        >
+          <Icon size={20} aria-hidden="true" />
+        </NavLink>
+      ))}
+    </div>
   );
 }
 

@@ -1,0 +1,162 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   Quote Mock Data
+   Sample quotes for the Quotation module
+   ───────────────────────────────────────────────────────────────────────── */
+
+const QUOTES = [
+  {
+    id: 'qt-001',
+    name: 'Q-2026-001',
+    opportunityId: 'opp-001',
+    opportunityName: 'Acme Corp — Q3 Expansion Deal',
+    accountId: 'acc-001',
+    accountName: 'Acme Corporation',
+    contactId: 'con-001',
+    contactName: 'Sarah Lin',
+    status: 'Pending Approval',
+    version: 2,
+    expirationDate: '2026-07-30',
+    subtotal: 45000,
+    discount: 5,
+    tax: 2700,
+    shippingHandling: 800,
+    grandTotal: 48500,
+    currencyIsoCode: 'USD',
+    internalNotes: 'Customer requested expedited delivery option',
+    submittedBy: 'user-001',
+    submittedAt: '2026-06-10T14:30:00Z',
+    reviewedBy: null,
+    reviewedAt: null,
+    approvalComments: '',
+    rejectionReason: '',
+    isSyncing: false,
+    createdAt: '2026-06-08T10:00:00Z',
+    updatedAt: '2026-06-10T14:30:00Z',
+    createdBy: 'user-001',
+    lineItems: [
+      { id: 'qli-001', productId: 'prod-001', productName: 'HVAC System Model X-500', sku: 'HV-X500', quantity: 2, unitPrice: 20000, discount: 5, total: 38000 },
+      { id: 'qli-002', productId: 'prod-002', productName: 'Installation Labor Package', sku: 'LB-004', quantity: 1, unitPrice: 12000, discount: 0, total: 12000 },
+      { id: 'qli-003', productId: 'prod-003', productName: 'Extended Warranty (2 years)', sku: 'WR-002', quantity: 1, unitPrice: 5000, discount: 0, total: 5000 },
+    ],
+  },
+  {
+    id: 'qt-002',
+    name: 'Q-2026-002',
+    opportunityId: 'opp-005',
+    opportunityName: 'Green Energy — Solar Integration Project',
+    accountId: 'acc-005',
+    accountName: 'Green Energy Systems',
+    contactId: 'con-005',
+    contactName: 'Thomas Green',
+    status: 'Approved',
+    version: 1,
+    expirationDate: '2026-08-15',
+    subtotal: 170000,
+    discount: 3,
+    tax: 10200,
+    shippingHandling: 8800,
+    grandTotal: 189000,
+    currencyIsoCode: 'USD',
+    internalNotes: '',
+    submittedBy: 'user-002',
+    submittedAt: '2026-06-05T10:00:00Z',
+    reviewedBy: 'user-admin',
+    reviewedAt: '2026-06-08T14:00:00Z',
+    approvalComments: 'Approved as submitted. Good pricing alignment.',
+    rejectionReason: '',
+    isSyncing: true,
+    createdAt: '2026-06-01T09:00:00Z',
+    updatedAt: '2026-06-08T14:00:00Z',
+    createdBy: 'user-002',
+    lineItems: [
+      { id: 'qli-004', productId: 'prod-004', productName: 'Solar HVAC Controller', sku: 'SOL-CTRL', quantity: 5, unitPrice: 30000, discount: 3, total: 145500 },
+      { id: 'qli-005', productId: 'prod-005', productName: 'Battery Storage Unit', sku: 'BAT-100', quantity: 2, unitPrice: 10000, discount: 0, total: 20000 },
+      { id: 'qli-006', productId: 'prod-006', productName: 'Installation & Commissioning', sku: 'LB-SOL', quantity: 1, unitPrice: 15000, discount: 0, total: 15000 },
+    ],
+  },
+  {
+    id: 'qt-003',
+    name: 'Q-2026-003',
+    opportunityId: 'opp-002',
+    opportunityName: 'TechGlobal — Annual Maintenance Contract',
+    accountId: 'acc-002',
+    accountName: 'TechGlobal Solutions',
+    contactId: 'con-002',
+    contactName: 'Michael Chen',
+    status: 'Draft',
+    version: 1,
+    expirationDate: '2026-08-10',
+    subtotal: 115000,
+    discount: 8,
+    tax: 6900,
+    shippingHandling: 3100,
+    grandTotal: 125000,
+    currencyIsoCode: 'USD',
+    internalNotes: 'Pricing needs final approval from finance',
+    submittedBy: null,
+    submittedAt: null,
+    reviewedBy: null,
+    reviewedAt: null,
+    approvalComments: '',
+    rejectionReason: '',
+    isSyncing: false,
+    createdAt: '2026-06-10T09:00:00Z',
+    updatedAt: '2026-06-10T09:00:00Z',
+    createdBy: 'user-002',
+    lineItems: [
+      { id: 'qli-007', productId: 'prod-007', productName: 'Annual Maintenance Package - Gold', sku: 'AM-GOLD', quantity: 1, unitPrice: 100000, discount: 8, total: 92000 },
+      { id: 'qli-008', productId: 'prod-008', productName: 'Emergency Response Add-on', sku: 'ER-ADD', quantity: 1, unitPrice: 15000, discount: 0, total: 15000 },
+      { id: 'qli-009', productId: 'prod-009', productName: 'Spare Parts Kit', sku: 'SP-KIT', quantity: 1, unitPrice: 8000, discount: 0, total: 8000 },
+    ],
+  },
+  {
+    id: 'qt-004',
+    name: 'Q-2026-004',
+    opportunityId: 'opp-001',
+    opportunityName: 'Acme Corp — Q3 Expansion Deal',
+    accountId: 'acc-001',
+    accountName: 'Acme Corporation',
+    contactId: 'con-001',
+    contactName: 'Sarah Lin',
+    status: 'Rejected',
+    version: 1,
+    expirationDate: '2026-07-15',
+    subtotal: 52000,
+    discount: 0,
+    tax: 3120,
+    shippingHandling: 1200,
+    grandTotal: 56320,
+    currencyIsoCode: 'USD',
+    internalNotes: '',
+    submittedBy: 'user-001',
+    submittedAt: '2026-06-05T10:00:00Z',
+    reviewedBy: 'user-admin',
+    reviewedAt: '2026-06-08T10:00:00Z',
+    approvalComments: '',
+    rejectionReason: 'Unit prices exceed approved vendor list by 12% for parts. Revise to list prices.',
+    isSyncing: false,
+    createdAt: '2026-06-01T08:00:00Z',
+    updatedAt: '2026-06-08T10:00:00Z',
+    createdBy: 'user-001',
+    lineItems: [
+      { id: 'qli-010', productId: 'prod-001', productName: 'HVAC System Model X-500', sku: 'HV-X500', quantity: 2, unitPrice: 24000, discount: 0, total: 48000 },
+      { id: 'qli-011', productId: 'prod-002', productName: 'Installation Labor Package', sku: 'LB-004', quantity: 1, unitPrice: 13200, discount: 0, total: 13200 },
+    ],
+  },
+];
+
+export function getQuoteById(id) {
+  return QUOTES.find(q => q.id === id);
+}
+
+export function getQuotes() {
+  return QUOTES;
+}
+
+export function getQuotesByOpportunity(opportunityId) {
+  return QUOTES.filter(q => q.opportunityId === opportunityId);
+}
+
+export function getQuotesByStatus(status) {
+  return QUOTES.filter(q => q.status === status);
+}

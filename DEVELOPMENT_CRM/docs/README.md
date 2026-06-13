@@ -217,3 +217,80 @@ npm run dev
 ```
 
 Then open: **http://localhost:3000**
+
+---
+
+## 10 — Supabase Integration (Dynamic Data)
+
+The application now supports **Supabase PostgreSQL backend** for dynamic data with graceful fallback to mock data.
+
+### Quick Setup
+
+1. **Add credentials to `frontend/.env.local`:**
+   ```env
+   VITE_SUPABASE_URL=https://bfaxkqzkccwryibyronw.supabase.co
+   VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmYXhrcXprY2N3cnlpYnlyb253Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNDM2NzEsImV4cCI6MjA5NTYxOTY3MX0.YkdG6YWGOfp0juC8vldK-7UE3WLRLzp64opWvogA8-M
+   ```
+
+2. **Run database migration:**
+   - Go to https://supabase.com/dashboard
+   - Select project: `bfaxkqzkccwryibyronw`
+   - Go to **SQL Editor**
+   - Copy contents of `docs/SUPABASE_MIGRATION.sql`
+   - Paste and run
+
+3. **Create storage bucket:**
+   - Go to **Storage** in Supabase Dashboard
+   - Create bucket named `emr-photos`
+   - Set to Public
+
+4. **Test:**
+   ```bash
+   npm run dev
+   ```
+   - Go to EMR page
+   - Should load data from Supabase (no "(Mock Data)" badge)
+
+### Documentation
+
+- **YOUR_PROJECT_SETUP.md** — Quick start with your credentials
+- **SETUP_GUIDE.md** — Detailed step-by-step setup
+- **SUPABASE_MIGRATION.sql** — Database schema (run in SQL Editor)
+- **DEPLOYMENT_CHECKLIST.md** — Pre-deployment verification
+- **QUICK_REFERENCE.md** — API reference
+
+### Features
+
+✅ **Graceful Fallback** — Works with or without Supabase  
+✅ **Real-time Updates** — Live subscriptions to data changes  
+✅ **File Upload** — EMILA photos to Supabase Storage  
+✅ **Row-Level Security** — Organization isolation via RLS  
+✅ **Bulk Operations** — Bulk approve timesheets  
+✅ **Error Handling** — Automatic fallback to mock data  
+
+### Architecture
+
+```
+Frontend (React)
+    ↓
+Service Layer (emrService, timesheetService)
+    ↓
+Supabase Client (supabaseClient.js)
+    ↓
+Supabase Backend (PostgreSQL + RLS)
+    ↓
+Fallback: Mock Data (if unavailable)
+```
+
+### Tables Created
+
+- `emr` — Equipment Maintenance Reports
+- `emr_additional_groups` — EMR document groups
+- `emila_photos` — EMILA structured photos
+- `emr_history` — EMR audit trail
+- `timesheet` — Time sheet records
+- `timesheet_entry` — Individual entries
+- `task_list_item` — Work order tasks
+- `work_order` — Work orders
+
+All with RLS policies, indexes, and real-time subscriptions enabled.

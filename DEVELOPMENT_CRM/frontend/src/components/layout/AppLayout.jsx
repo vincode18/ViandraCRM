@@ -2,10 +2,16 @@ import React, { useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import GlobalHeader from './GlobalHeader';
 import Sidebar from './Sidebar';
+import WorkspaceTabBar from '../tabs/WorkspaceTabBar';
+import SubtabBar from '../tabs/SubtabBar';
+import { useTabs } from '../../contexts/TabContext';
+import { useTabKeyboardShortcuts } from '../../hooks/useTabKeyboardShortcuts';
 
 export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const location = useLocation();
+  const { activeTab } = useTabs();
+  useTabKeyboardShortcuts();
   const isCaseDetail = /^\/cases\/[^/]+$/.test(location.pathname) && location.pathname !== '/cases/new';
   const isWorkOrderDetail = /^\/workorders\/[^/]+$/.test(location.pathname) && location.pathname !== '/workorders/new';
   const isFieldService = location.pathname === '/fieldservice';
@@ -16,6 +22,12 @@ export default function AppLayout() {
   return (
     <div className="flex flex-col min-h-screen" style={{ backgroundColor: 'var(--bg-base)', color: 'var(--text-main)' }}>
       <GlobalHeader onMenuToggle={() => setSidebarOpen(v => !v)} />
+
+      {/* Workspace Tab Bar */}
+      <WorkspaceTabBar />
+
+      {/* Subtab Bar - scoped to active workspace tab */}
+      {activeTab && <SubtabBar workspaceTabId={activeTab.id} />}
 
       <div className="flex flex-1 overflow-hidden">
         <Sidebar isOpen={sidebarOpen} />

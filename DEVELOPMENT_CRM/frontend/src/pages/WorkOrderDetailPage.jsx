@@ -3,12 +3,17 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   Edit, ChevronDown, RefreshCw, MapPin, Phone, Mail, User, Calendar,
   Clock, FileText, ClipboardList, Wrench, Package, AlertCircle, MoreVertical,
-  ChevronRight, CheckCircle, AlertTriangle, Plus, CalendarClock
+  ChevronRight, CheckCircle, AlertTriangle, Plus, CalendarClock,
+  ListChecks, Timer, ChevronUp, ExternalLink
 } from 'lucide-react';
 import api from '../utils/api';
 import BookAppointmentModal from '../components/BookAppointmentModal';
 import SAStatusBadge from '../components/SAStatusBadge';
 import { formatDateTime } from '../utils/saData';
+import {
+  taskListItemsByWO, timesheetsByWO, entriesByTimesheet,
+  OPERATION_STATUS_TOKENS, TSE_STATUS_TOKENS
+} from '../utils/taskData';
 
 // Work Order Status Mapping (UIC-001)
 const WO_STATUS_MAPPING = {
@@ -56,6 +61,295 @@ function InfoField({ label, value }) {
     <div>
       <span className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{label}</span>
       <div className="text-sm mt-0.5">{value}</div>
+    </div>
+  );
+}
+
+/* ─── Task List Tab ─────────────────────────────────────────────────── */
+function OperationStatusChip({ status }) {
+  const t = OPERATION_STATUS_TOKENS[status] || OPERATION_STATUS_TOKENS['Not Started'];
+  return (
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium"
+      style={{ backgroundColor: t.bg, color: t.text, border: `1px solid ${t.text}40` }}>
+      <span style={{ fontSize: 9 }}>{t.icon}</span> {status}
+    </span>
+  );
+}
+
+function TaskListTab({ workOrderId, navigate }) {
+  const items = taskListItemsByWO(workOrderId);
+  const [sortField, setSortField] = useState('operationNumber');
+  const [showNewModal, setShowNewModal] = useState(false);
+
+  const sorted = [...items].sort((a, b) =>
+    a[sortField]?.localeCompare?.(b[sortField]) ?? 0
+  );
+
+  const completed = items.filter(i => i.status === 'Completed').length;
+  const total = items.length;
+
+  return (
+    <div className="space-y-4">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-base font-semibold" style={{ color: 'var(--text-main)' }}>Task List</h3>
+          <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+            {completed}/{total} operations completed
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <button onClick={() => setSortField(sortField === 'operationNumber' ? 'status' : 'operationNumber')}
+            className="text-xs px-3 py-1.5 rounded flex items-center gap-1"
+            style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
+            <ListChecks size={13} /> Sort by {sortField === 'operationNumber' ? 'Status' : 'Op#'}
+          </button>
+          <button onClick={() => setShowNewModal(true)}
+            className="text-xs px-3 py-1.5 rounded flex items-center gap-1 font-semibold"
+            style={{ backgroundColor: 'var(--accent)', color: '#1a1a1a' }}>
+            <Plus size={13} /> New Task
+          </button>
+        </div>
+      </div>
+
+      {/* Progress Bar */}
+      <div className="rounded-lg p-4" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+        <div className="flex items-center justify-between text-xs mb-2">
+          <span style={{ color: 'var(--text-muted)' }}>Progress</span>
+          <span style={{ color: 'var(--text-secondary)' }}>{total > 0 ? Math.round((completed / total) * 100) : 0}%</span>
+        </div>
+        <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: 'var(--bg-base)' }}>
+          <div className="h-full rounded-full transition-all"
+            style={{ width: `${total > 0 ? (completed / total) * 100 : 0}%`, backgroundColor: '#34C759' }} />
+        </div>
+      </div>
+
+      {/* Operations Table */}
+      {sorted.length === 0 ? (
+        <div className="rounded-lg p-8 text-center" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+          <ListChecks size={32} className="mx-auto mb-3" style={{ color: 'var(--text-muted)' }} />
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>No task list items found for this Work Order.</p>
+          <button onClick={() => setShowNewModal(true)} className="mt-3 text-xs px-3 py-1.5 rounded font-semibold"
+            style={{ backgroundColor: 'var(--accent)', color: '#1a1a1a' }}>+ Add First Task</button>
+        </div>
+      ) : (
+        <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+          <table className="w-full text-sm">
+            <thead>
+              <tr style={{ backgroundColor: 'var(--bg-card)', borderBottom: '1px solid var(--border)' }}>
+                {['Op #', 'Description', 'Duration', 'Status', 'Start Time', 'Complete Time', ''].map(h => (
+                  <th key={h} className="text-left px-3 py-2.5 text-[10px] font-bold uppercase tracking-wider"
+                    style={{ color: 'var(--text-muted)' }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {sorted.map((item, idx) => (
+                <tr key={item.id}
+                  className="border-b transition-colors"
+                  style={{ borderColor: 'var(--border)', backgroundColor: idx % 2 === 0 ? 'var(--bg-base)' : 'var(--bg-card)' }}
+                  onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--bg-light)'}
+                  onMouseLeave={e => e.currentTarget.style.backgroundColor = idx % 2 === 0 ? 'var(--bg-base)' : 'var(--bg-card)'}
+                >
+                  <td className="px-3 py-2.5 font-mono text-xs" style={{ color: 'var(--text-muted)' }}>{item.operationNumber}</td>
+                  <td className="px-3 py-2.5">
+                    <div className="font-medium text-sm" style={{ color: 'var(--text-main)' }}>{item.description}</div>
+                    {item.isSAPOverride && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded mt-0.5 inline-block"
+                        style={{ backgroundColor: 'rgba(74,144,226,0.1)', color: '#4A90E2' }}>Override</span>
+                    )}
+                  </td>
+                  <td className="px-3 py-2.5 text-xs" style={{ color: 'var(--text-secondary)' }}>{item.duration} {item.uom}</td>
+                  <td className="px-3 py-2.5"><OperationStatusChip status={item.status} /></td>
+                  <td className="px-3 py-2.5 text-xs" style={{ color: 'var(--text-tertiary)' }}>
+                    {item.startTime ? new Date(item.startTime).toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—'}
+                  </td>
+                  <td className="px-3 py-2.5 text-xs" style={{ color: 'var(--text-tertiary)' }}>
+                    {item.completeTime ? new Date(item.completeTime).toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—'}
+                  </td>
+                  <td className="px-3 py-2.5">
+                    <button className="text-[10px] px-2 py-1 rounded" style={{ backgroundColor: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>View</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* New Task Modal */}
+      {showNewModal && (
+        <NewTaskModal onClose={() => setShowNewModal(false)} />
+      )}
+    </div>
+  );
+}
+
+function NewTaskModal({ onClose }) {
+  const [desc, setDesc] = useState('');
+  const [dur, setDur] = useState('');
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      <div className="w-full max-w-md rounded-xl p-6 shadow-2xl"
+        style={{ backgroundColor: 'var(--bg-panel)', border: '1px solid var(--border)' }}>
+        <h3 className="text-base font-bold mb-4" style={{ color: 'var(--text-main)' }}>Add Manual Task</h3>
+        <div className="space-y-3">
+          <div>
+            <label className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Description *</label>
+            <input value={desc} onChange={e => setDesc(e.target.value)}
+              className="mt-1 w-full text-sm rounded-lg px-3 py-2"
+              style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-main)' }}
+              placeholder="Task description" />
+          </div>
+          <div>
+            <label className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Estimated Duration (H)</label>
+            <input type="number" value={dur} onChange={e => setDur(e.target.value)}
+              className="mt-1 w-full text-sm rounded-lg px-3 py-2"
+              style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-main)' }}
+              placeholder="0" />
+          </div>
+          <div className="bg-yellow-500/10 rounded-lg p-3 text-xs" style={{ color: '#8B7500' }}>
+            ⚠ This will create a manual task item. Manual items are marked with an Override badge.
+          </div>
+        </div>
+        <div className="flex gap-2 mt-5 justify-end">
+          <button onClick={onClose} className="px-4 py-2 rounded text-sm"
+            style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>Cancel</button>
+          <button onClick={onClose} disabled={!desc}
+            className="px-4 py-2 rounded text-sm font-semibold disabled:opacity-40"
+            style={{ backgroundColor: 'var(--accent)', color: '#1a1a1a' }}>Add Task</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Timesheet Tab ──────────────────────────────────────────────────── */
+function TSEStatusChip({ status }) {
+  const t = TSE_STATUS_TOKENS[status] || TSE_STATUS_TOKENS['Draft'];
+  return (
+    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
+      style={{ backgroundColor: t.bg, color: t.text, border: `1px solid ${t.border}` }}>
+      {t.label}
+    </span>
+  );
+}
+
+function TimesheetTab({ workOrderId, navigate }) {
+  const sheets = timesheetsByWO(workOrderId);
+  const [expandedId, setExpandedId] = useState(null);
+
+  if (sheets.length === 0) {
+    return (
+      <div className="rounded-lg p-8 text-center" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+        <Timer size={32} className="mx-auto mb-3" style={{ color: 'var(--text-muted)' }} />
+        <p className="text-sm" style={{ color: 'var(--text-muted)' }}>No timesheet entries found for this Work Order.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="text-base font-semibold" style={{ color: 'var(--text-main)' }}>Time Sheet Entries</h3>
+        <button onClick={() => navigate('/timesheets/approval')}
+          className="text-xs px-3 py-1.5 rounded flex items-center gap-1 font-semibold"
+          style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
+          <ExternalLink size={12} /> Approval Queue
+        </button>
+      </div>
+
+      <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+        <table className="w-full text-sm">
+          <thead>
+            <tr style={{ backgroundColor: 'var(--bg-card)', borderBottom: '1px solid var(--border)' }}>
+              {['Timesheet ID', 'Resource', 'Date', 'Duration', 'Status', 'SAP Posted', ''].map(h => (
+                <th key={h} className="text-left px-3 py-2.5 text-[10px] font-bold uppercase tracking-wider"
+                  style={{ color: 'var(--text-muted)' }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {sheets.map((sheet, idx) => {
+              const entries = entriesByTimesheet(sheet.id);
+              const isExpanded = expandedId === sheet.id;
+              return (
+                <React.Fragment key={sheet.id}>
+                  <tr className="border-b transition-colors cursor-pointer"
+                    style={{ borderColor: 'var(--border)', backgroundColor: idx % 2 === 0 ? 'var(--bg-base)' : 'var(--bg-card)' }}
+                    onClick={() => setExpandedId(isExpanded ? null : sheet.id)}
+                    onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--bg-light)'}
+                    onMouseLeave={e => e.currentTarget.style.backgroundColor = idx % 2 === 0 ? 'var(--bg-base)' : 'var(--bg-card)'}
+                  >
+                    <td className="px-3 py-2.5 font-mono text-xs font-semibold" style={{ color: 'var(--accent)' }}>
+                      <button onClick={e => { e.stopPropagation(); navigate(`/timesheets/${sheet.id}`); }}
+                        className="hover:underline">{sheet.id}</button>
+                    </td>
+                    <td className="px-3 py-2.5 text-sm" style={{ color: 'var(--text-main)' }}>{sheet.serviceResource}</td>
+                    <td className="px-3 py-2.5 text-xs" style={{ color: 'var(--text-secondary)' }}>{sheet.startDate}</td>
+                    <td className="px-3 py-2.5 font-mono text-xs" style={{ color: 'var(--text-main)' }}>{sheet.totalDuration}H</td>
+                    <td className="px-3 py-2.5"><TSEStatusChip status={sheet.status} /></td>
+                    <td className="px-3 py-2.5">
+                      {sheet.postedToSAP
+                        ? <span className="text-[10px] px-2 py-0.5 rounded" style={{ backgroundColor: 'rgba(52,199,89,0.1)', color: '#34C759' }}>Posted</span>
+                        : <span className="text-[10px] px-2 py-0.5 rounded" style={{ backgroundColor: 'var(--bg-base)', color: 'var(--text-muted)' }}>—</span>}
+                    </td>
+                    <td className="px-3 py-2.5">
+                      {isExpanded ? <ChevronUp size={14} style={{ color: 'var(--text-muted)' }} />
+                        : <ChevronDown size={14} style={{ color: 'var(--text-muted)' }} />}
+                    </td>
+                  </tr>
+                  {isExpanded && (
+                    <tr style={{ backgroundColor: 'var(--bg-light)' }}>
+                      <td colSpan={7} className="px-4 py-3">
+                        <div className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>Timesheet Entries</div>
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-xs">
+                            <thead>
+                              <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                                {['Op #', 'Subject', 'Actual', 'Planned', 'Deviation', 'Status', 'Remarks'].map(h => (
+                                  <th key={h} className="text-left px-2 py-1.5 font-semibold"
+                                    style={{ color: 'var(--text-muted)' }}>{h}</th>
+                                ))}
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {entries.map(e => {
+                                const dev = e.actualDuration - e.plannedDuration;
+                                return (
+                                  <tr key={e.id} className="border-b" style={{ borderColor: 'var(--border)' }}>
+                                    <td className="px-2 py-1.5 font-mono" style={{ color: 'var(--text-muted)' }}>{e.operationNumber}</td>
+                                    <td className="px-2 py-1.5" style={{ color: 'var(--text-secondary)' }}>{e.subject}</td>
+                                    <td className="px-2 py-1.5 font-mono">{e.actualDuration}H</td>
+                                    <td className="px-2 py-1.5 font-mono" style={{ color: 'var(--text-muted)' }}>{e.plannedDuration}H</td>
+                                    <td className="px-2 py-1.5 font-mono"
+                                      style={{ color: dev > 0 ? '#C62828' : dev < 0 ? '#388E3C' : 'var(--text-muted)' }}>
+                                      {dev > 0 ? `+${dev}H` : dev < 0 ? `${dev}H` : '—'}
+                                    </td>
+                                    <td className="px-2 py-1.5"><TSEStatusChip status={e.status} /></td>
+                                    <td className="px-2 py-1.5" style={{ color: 'var(--text-tertiary)' }}>{e.remarks || '—'}</td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                        <div className="flex gap-2 mt-3 justify-end">
+                          <button onClick={() => navigate(`/timesheets/${sheet.id}`)}
+                            className="text-xs px-3 py-1.5 rounded flex items-center gap-1"
+                            style={{ backgroundColor: 'var(--accent)', color: '#1a1a1a' }}>
+                            <ExternalLink size={11} /> Open Timesheet Detail
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
@@ -248,7 +542,7 @@ export default function WorkOrderDetailPage() {
 
       {/* ── Tab Navigation ────────────────────────────────── */}
       <div className="pl-[15px] pr-6 flex gap-6 border-b" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--bg-panel)' }}>
-        {['Details', 'Feed', 'Related', 'Log'].map(tab => (
+        {['Details', 'Feed', 'Task List', 'Timesheet', 'Related', 'Log'].map(tab => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab.toLowerCase())}
@@ -443,6 +737,12 @@ export default function WorkOrderDetailPage() {
                 )}
               </div>
             )}
+            {activeTab === 'task list' && (
+              <TaskListTab workOrderId={id} navigate={navigate} />
+            )}
+            {activeTab === 'timesheet' && (
+              <TimesheetTab workOrderId={id} navigate={navigate} />
+            )}
             {activeTab === 'related' && (
               <div className="rounded-lg p-4" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)' }}>
                 <p style={{ color: 'var(--text-muted)' }}>Related tab content...</p>
@@ -478,7 +778,7 @@ export default function WorkOrderDetailPage() {
             { title: 'Competitor Info', count: relatedObjects.competitorInfo.length, items: relatedObjects.competitorInfo },
             { title: 'Parts Supplied', count: relatedObjects.partsSupplied.length, items: relatedObjects.partsSupplied },
           ].map((section, idx) => (
-            <Card key={idx} title={`${section.title} (${section.count})`} icon={<ClipboardList size={14} />}>
+            <Card key={idx} title={`${section.title} (${section.count})`} icon={<ClipboardList size={14} />} action={section.title === 'Task Lists' ? <button onClick={() => setActiveTab('task list')} className="text-[10px] px-2 py-0.5 rounded" style={{ backgroundColor: 'var(--accent)', color: '#1a1a1a' }}>View All</button> : section.title === 'Time Sheet Entries' ? <button onClick={() => setActiveTab('timesheet')} className="text-[10px] px-2 py-0.5 rounded" style={{ backgroundColor: 'var(--accent)', color: '#1a1a1a' }}>View All</button> : null}>
               {section.items.length === 0 ? (
                 <p className="text-xs" style={{ color: 'var(--text-muted)' }}>No items</p>
               ) : (
