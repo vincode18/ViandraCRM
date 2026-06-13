@@ -26,6 +26,12 @@ import AccountListPage from './pages/AccountListPage';
 import AccountDetailPage from './pages/AccountDetailPage';
 import ContactListPage from './pages/ContactListPage';
 import ContactDetailPage from './pages/ContactDetailPage';
+import FieldServiceMobilePage from './pages/FieldServiceMobilePage';
+import WorkOrderDetailMobile from './pages/WorkOrderDetailMobile';
+import TimesheetMobilePage from './pages/TimesheetMobilePage';
+import ServiceAppointmentsMobilePage from './pages/ServiceAppointmentsMobilePage';
+import ServiceAppointmentDetailMobile from './pages/ServiceAppointmentDetailMobile';
+import SyncPage from './pages/SyncPage';
 import AppLayout from './components/layout/AppLayout';
 
 function ProtectedRoute({ children }) {
@@ -105,6 +111,15 @@ export default function App() {
             {/* Contact module */}
             <Route path="/contacts"              element={<ContactListPage />} />
             <Route path="/contacts/:id"          element={<ContactDetailPage />} />
+
+            {/* Mobile Field Service */}
+            <Route path="/field/jobs"                   element={<FieldServiceMobilePage />} />
+            <Route path="/field/jobs/:id"               element={<WorkOrderDetailMobile />} />
+            <Route path="/field/today"                  element={<FieldServiceMobilePage />} />
+            <Route path="/field/timesheet"              element={<TimesheetMobilePage />} />
+            <Route path="/field/appointments"           element={<ServiceAppointmentsMobilePage />} />
+            <Route path="/field/appointments/:id"       element={<ServiceAppointmentDetailMobile />} />
+            <Route path="/field/sync"                   element={<SyncPage />} />
 
             <Route path="*"            element={<Navigate to="/dashboard" replace />} />
           </Route>

@@ -5,7 +5,8 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Filter, Search, MapPin, Clock } from 'lucide-react';
+import { Filter, Search, MapPin, Clock, Bell, X } from 'lucide-react';
+import { requestNotificationPermission, subscribeToPushNotifications } from '../services/pushNotificationService';
 
 export default function FieldServiceMobilePage() {
   const navigate = useNavigate();
@@ -13,9 +14,18 @@ export default function FieldServiceMobilePage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilterDrawer, setShowFilterDrawer] = useState(false);
+  const [showPushPrompt, setShowPushPrompt] = useState(false);
 
   useEffect(() => {
     loadJobs();
+    // Show push pre-prompt after second visit
+    const visits = parseInt(localStorage.getItem('ut-push-visits') || '0', 10) + 1;
+    localStorage.setItem('ut-push-visits', String(visits));
+    const dismissed = localStorage.getItem('ut-push-dismissed') === 'true';
+    const already = Notification.permission === 'granted';
+    if (visits >= 2 && !dismissed && !already) {
+      setShowPushPrompt(true);
+    }
   }, []);
 
   const loadJobs = async () => {
@@ -99,6 +109,25 @@ export default function FieldServiceMobilePage() {
     return labels[status] || 'View';
   };
 
+  const handleEnableNotifications = async () => {
+    try {
+      const perm = await requestNotificationPermission();
+      if (perm === 'granted') {
+        await subscribeToPushNotifications();
+      }
+    } catch (err) {
+      console.error('[FieldServiceMobilePage] Push subscription failed:', err);
+    } finally {
+      setShowPushPrompt(false);
+      localStorage.setItem('ut-push-dismissed', 'true');
+    }
+  };
+
+  const handleDismissPush = () => {
+    setShowPushPrompt(false);
+    localStorage.setItem('ut-push-dismissed', 'true');
+  };
+
   const filteredJobs = jobs.filter(job =>
     job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     job.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -133,6 +162,37 @@ export default function FieldServiceMobilePage() {
           />
         </div>
       </div>
+
+      {/* Push notification pre-prompt */}
+      {showPushPrompt && (
+        <div
+          style={{
+            margin: '0 16px 4px',
+            padding: '12px 14px',
+            borderRadius: 10,
+            backgroundColor: 'var(--bg-card)',
+            border: '1px solid var(--border)',
+            display: 'flex', alignItems: 'flex-start', gap: 10,
+          }}
+        >
+          <Bell size={20} style={{ color: 'var(--accent)', flexShrink: 0, marginTop: 2 }} />
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-main)', marginBottom: 2 }}>Stay on top of your jobs</div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 10 }}>Get notified when new work orders are assigned or job status changes.</div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button type="button" className="btn-primary" style={{ flex: 1, minHeight: 36, fontSize: 12 }} onClick={handleEnableNotifications}>
+                Turn on notifications
+              </button>
+              <button type="button" className="btn-secondary" style={{ flex: 1, minHeight: 36, fontSize: 12 }} onClick={handleDismissPush}>
+                Maybe later
+              </button>
+            </div>
+          </div>
+          <button type="button" onClick={handleDismissPush} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2, flexShrink: 0 }}>
+            <X size={16} style={{ color: 'var(--text-muted)' }} />
+          </button>
+        </div>
+      )}
 
       {/* Content */}
       <div className="flex-1 overflow-auto px-4 pb-4" style={{ paddingBottom: 'calc(var(--bottom-nav-height) + var(--safe-bottom) + 16px)' }}>

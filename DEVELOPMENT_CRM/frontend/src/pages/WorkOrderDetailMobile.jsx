@@ -6,6 +6,9 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Camera, FileText, Clock, MapPin, Phone, ChevronDown } from 'lucide-react';
+import BottomSheet from '../components/mobile/BottomSheet';
+import PhotoCapture from '../components/mobile/PhotoCapture';
+import { saveOfflineSubmission, isOnline } from '../services/offlineStorageService';
 
 export default function WorkOrderDetailMobile() {
   const navigate = useNavigate();
@@ -15,6 +18,13 @@ export default function WorkOrderDetailMobile() {
   const [showPhotoSheet, setShowPhotoSheet] = useState(false);
   const [showNoteSheet, setShowNoteSheet] = useState(false);
   const [showLogHoursSheet, setShowLogHoursSheet] = useState(false);
+  const [noteText, setNoteText] = useState('');
+  const [noteSaving, setNoteSaving] = useState(false);
+  const [logDate, setLogDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [logHours, setLogHours] = useState(1);
+  const [logType, setLogType] = useState('Regular');
+  const [logNote, setLogNote] = useState('');
+  const [logSaving, setLogSaving] = useState(false);
 
   const statuses = ['Open', 'In Progress', 'On Hold', 'Completed', 'Cancelled'];
 
@@ -48,6 +58,47 @@ export default function WorkOrderDetailMobile() {
   const handleStatusChange = (newStatus) => {
     setStatus(newStatus);
     setShowStatusSheet(false);
+  };
+
+  const handleSaveNote = async () => {
+    if (!noteText.trim()) return;
+    setNoteSaving(true);
+    try {
+      if (!isOnline()) {
+        await saveOfflineSubmission({
+          record_id: id,
+          form_type: 'note',
+          payload: { note: noteText, work_order_id: id },
+          photo_count: 0,
+        });
+        alert('Note saved offline — will sync when connected');
+      }
+      setNoteText('');
+      setShowNoteSheet(false);
+    } finally {
+      setNoteSaving(false);
+    }
+  };
+
+  const handleSaveLogHours = async () => {
+    setLogSaving(true);
+    try {
+      if (!isOnline()) {
+        await saveOfflineSubmission({
+          record_id: id,
+          form_type: 'log_hours',
+          payload: { work_order_id: id, date: logDate, hours: logHours, type: logType, note: logNote },
+          photo_count: 0,
+        });
+        alert('Hours saved offline — will sync when connected');
+      }
+      setLogHours(1);
+      setLogType('Regular');
+      setLogNote('');
+      setShowLogHoursSheet(false);
+    } finally {
+      setLogSaving(false);
+    }
   };
 
   return (
@@ -180,33 +231,110 @@ export default function WorkOrderDetailMobile() {
       </div>
 
       {/* Status Change Bottom Sheet */}
-      {showStatusSheet && (
-        <BottomSheet onClose={() => setShowStatusSheet(false)}>
-          <div className="p-4">
-            <h3 className="text-lg font-semibold mb-4">Update Status</h3>
-            <div className="space-y-2">
-              {statuses.map((s) => (
-                <button
-                  key={s}
-                  onClick={() => handleStatusChange(s)}
-                  className={`w-full p-3 rounded flex items-center gap-3 ${status === s ? 'border-2' : ''}`}
-                  style={{
-                    backgroundColor: 'var(--bg-light)',
-                    borderColor: status === s ? 'var(--accent)' : 'transparent',
-                  }}
-                >
-                  <div className={`w-4 h-4 rounded-full border-2 ${status === s ? 'border-solid' : 'border-gray-300'}`} style={{ borderColor: status === s ? 'var(--accent)' : 'var(--border)', backgroundColor: status === s ? 'var(--accent)' : 'transparent' }} />
-                  <span className="text-sm font-medium">{s}</span>
-                  {status === s && <span style={{ color: 'var(--color-success)' }}>✓</span>}
-                </button>
-              ))}
-            </div>
-            <button onClick={() => setShowStatusSheet(false)} className="btn-secondary w-full mt-4">
-              Cancel
+      <BottomSheet open={showStatusSheet} onClose={() => setShowStatusSheet(false)} title="Update Status">
+        <div className="space-y-2">
+          {statuses.map((s) => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => handleStatusChange(s)}
+              className="w-full p-3 rounded flex items-center gap-3"
+              style={{
+                backgroundColor: 'var(--bg-light)',
+                border: `2px solid ${status === s ? 'var(--accent)' : 'transparent'}`,
+              }}
+            >
+              <div style={{ width: 16, height: 16, borderRadius: '50%', border: `2px solid ${status === s ? 'var(--accent)' : 'var(--border)'}`, backgroundColor: status === s ? 'var(--accent)' : 'transparent', flexShrink: 0 }} />
+              <span className="text-sm font-medium flex-1 text-left">{s}</span>
+              {status === s && <span style={{ color: 'var(--color-success)' }}>✓</span>}
             </button>
+          ))}
+        </div>
+        <button type="button" onClick={() => setShowStatusSheet(false)} className="btn-secondary w-full mt-4">
+          Cancel
+        </button>
+      </BottomSheet>
+
+      {/* Photo Sheet */}
+      <BottomSheet open={showPhotoSheet} onClose={() => setShowPhotoSheet(false)} title="Add Photos">
+        <PhotoCapture
+          submissionId={id}
+          onPhotosChange={() => {}}
+        />
+      </BottomSheet>
+
+      {/* Note Sheet */}
+      <BottomSheet open={showNoteSheet} onClose={() => setShowNoteSheet(false)} title="Add Note">
+        <textarea
+          value={noteText}
+          onChange={e => setNoteText(e.target.value)}
+          placeholder="Enter note…"
+          rows={5}
+          style={{
+            width: '100%', borderRadius: 8, padding: 12,
+            border: '1px solid var(--border)', backgroundColor: 'var(--bg-light)',
+            color: 'var(--text-main)', fontSize: 14, resize: 'vertical',
+            boxSizing: 'border-box',
+          }}
+        />
+        <button
+          type="button"
+          className="btn-primary w-full mt-4"
+          style={{ minHeight: 44 }}
+          disabled={noteSaving || !noteText.trim()}
+          onClick={handleSaveNote}
+        >
+          {noteSaving ? 'Saving…' : 'Save Note'}
+        </button>
+      </BottomSheet>
+
+      {/* Log Hours Sheet */}
+      <BottomSheet open={showLogHoursSheet} onClose={() => setShowLogHoursSheet(false)} title="Log Hours">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div>
+            <label style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-tertiary)', display: 'block', marginBottom: 4 }}>Date</label>
+            <input
+              type="date"
+              value={logDate}
+              onChange={e => setLogDate(e.target.value)}
+              style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--border)', backgroundColor: 'var(--bg-light)', color: 'var(--text-main)', fontSize: 14, boxSizing: 'border-box' }}
+            />
           </div>
-        </BottomSheet>
-      )}
+          <div>
+            <label style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-tertiary)', display: 'block', marginBottom: 4 }}>Hours</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <button type="button" onClick={() => setLogHours(h => Math.max(0.5, +(h - 0.5).toFixed(1)))} style={{ width: 40, height: 40, borderRadius: 8, border: '1px solid var(--border)', backgroundColor: 'var(--bg-light)', fontSize: 18, cursor: 'pointer', color: 'var(--text-main)' }}>−</button>
+              <span style={{ fontSize: 20, fontWeight: 700, minWidth: 40, textAlign: 'center', color: 'var(--text-main)' }}>{logHours.toFixed(1)}</span>
+              <button type="button" onClick={() => setLogHours(h => Math.min(24, +(h + 0.5).toFixed(1)))} style={{ width: 40, height: 40, borderRadius: 8, border: '1px solid var(--border)', backgroundColor: 'var(--bg-light)', fontSize: 18, cursor: 'pointer', color: 'var(--text-main)' }}>+</button>
+            </div>
+          </div>
+          <div>
+            <label style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-tertiary)', display: 'block', marginBottom: 4 }}>Work Type</label>
+            <select value={logType} onChange={e => setLogType(e.target.value)} style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--border)', backgroundColor: 'var(--bg-light)', color: 'var(--text-main)', fontSize: 14, boxSizing: 'border-box' }}>
+              {['Regular', 'Overtime', 'Travel', 'Training'].map(t => <option key={t}>{t}</option>)}
+            </select>
+          </div>
+          <div>
+            <label style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-tertiary)', display: 'block', marginBottom: 4 }}>Note (optional)</label>
+            <input
+              type="text"
+              value={logNote}
+              onChange={e => setLogNote(e.target.value)}
+              placeholder="What did you work on?"
+              style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--border)', backgroundColor: 'var(--bg-light)', color: 'var(--text-main)', fontSize: 14, boxSizing: 'border-box' }}
+            />
+          </div>
+          <button
+            type="button"
+            className="btn-primary w-full"
+            style={{ minHeight: 44 }}
+            disabled={logSaving}
+            onClick={handleSaveLogHours}
+          >
+            {logSaving ? 'Saving…' : 'Save Hours'}
+          </button>
+        </div>
+      </BottomSheet>
     </div>
   );
 }
@@ -231,14 +359,3 @@ function InfoRow({ label, value }) {
   );
 }
 
-function BottomSheet({ children, onClose }) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-end" onClick={onClose}>
-      <div className="absolute inset-0 bg-black/50" />
-      <div className="relative w-full bg-white rounded-t-2xl p-4" style={{ backgroundColor: 'var(--bg-panel)' }} onClick={(e) => e.stopPropagation()}>
-        <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-4" style={{ backgroundColor: 'var(--border)' }} />
-        {children}
-      </div>
-    </div>
-  );
-}

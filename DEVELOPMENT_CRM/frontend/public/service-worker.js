@@ -219,50 +219,12 @@ async function staleWhileRevalidate(request, cacheName) {
   return cached || fetchPromise;
 }
 
-// Background sync function
-async function syncOfflineSubmissions() {
-  console.log('[SW] Syncing offline submissions...');
-  
-  try {
-    // This would integrate with IndexedDB to get pending submissions
-    // For now, this is a placeholder that would be implemented with the offline service
-    const offlineDB = await openOfflineDB();
-    const pendingSubmissions = await offlineDB.getAll('offline_submissions');
-    
-    console.log('[SW] Found pending submissions:', pendingSubmissions.length);
-    
-    for (const submission of pendingSubmissions) {
-      try {
-        const response = await fetch('/api/field-service/submissions/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${submission.accessToken}`,
-          },
-          body: JSON.stringify(submission.payload),
-        });
-        
-        if (response.ok) {
-          await offlineDB.delete('offline_submissions', submission.id);
-          console.log('[SW] Synced submission:', submission.id);
-        }
-      } catch (error) {
-        console.error('[SW] Failed to sync submission:', submission.id, error);
-      }
-    }
-  } catch (error) {
-    console.error('[SW] Sync failed:', error);
-  }
-}
-
 // Helper to open IndexedDB
 function openOfflineDB() {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open('ut_field_service_offline', 1);
-    
     request.onerror = () => reject(request.error);
     request.onsuccess = () => resolve(request.result);
-    
     request.onupgradeneeded = (event) => {
       const db = event.target.result;
       if (!db.objectStoreNames.contains('offline_submissions')) {
@@ -270,4 +232,101 @@ function openOfflineDB() {
       }
     };
   });
+}
+
+function idbGetAll(db, storeName) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(storeName, 'readonly');
+    const req = tx.objectStore(storeName).getAll();
+    req.onsuccess = () => resolve(req.result || []);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function idbPut(db, storeName, record) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(storeName, 'readwrite');
+    const req = tx.objectStore(storeName).put(record);
+    req.onsuccess = () => resolve();
+    req.onerror = () => reject(req.error);
+  });
+}
+
+const MAX_RETRIES = 10;
+
+async function syncOfflineSubmissions() {
+  console.log('[SW] Syncing offline submissions...');
+  let db;
+  try {
+    db = await openOfflineDB();
+  } catch (err) {
+    console.error('[SW] Could not open IDB:', err);
+    return;
+  }
+
+  let submissions;
+  try {
+    submissions = await idbGetAll(db, 'offline_submissions');
+  } catch (err) {
+    console.error('[SW] Could not read submissions:', err);
+    return;
+  }
+
+  const queued = submissions.filter(s => s.sync_status === 'QUEUED' || s.sync_status === 'SAVED_LOCALLY');
+  console.log('[SW] Queued submissions:', queued.length);
+
+  for (const submission of queued) {
+    if ((submission.retry_count || 0) >= MAX_RETRIES) {
+      await idbPut(db, 'offline_submissions', { ...submission, sync_status: 'FAILED_PERMANENT' });
+      continue;
+    }
+
+    const updated = { ...submission, sync_status: 'UPLOADING', last_attempt_at: new Date().toISOString() };
+    await idbPut(db, 'offline_submissions', updated);
+
+    try {
+      const response = await fetch('/api/field-service/submissions/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...submission.payload, _submission_id: submission.id }),
+      });
+
+      if (response.status === 201 || response.status === 200) {
+        await idbPut(db, 'offline_submissions', { ...updated, sync_status: 'SYNCED' });
+        console.log('[SW] Synced submission:', submission.id);
+
+      } else if (response.status === 409) {
+        let serverVersion = null;
+        try { serverVersion = await response.json(); } catch (_) {}
+        await idbPut(db, 'offline_submissions', {
+          ...updated,
+          sync_status: 'FAILED',
+          conflict_data: serverVersion,
+          retry_count: (submission.retry_count || 0) + 1,
+        });
+        console.warn('[SW] Conflict on submission:', submission.id);
+
+      } else {
+        const retryCount = (submission.retry_count || 0) + 1;
+        await idbPut(db, 'offline_submissions', {
+          ...updated,
+          sync_status: retryCount >= MAX_RETRIES ? 'FAILED_PERMANENT' : 'FAILED',
+          retry_count: retryCount,
+        });
+        console.warn('[SW] Server error', response.status, 'for submission:', submission.id);
+      }
+
+    } catch (networkErr) {
+      // Network failure — back off and retry next sync
+      const retryCount = (submission.retry_count || 0) + 1;
+      const backoffMs = Math.min(Math.pow(2, retryCount) * 1000, 3600000);
+      await idbPut(db, 'offline_submissions', {
+        ...updated,
+        sync_status: retryCount >= MAX_RETRIES ? 'FAILED_PERMANENT' : 'QUEUED',
+        retry_count: retryCount,
+        next_attempt_after: new Date(Date.now() + backoffMs).toISOString(),
+      });
+      console.warn('[SW] Network error for submission:', submission.id, '— retry in', backoffMs, 'ms');
+    }
+  }
 }
