@@ -6,6 +6,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Plus, Clock } from 'lucide-react';
+import BottomSheet from '../components/mobile/BottomSheet';
+import { saveOfflineSubmission, isOnline } from '../services/offlineStorageService';
 
 export default function TimesheetMobilePage() {
   const navigate = useNavigate();
@@ -14,6 +16,38 @@ export default function TimesheetMobilePage() {
   const [loading, setLoading] = useState(true);
   const [showLogHoursSheet, setShowLogHoursSheet] = useState(false);
   const [expandedDays, setExpandedDays] = useState({});
+  const [logDate, setLogDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [logHours, setLogHours] = useState(1);
+  const [logType, setLogType] = useState('Regular');
+  const [logWO, setLogWO] = useState('');
+  const [logNote, setLogNote] = useState('');
+  const [logSaving, setLogSaving] = useState(false);
+
+  const MOCK_WOS = ['WO-10038', 'WO-10042', 'WO-10051', 'WO-10063', 'WO-10031'];
+
+  const handleSaveEntry = async () => {
+    setLogSaving(true);
+    try {
+      if (!isOnline()) {
+        await saveOfflineSubmission({
+          record_id: `timesheet-${Date.now()}`,
+          form_type: 'timesheet_entry',
+          payload: { date: logDate, hours: logHours, type: logType, work_order_id: logWO, note: logNote },
+          photo_count: 0,
+        });
+        alert('Saved offline — will sync when connected');
+      }
+      setLogDate(new Date().toISOString().slice(0, 10));
+      setLogHours(1);
+      setLogType('Regular');
+      setLogWO('');
+      setLogNote('');
+      setShowLogHoursSheet(false);
+      await loadTimesheet();
+    } finally {
+      setLogSaving(false);
+    }
+  };
 
   useEffect(() => {
     loadTimesheet();
@@ -168,6 +202,65 @@ export default function TimesheetMobilePage() {
           Add Entry
         </button>
       </div>
+
+      {/* Add Entry Bottom Sheet */}
+      <BottomSheet open={showLogHoursSheet} onClose={() => setShowLogHoursSheet(false)} title="Add Timesheet Entry">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div>
+            <label style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-tertiary)', display: 'block', marginBottom: 4 }}>Work Order</label>
+            <select
+              value={logWO}
+              onChange={e => setLogWO(e.target.value)}
+              style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--border)', backgroundColor: 'var(--bg-light)', color: 'var(--text-main)', fontSize: 14, boxSizing: 'border-box' }}
+            >
+              <option value="">— Select Work Order —</option>
+              {MOCK_WOS.map(wo => <option key={wo} value={wo}>{wo}</option>)}
+            </select>
+          </div>
+          <div>
+            <label style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-tertiary)', display: 'block', marginBottom: 4 }}>Date</label>
+            <input
+              type="date"
+              value={logDate}
+              onChange={e => setLogDate(e.target.value)}
+              style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--border)', backgroundColor: 'var(--bg-light)', color: 'var(--text-main)', fontSize: 14, boxSizing: 'border-box' }}
+            />
+          </div>
+          <div>
+            <label style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-tertiary)', display: 'block', marginBottom: 4 }}>Hours</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <button type="button" onClick={() => setLogHours(h => Math.max(0.5, +(h - 0.5).toFixed(1)))} style={{ width: 40, height: 40, borderRadius: 8, border: '1px solid var(--border)', backgroundColor: 'var(--bg-light)', fontSize: 18, cursor: 'pointer', color: 'var(--text-main)' }}>−</button>
+              <span style={{ fontSize: 20, fontWeight: 700, minWidth: 40, textAlign: 'center', color: 'var(--text-main)' }}>{logHours.toFixed(1)}</span>
+              <button type="button" onClick={() => setLogHours(h => Math.min(24, +(h + 0.5).toFixed(1)))} style={{ width: 40, height: 40, borderRadius: 8, border: '1px solid var(--border)', backgroundColor: 'var(--bg-light)', fontSize: 18, cursor: 'pointer', color: 'var(--text-main)' }}>+</button>
+            </div>
+          </div>
+          <div>
+            <label style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-tertiary)', display: 'block', marginBottom: 4 }}>Work Type</label>
+            <select value={logType} onChange={e => setLogType(e.target.value)} style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--border)', backgroundColor: 'var(--bg-light)', color: 'var(--text-main)', fontSize: 14, boxSizing: 'border-box' }}>
+              {['Regular', 'Overtime', 'Travel', 'Training'].map(t => <option key={t}>{t}</option>)}
+            </select>
+          </div>
+          <div>
+            <label style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-tertiary)', display: 'block', marginBottom: 4 }}>Note (optional)</label>
+            <input
+              type="text"
+              value={logNote}
+              onChange={e => setLogNote(e.target.value)}
+              placeholder="What did you work on?"
+              style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--border)', backgroundColor: 'var(--bg-light)', color: 'var(--text-main)', fontSize: 14, boxSizing: 'border-box' }}
+            />
+          </div>
+          <button
+            type="button"
+            className="btn-primary w-full"
+            style={{ minHeight: 44 }}
+            disabled={logSaving}
+            onClick={handleSaveEntry}
+          >
+            {logSaving ? 'Saving…' : 'Save Entry'}
+          </button>
+        </div>
+      </BottomSheet>
     </div>
   );
 }

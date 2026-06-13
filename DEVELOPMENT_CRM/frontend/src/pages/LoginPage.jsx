@@ -259,7 +259,20 @@ export default function LoginPage() {
     const result = await login(email, password, remember);
     if (result.success) {
       setSuccess(true);
-      setTimeout(() => navigate('/console', { replace: true }), 900);
+      setTimeout(() => {
+        try {
+          const stored = localStorage.getItem('ut_user');
+          const user = stored ? JSON.parse(stored) : null;
+          const role = user?.role || '';
+          if (role === 'Mechanic' || role === 'Field Technician') {
+            navigate('/field/jobs', { replace: true });
+          } else {
+            navigate('/console', { replace: true });
+          }
+        } catch {
+          navigate('/console', { replace: true });
+        }
+      }, 900);
     } else {
       setServerErr(result.message || 'Invalid credentials. Please try again.');
       setJiggle(true);
