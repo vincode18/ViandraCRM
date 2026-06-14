@@ -3,6 +3,11 @@ export default {
   content: ['./index.html', './src/**/*.{js,jsx,ts,tsx}'],
   darkMode: 'class',
   theme: {
+    screens: {
+      sm: '375px',   // Mobile
+      md: '768px',   // Tablet
+      lg: '1024px',  // Desktop
+    },
     extend: {
       colors: {
         brand: {
@@ -51,15 +56,30 @@ export default {
           from: { opacity: '0', transform: 'translateX(-16px)' },
           to:   { opacity: '1', transform: 'translateX(0)' },
         },
+        slideUp: {
+          from: { opacity: '0', transform: 'translateY(100%)' },
+          to:   { opacity: '1', transform: 'translateY(0)' },
+        },
+        slideDown: {
+          from: { opacity: '0', transform: 'translateY(-100%)' },
+          to:   { opacity: '1', transform: 'translateY(0)' },
+        },
         spin: {
           to: { transform: 'rotate(360deg)' },
+        },
+        pulse: {
+          '0%, 100%': { opacity: '1' },
+          '50%':      { opacity: '0.5' },
         },
       },
       animation: {
         jiggle:  'jiggle 0.4s ease-in-out',
         fadeIn:  'fadeIn 0.3s ease-out',
         slideIn: 'slideIn 0.25s ease-out',
+        slideUp: 'slideUp 0.3s ease-out',
+        slideDown: 'slideDown 0.3s ease-out',
         spin:    'spin 0.8s linear infinite',
+        pulse:   'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
     },
   },

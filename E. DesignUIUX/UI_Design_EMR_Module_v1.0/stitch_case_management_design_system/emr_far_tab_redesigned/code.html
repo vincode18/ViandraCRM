@@ -1,0 +1,385 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>EMR Console - FAR</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#1976D2",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#f5c800",
+                        "on-primary-container": "#695400",
+                        "secondary": "#5f5e5e",
+                        "background": "#f9f9f9",
+                        "surface": "#ffffff",
+                        "surface-container-low": "#f3f3f3",
+                        "surface-container": "#eeeeee",
+                        "surface-container-high": "#e8e8e8",
+                        "surface-container-highest": "#e2e2e2",
+                        "outline": "#7f7660",
+                        "outline-variant": "#d1c6ab",
+                        "on-surface": "#1a1c1c",
+                        "on-surface-variant": "#4d4632",
+                        "error": "#ba1a1a",
+                        "error-container": "#ffdad6",
+                        "on-error-container": "#93000a",
+                        "warning": "#ed6c02",
+                        "warning-container": "#fff4e5"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "4px",
+                        "lg": "4px",
+                        "xl": "8px",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "8px",
+                        "xl": "32px",
+                        "sm": "8px",
+                        "gutter": "16px",
+                        "xs": "4px",
+                        "margin": "24px",
+                        "md": "16px",
+                        "lg": "24px"
+                    },
+                    "fontFamily": {
+                        "body": ["Hanken Grotesk", "sans-serif"],
+                        "label": ["JetBrains Mono", "monospace"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Hanken Grotesk', sans-serif; background-color: #f9f9f9; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .active-tab { border-bottom: 2px solid #1976D2; color: #1976D2; }
+        .timeline-line::before { content: ''; position: absolute; left: 11px; top: 0; bottom: 0; width: 2px; background: #e2e2e2; z-index: 0; }
+        .progress-step-done { background-color: #1976D2; }
+        .progress-step-active { background-color: #1976D2; outline: 4px solid #1976D240; }
+        .progress-step-todo { background-color: #e2e2e2; }
+    </style>
+</head>
+<body class="text-on-surface antialiased flex min-h-screen">
+<!-- SideNavBar -->
+<nav class="bg-surface border-r border-outline-variant fixed left-0 top-0 h-full w-64 hidden md:flex flex-col pt-16 z-40">
+<div class="px-margin pb-xl border-b border-outline-variant mb-md">
+<div class="flex items-center space-x-md">
+<div class="w-10 h-10 rounded bg-surface-container-high flex items-center justify-center overflow-hidden">
+<img alt="System Logo" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDaAkr7I_sgfKdqY94sGlO6Zvvub5ArK07NtLiM6lTLBkwp_lzh2kpy5NcLqJrWjIxa6OJXadqIF0liS_9MVGCaPjANWdAxFT2P_Uyg0wI6dWq6juQBsGxxey_xQntu7Joveso_ZpLDyB0UvKOPjcmyU5_CxGkmjfSFWenmdxaO2YeLcVcfSZleyj2AYX1sUEhtE45r-2_lVjWrx515grHI-TnmCUUTLshXwYW4ZA03Ys1IrJ2xqLgR3MkzcKkRdlJ9J_9dlPJJ-gDT">
+</div>
+<div>
+<h1 class="text-lg font-bold tracking-tight">TechOps</h1>
+<span class="text-[10px] font-label text-on-surface-variant uppercase tracking-wider font-medium">Precision EMR</span>
+</div>
+</div>
+</div>
+<div class="px-md flex-grow flex flex-col space-y-1">
+<a class="flex items-center px-md py-sm rounded text-secondary font-medium hover:bg-surface-container-low transition-colors" href="#">
+<span class="material-symbols-outlined mr-md text-xl">dashboard</span>
+<span class="text-sm">Dashboard</span>
+</a>
+<a class="flex items-center px-md py-sm rounded bg-primary-container text-on-primary-container font-bold" href="#">
+<span class="material-symbols-outlined mr-md text-xl">precision_manufacturing</span>
+<span class="text-sm">Equipment</span>
+</a>
+<a class="flex items-center px-md py-sm rounded text-secondary font-medium hover:bg-surface-container-low transition-colors" href="#">
+<span class="material-symbols-outlined mr-md text-xl">build</span>
+<span class="text-sm">Maintenance</span>
+</a>
+<a class="flex items-center px-md py-sm rounded text-secondary font-medium hover:bg-surface-container-low transition-colors" href="#">
+<span class="material-symbols-outlined mr-md text-xl">analytics</span>
+<span class="text-sm">Analytics</span>
+</a>
+<a class="flex items-center px-md py-sm rounded text-secondary font-medium hover:bg-surface-container-low transition-colors" href="#">
+<span class="material-symbols-outlined mr-md text-xl">history</span>
+<span class="text-sm">Logs</span>
+</a>
+</div>
+<div class="p-margin mt-auto border-t border-outline-variant">
+<button class="w-full py-2 bg-surface-container-low border border-outline text-xs font-semibold rounded hover:bg-surface-container transition-colors mb-md">
+            UPLOAD TECHCARE FILES
+        </button>
+<div class="flex flex-col space-y-1">
+<a class="flex items-center px-md py-sm rounded text-secondary font-medium hover:bg-surface-container-low transition-colors" href="#">
+<span class="material-symbols-outlined mr-md text-xl">support</span>
+<span class="text-sm font-medium">Support</span>
+</a>
+<a class="flex items-center px-md py-sm rounded text-secondary font-medium hover:bg-surface-container-low transition-colors" href="#">
+<span class="material-symbols-outlined mr-md text-xl">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</a>
+</div>
+</div>
+</nav>
+<!-- Main Content -->
+<div class="flex-grow md:ml-64 flex flex-col">
+<!-- Top Bar -->
+<header class="bg-surface border-b border-outline-variant flex justify-between items-center px-margin h-16 w-full fixed top-0 z-50 md:left-64 md:right-0 md:w-auto">
+<div class="flex items-center">
+<h1 class="text-xl font-bold text-on-surface md:hidden mr-md">EMR Console</h1>
+<!-- Progress Bar Shell Integration -->
+<div class="hidden lg:flex items-center space-x-2">
+<span class="text-[10px] font-label text-on-surface-variant font-bold uppercase mr-2">Report Progress</span>
+<div class="flex space-x-1">
+<div class="w-6 h-1.5 rounded-full progress-step-done"></div>
+<div class="w-6 h-1.5 rounded-full progress-step-done"></div>
+<div class="w-6 h-1.5 rounded-full progress-step-active"></div>
+<div class="w-6 h-1.5 rounded-full progress-step-todo"></div>
+<div class="w-6 h-1.5 rounded-full progress-step-todo"></div>
+<div class="w-6 h-1.5 rounded-full progress-step-todo"></div>
+<div class="w-6 h-1.5 rounded-full progress-step-todo"></div>
+<div class="w-6 h-1.5 rounded-full progress-step-todo"></div>
+</div>
+</div>
+</div>
+<div class="flex items-center space-x-4">
+<div class="hidden lg:flex items-center bg-surface-container-low px-3 py-1 rounded border border-outline-variant w-64">
+<span class="material-symbols-outlined text-secondary text-sm mr-2">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-full" placeholder="Search report..." type="text">
+</div>
+<button class="p-2 rounded hover:bg-surface-container-low transition-colors text-secondary"><span class="material-symbols-outlined">notifications</span></button>
+<button class="p-2 rounded hover:bg-surface-container-low transition-colors text-secondary"><span class="material-symbols-outlined">help</span></button>
+<div class="w-8 h-8 rounded-full border border-outline-variant overflow-hidden ml-2">
+<img alt="Operator" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBcCt-2o36TYd2SnmHml2t_OW_ojO7XcUC9GKbTSz70A9Q8WnMq6pP2p5zs4BZxc6Be8KuCZFaQ6p1XJCAo4J4tAChLdeY5Skantx8Lp7H7PZNbW_KNDbZ6SAtQNN77-pDj9lh9AIwrQOGrxRs1oo7jGPCx-DidpfZDg5_9DswtqFmPff5wegAovRj8TNn0aV8bxfHsG1a5H4Uqm4hQGNSWH6KwSUF0FEMaDwHb-Hya5Gr1XdKce0Bo5r2ND9jwbq4-hZr-GkYcFgQJ">
+</div>
+</div>
+</header>
+<!-- Sub Nav & Banner -->
+<div class="mt-16 bg-white sticky top-16 z-30">
+<!-- Amber Subject Banner -->
+<div class="bg-[#FFF4E5] border-b border-[#FFE2B8] px-margin py-2 flex items-center justify-between">
+<div class="flex items-center space-x-3">
+<span class="bg-primary-container text-on-primary-container font-label text-[10px] px-2 py-0.5 rounded font-bold uppercase">U-00021652</span>
+<p class="text-sm font-semibold text-[#663C00]">Active First Appearance Report: Hydraulic Pressure Loss Incident</p>
+</div>
+<span class="text-[10px] font-label font-bold text-[#663C00] uppercase opacity-60">Status: Under Investigation</span>
+</div>
+<!-- Tab Navigation -->
+<div class="border-b border-outline-variant flex items-center space-x-8 px-margin h-12 bg-surface">
+<a class="text-sm font-semibold text-secondary hover:text-primary transition-colors cursor-pointer h-full flex items-center" href="#">Details</a>
+<a class="text-sm font-bold active-tab h-full flex items-center px-1" href="#">FAR</a>
+<a class="text-sm font-semibold text-secondary hover:text-primary transition-colors cursor-pointer h-full flex items-center" href="#">TSI</a>
+<a class="text-sm font-semibold text-secondary hover:text-primary transition-colors cursor-pointer h-full flex items-center" href="#">TSR</a>
+<a class="text-sm font-semibold text-secondary hover:text-primary transition-colors cursor-pointer h-full flex items-center" href="#">Feed</a>
+</div>
+</div>
+<!-- Main Content Canvas -->
+<main class="p-margin pb-32">
+<div class="mb-lg flex justify-between items-end">
+<div>
+<h2 class="text-2xl font-bold text-on-surface">First Appearance Report</h2>
+<p class="text-sm text-secondary">Technical failure investigation and evidence gathering</p>
+</div>
+<div class="flex space-x-md">
+<button class="px-4 py-2 border border-outline text-sm font-bold rounded hover:bg-surface-container-low transition-colors">Export PDF</button>
+<button class="px-4 py-2 bg-primary text-white text-sm font-bold rounded shadow-sm hover:brightness-110 transition-all">Submit Update</button>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-margin">
+<!-- Problem Identification -->
+<div class="lg:col-span-7 space-y-margin">
+<section class="bg-surface border border-outline-variant rounded-lg p-lg shadow-sm">
+<div class="flex items-center justify-between mb-lg">
+<div class="flex items-center space-x-2">
+<span class="material-symbols-outlined text-error">report</span>
+<h3 class="text-lg font-bold">Problem Identification</h3>
+</div>
+<span class="bg-error-container text-on-error-container text-[10px] font-label font-bold px-3 py-1 rounded-full uppercase tracking-wider flex items-center">
+<span class="w-1.5 h-1.5 bg-error rounded-full mr-1.5"></span> Critical
+                        </span>
+</div>
+<div class="grid grid-cols-2 gap-lg mb-lg">
+<div>
+<label class="text-[10px] font-label font-bold text-on-surface-variant uppercase block mb-1">Category</label>
+<div class="flex items-center space-x-2 bg-surface-container-low border border-outline-variant rounded px-3 py-2">
+<span class="material-symbols-outlined text-secondary text-lg">water_drop</span>
+<span class="text-sm font-medium">Hydraulic Systems</span>
+</div>
+</div>
+<div>
+<label class="text-[10px] font-label font-bold text-on-surface-variant uppercase block mb-1">Severity Level</label>
+<div class="bg-surface-container-low border border-outline-variant rounded px-3 py-2">
+<span class="text-sm font-medium">System Critical (Level 4)</span>
+</div>
+</div>
+</div>
+<div class="mb-lg">
+<label class="text-[10px] font-label font-bold text-on-surface-variant uppercase block mb-1">Problem Description</label>
+<div class="bg-surface-container-low border border-outline-variant rounded p-3 text-sm leading-relaxed text-on-surface italic">
+                            "Loss of hydraulic pressure noted during primary articulation cycle. Secondary containment compromised. System entered failsafe mode within 12ms of detection."
+                        </div>
+</div>
+<div>
+<label class="text-[10px] font-label font-bold text-on-surface-variant uppercase block mb-3">Observed Symptoms</label>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+<div class="flex items-center justify-between bg-blue-50 border border-blue-100 p-3 rounded">
+<div class="flex items-center space-x-3">
+<span class="material-symbols-outlined text-primary text-xl">check_circle</span>
+<span class="text-sm font-medium text-primary">Abnormal Noise / Vibration</span>
+</div>
+</div>
+<div class="flex items-center justify-between bg-blue-50 border border-blue-100 p-3 rounded">
+<div class="flex items-center space-x-3">
+<span class="material-symbols-outlined text-primary text-xl">check_circle</span>
+<span class="text-sm font-medium text-primary">Fluid Leakage</span>
+</div>
+</div>
+<div class="flex items-center justify-between bg-surface-container-low border border-outline-variant p-3 rounded opacity-60">
+<div class="flex items-center space-x-3">
+<span class="material-symbols-outlined text-secondary text-xl">radio_button_unchecked</span>
+<span class="text-sm font-medium">Thermal Anomalies</span>
+</div>
+</div>
+<div class="flex items-center justify-between bg-surface-container-low border border-outline-variant p-3 rounded opacity-60">
+<div class="flex items-center space-x-3">
+<span class="material-symbols-outlined text-secondary text-xl">radio_button_unchecked</span>
+<span class="text-sm font-medium">Electrical Shorting</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Investigation Section -->
+<section class="bg-surface border border-outline-variant rounded-lg p-lg shadow-sm">
+<div class="flex items-center space-x-2 mb-lg">
+<span class="material-symbols-outlined text-secondary">troubleshoot</span>
+<h3 class="text-lg font-bold">Investigation Details</h3>
+</div>
+<div class="mb-lg">
+<label class="text-[10px] font-label font-bold text-on-surface-variant uppercase block mb-1">Preliminary Root Cause</label>
+<div class="relative group">
+<div class="w-full bg-surface-container-low border border-outline-variant rounded px-3 py-2 flex items-center justify-between cursor-pointer hover:border-primary transition-colors">
+<span class="text-sm">Manufacturing defect in Relief Valve</span>
+<span class="material-symbols-outlined text-secondary">expand_more</span>
+</div>
+</div>
+</div>
+<div class="mb-lg">
+<label class="text-[10px] font-label font-bold text-on-surface-variant uppercase block mb-3">Affected Components</label>
+<div class="border border-outline-variant rounded overflow-hidden">
+<table class="w-full text-left border-collapse bg-white">
+<thead class="bg-surface-container-low">
+<tr>
+<th class="p-3 text-[10px] font-label font-bold uppercase text-secondary">Part ID</th>
+<th class="p-3 text-[10px] font-label font-bold uppercase text-secondary">Description</th>
+<th class="p-3 text-[10px] font-label font-bold uppercase text-secondary">Status</th>
+</tr>
+</thead>
+<tbody class="text-sm">
+<tr class="border-b border-outline-variant">
+<td class="p-3 font-label font-bold">HYD-VAL-09</td>
+<td class="p-3">Primary Relief Valve</td>
+<td class="p-3">
+<span class="bg-error text-white text-[9px] font-bold px-2 py-0.5 rounded uppercase">FAILED</span>
+</td>
+</tr>
+<tr class="bg-surface-container-lowest">
+<td class="p-3 font-label font-bold">SEAL-RNG-44</td>
+<td class="p-3">O-Ring Assembly</td>
+<td class="p-3">
+<span class="bg-[#ed6c02] text-white text-[9px] font-bold px-2 py-0.5 rounded uppercase">COMPROMISED</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Visual Evidence Section -->
+<div class="pt-lg border-t border-outline-variant">
+<div class="flex items-center justify-between mb-4">
+<label class="text-[10px] font-label font-bold text-on-surface-variant uppercase">Visual Evidence</label>
+<button class="text-primary text-xs font-bold hover:underline flex items-center">
+<span class="material-symbols-outlined text-sm mr-1">visibility</span> View All Media
+                            </button>
+</div>
+<div class="flex space-x-3 overflow-x-auto pb-2">
+<div class="w-20 h-20 bg-surface-container-high rounded border border-outline-variant flex-shrink-0 flex items-center justify-center cursor-pointer hover:brightness-95 transition-all group overflow-hidden relative">
+<span class="material-symbols-outlined text-secondary group-hover:text-primary">image</span>
+<div class="absolute bottom-0 w-full bg-black/50 text-[8px] text-white text-center py-0.5">VALVE_01</div>
+</div>
+<div class="w-20 h-20 bg-surface-container-high rounded border border-outline-variant flex-shrink-0 flex items-center justify-center cursor-pointer hover:brightness-95 transition-all group overflow-hidden relative">
+<span class="material-symbols-outlined text-secondary group-hover:text-primary">image</span>
+<div class="absolute bottom-0 w-full bg-black/50 text-[8px] text-white text-center py-0.5">LEAK_L3</div>
+</div>
+<div class="w-20 h-20 bg-surface-container-low border-2 border-dashed border-outline-variant rounded flex-shrink-0 flex items-center justify-center cursor-pointer hover:bg-surface-container-high transition-colors group">
+<span class="material-symbols-outlined text-outline group-hover:text-primary">add_a_photo</span>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Timeline Column -->
+<div class="lg:col-span-5">
+<section class="bg-surface border border-outline-variant rounded-lg p-lg shadow-sm h-full">
+<div class="flex items-center space-x-2 mb-xl">
+<span class="material-symbols-outlined text-secondary">history</span>
+<h3 class="text-lg font-bold">Incident Timeline</h3>
+</div>
+<div class="relative pl-8 timeline-line space-y-12">
+<!-- Event 1 -->
+<div class="relative">
+<div class="absolute -left-[27px] top-1.5 w-6 h-6 rounded-full bg-white border-2 border-primary z-10 flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-primary text-xs font-bold">sensors</span>
+</div>
+<div>
+<div class="flex items-center justify-between mb-1">
+<span class="text-[10px] font-label font-bold text-on-surface-variant uppercase">First Noticed</span>
+<span class="text-xs font-label bg-surface-container-low border border-outline-variant px-2 py-0.5 rounded">23/04/2026, 15:13:02</span>
+</div>
+<div class="bg-surface-container-low border border-outline-variant rounded-md p-3">
+<div class="flex items-center space-x-2 mb-2">
+<span class="text-[10px] bg-secondary text-white px-1.5 py-0.5 rounded font-bold uppercase">System Log</span>
+<span class="text-xs font-semibold text-error">CRITICAL_FAULT_09</span>
+</div>
+<p class="text-sm font-label text-on-surface">MOTOR WIPER INTERNAL DEFECT - PRESSURE DROP DETECTED</p>
+</div>
+</div>
+</div>
+<!-- Event 2 -->
+<div class="relative">
+<div class="absolute -left-[27px] top-1.5 w-6 h-6 rounded-full bg-white border-2 border-primary z-10 flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-primary text-xs font-bold">person</span>
+</div>
+<div>
+<div class="flex items-center justify-between mb-1">
+<span class="text-[10px] font-label font-bold text-on-surface-variant uppercase">Operator Response</span>
+<span class="text-xs font-label bg-surface-container-low border border-outline-variant px-2 py-0.5 rounded">23/04/2026, 15:14:10</span>
+</div>
+<div class="bg-surface-container-low border border-outline-variant rounded-md p-3">
+<div class="flex items-center space-x-2 mb-2">
+<span class="text-[10px] bg-primary text-white px-1.5 py-0.5 rounded font-bold uppercase">Operator</span>
+<span class="text-xs font-semibold">J. Miller (ID: 992)</span>
+</div>
+<p class="text-sm text-on-surface">Emergency stop engaged manually. Sector 4B isolation valves triggered. Maintenance team dispatched for visual confirmation.</p>
+</div>
+</div>
+</div>
+<!-- Event 3 -->
+<div class="relative">
+<div class="absolute -left-[27px] top-1.5 w-6 h-6 rounded-full bg-white border-2 border-outline z-10 flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-secondary text-xs">edit_note</span>
+</div>
+<div>
+<div class="flex items-center justify-between mb-1">
+<span class="text-[10px] font-label font-bold text-secondary uppercase">Current State</span>
+<span class="text-xs font-label text-secondary">In Progress</span>
+</div>
+<div class="border-2 border-dashed border-outline-variant rounded-md p-4 flex flex-col items-center justify-center text-secondary">
+<p class="text-xs font-medium italic">Investigation ongoing. Visual evidence being uploaded by field team.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+</main>
+</div>
+</body></html>

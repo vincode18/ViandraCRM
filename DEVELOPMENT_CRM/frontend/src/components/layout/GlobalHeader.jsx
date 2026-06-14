@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useBreakpoint } from '../../hooks/useBreakpoint';
 import {
   Menu, Search, Bell, Settings, HelpCircle,
   User, LogOut, ChevronDown, X, Sun, Moon,
   Home, Folder, ClipboardList, Box, Building2, Factory,
-  Clock, MapPin, Activity, CalendarClock
+  Clock, MapPin, Activity, CalendarClock, Database, Grid3x3, FileText, Layout, Zap, BarChart2, GitBranch, Wifi, WifiOff
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -20,17 +21,51 @@ const MODULES = [
   { key: 'serviceappointment', label: 'Service Appointment', icon: CalendarClock, path: '/serviceappointments' },
   { key: 'fieldservice', label: 'Field Service', icon: MapPin, path: '/fieldservice' },
   { key: 'emr', label: 'EMR', icon: Activity, path: '/emr' },
+  { key: 'reports', label: 'Reports', icon: BarChart2, path: '/reports' },
 ];
 
 export default function GlobalHeader({ onMenuToggle }) {
   const { user, logout } = useAuth();
   const { theme, toggle: toggleTheme, isDark, currentModule, setCurrentModule } = useTheme();
   const navigate = useNavigate();
+  const location = useLocation();
+  const breakpoint = useBreakpoint();
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [profileOpen, setProfileOpen] = useState(false);
   const [moduleOpen, setModuleOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [searchVal, setSearchVal] = useState('');
   const profileRef = useRef(null);
   const moduleRef = useRef(null);
+  const settingsRef = useRef(null);
+
+  // Monitor online/offline status
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOnline(true);
+      localStorage.setItem('ut-last-sync-time', new Date().toISOString());
+    };
+    const handleOffline = () => setIsOnline(false);
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  // Sync combobox to current URL on every navigation
+  useEffect(() => {
+    const path = location.pathname;
+    const matched = MODULES.slice().reverse().find(m => m.path !== '/dashboard' && path.startsWith(m.path));
+    if (matched) {
+      setCurrentModule(matched.key);
+    } else if (path === '/' || path.startsWith('/dashboard')) {
+      setCurrentModule('dashboard');
+    }
+  }, [location.pathname, setCurrentModule]);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -39,6 +74,8 @@ export default function GlobalHeader({ onMenuToggle }) {
         setProfileOpen(false);
       if (moduleRef.current && !moduleRef.current.contains(e.target))
         setModuleOpen(false);
+      if (settingsRef.current && !settingsRef.current.contains(e.target))
+        setSettingsOpen(false);
     }
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
@@ -78,7 +115,7 @@ export default function GlobalHeader({ onMenuToggle }) {
   return (
     <header
       role="banner"
-      className="sticky top-0 z-40 h-16 flex items-center px-4 gap-3 transition-colors"
+      className={`sticky top-0 z-40 flex items-center px-4 gap-3 transition-colors ${breakpoint === 'mobile' ? 'h-[var(--mobile-header-height)]' : 'h-16'}`}
       style={{ backgroundColor: 'var(--bg-panel)', borderBottom: '1px solid var(--border)' }}
     >
       {/* Skip to content */}
@@ -91,17 +128,48 @@ export default function GlobalHeader({ onMenuToggle }) {
         Skip to main content
       </a>
 
-      {/* ── Left: Logo + toggle + Module combobox ─────────────────────────── */}
-      <button
-        type="button"
-        aria-label="Toggle sidebar navigation"
-        onClick={onMenuToggle}
-        className="p-2 rounded-lg text-brand-muted hover:text-gray-300
-                   hover:bg-brand-card transition-colors min-w-[44px] min-h-[44px]
-                   flex items-center justify-center"
-      >
-        <Menu size={20} aria-hidden="true" />
-      </button>
+      {breakpoint === 'mobile' ? (
+        // Mobile Header - Simplified
+        <>
+          {/* Module Title */}
+          <div className="flex-1">
+            <h1 className="text-sm font-semibold" style={{ color: 'var(--text-main)' }}>
+              {currentModuleData.label}
+            </h1>
+          </div>
+
+          {/* Offline Status Indicator */}
+          <div className="flex items-center gap-1 px-2 py-1 rounded" style={{ backgroundColor: isOnline ? 'var(--color-success-pale)' : 'var(--color-danger-pale)' }}>
+            {isOnline ? <Wifi size={14} style={{ color: 'var(--color-success)' }} /> : <WifiOff size={14} style={{ color: 'var(--color-danger)' }} />}
+            <span className="text-xs font-medium" style={{ color: isOnline ? 'var(--color-success)' : 'var(--color-danger)' }}>
+              {isOnline ? 'Online' : 'Offline'}
+            </span>
+          </div>
+
+          {/* Profile */}
+          <button
+            onClick={() => setProfileOpen(!profileOpen)}
+            className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs"
+            style={{ backgroundColor: 'var(--accent)', color: 'var(--text-main)' }}
+            aria-label="Profile menu"
+          >
+            {initials}
+          </button>
+        </>
+      ) : (
+        // Desktop Header - Full
+        <>
+          {/* ── Left: Logo + toggle + Module combobox ─────────────────────────── */}
+          <button
+            type="button"
+            aria-label="Toggle sidebar navigation"
+            onClick={onMenuToggle}
+            className="p-2 rounded-lg text-brand-muted hover:text-gray-300
+                       hover:bg-brand-card transition-colors min-w-[44px] min-h-[44px]
+                       flex items-center justify-center"
+          >
+            <Menu size={20} aria-hidden="true" />
+          </button>
 
       <a
         href="/dashboard"
@@ -207,7 +275,6 @@ export default function GlobalHeader({ onMenuToggle }) {
         {[
           { icon: Bell,        label: 'Notifications' },
           { icon: HelpCircle,  label: 'Help and Support' },
-          { icon: Settings,    label: 'Settings' },
         ].map(({ icon: Icon, label }) => (
           <button
             key={label}
@@ -221,6 +288,129 @@ export default function GlobalHeader({ onMenuToggle }) {
             <Icon size={18} aria-hidden="true" />
           </button>
         ))}
+
+        {/* Settings dropdown */}
+        <div ref={settingsRef} className="relative">
+          <button
+            type="button"
+            aria-label="Settings"
+            aria-haspopup="menu"
+            aria-expanded={settingsOpen}
+            onClick={() => setSettingsOpen(v => !v)}
+            className="p-2 rounded-lg text-brand-muted hover:text-gray-300 dark:hover:text-gray-300
+                       hover:bg-brand-card dark:hover:bg-brand-card transition-colors min-w-[44px] min-h-[44px]
+                       flex items-center justify-center"
+          >
+            <Settings size={18} aria-hidden="true" />
+          </button>
+
+          {settingsOpen && (
+            <div
+              role="menu"
+              aria-label="Settings menu"
+              className="absolute right-0 top-full mt-1 w-56 rounded-xl shadow-2xl py-1.5 z-50 animate-fadeIn"
+              style={{ backgroundColor: 'var(--bg-panel)', border: '1px solid var(--border)' }}
+            >
+              <div className="px-4 py-2 text-[11px] font-bold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+                App Settings
+              </div>
+              <button
+                role="menuitem"
+                type="button"
+                onClick={() => {
+                  navigate('/settings/query-console');
+                  setSettingsOpen(false);
+                }}
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors text-left"
+                style={{ color: 'var(--text-muted)' }}
+                onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--bg-card)'; e.currentTarget.style.color = 'var(--text-main)'; }}
+                onMouseLeave={e => { e.currentTarget.style.backgroundColor = ''; e.currentTarget.style.color = 'var(--text-muted)'; }}
+              >
+                <Database size={15} className="text-brand-muted" aria-hidden="true" />
+                Query Console
+              </button>
+              <button
+                role="menuitem"
+                type="button"
+                onClick={() => {
+                  navigate('/settings/application-log');
+                  setSettingsOpen(false);
+                }}
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors text-left"
+                style={{ color: 'var(--text-muted)' }}
+                onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--bg-card)'; e.currentTarget.style.color = 'var(--text-main)'; }}
+                onMouseLeave={e => { e.currentTarget.style.backgroundColor = ''; e.currentTarget.style.color = 'var(--text-muted)'; }}
+              >
+                <FileText size={15} className="text-brand-muted" aria-hidden="true" />
+                Application Log
+              </button>
+              <button
+                role="menuitem"
+                type="button"
+                onClick={() => {
+                  navigate('/settings/app-builder');
+                  setSettingsOpen(false);
+                }}
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors text-left"
+                style={{ color: 'var(--text-muted)' }}
+                onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--bg-card)'; e.currentTarget.style.color = 'var(--text-main)'; }}
+                onMouseLeave={e => { e.currentTarget.style.backgroundColor = ''; e.currentTarget.style.color = 'var(--text-muted)'; }}
+              >
+                <Layout size={15} className="text-brand-muted" aria-hidden="true" />
+                App Builder Canvas
+              </button>
+              <button
+                role="menuitem"
+                type="button"
+                onClick={() => {
+                  navigate('/settings/deployment/pipeline');
+                  setSettingsOpen(false);
+                }}
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors text-left"
+                style={{ color: 'var(--text-muted)' }}
+                onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--bg-card)'; e.currentTarget.style.color = 'var(--text-main)'; }}
+                onMouseLeave={e => { e.currentTarget.style.backgroundColor = ''; e.currentTarget.style.color = 'var(--text-muted)'; }}
+              >
+                <GitBranch size={15} className="text-brand-muted" aria-hidden="true" />
+                Deployment Pipeline
+              </button>
+              <button
+                role="menuitem"
+                type="button"
+                onClick={() => {
+                  navigate('/flows');
+                  setSettingsOpen(false);
+                }}
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors text-left"
+                style={{ color: 'var(--text-muted)' }}
+                onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--bg-card)'; e.currentTarget.style.color = 'var(--text-main)'; }}
+                onMouseLeave={e => { e.currentTarget.style.backgroundColor = ''; e.currentTarget.style.color = 'var(--text-muted)'; }}
+              >
+                <Zap size={15} className="text-brand-muted" aria-hidden="true" />
+                Flows
+              </button>
+
+              <div className="mt-1 pt-1 px-4 py-2 text-[11px] font-bold uppercase tracking-wider" style={{ borderTop: '1px solid var(--border)', color: 'var(--text-muted)' }}>
+                Console App
+              </div>
+              <button
+                role="menuitem"
+                type="button"
+                onClick={() => {
+                  navigate('/console/query-interface');
+                  setSettingsOpen(false);
+                }}
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors text-left"
+                style={{ color: 'var(--text-muted)' }}
+                onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--bg-card)'; e.currentTarget.style.color = 'var(--text-main)'; }}
+                onMouseLeave={e => { e.currentTarget.style.backgroundColor = ''; e.currentTarget.style.color = 'var(--text-muted)'; }}
+              >
+                <Grid3x3 size={15} className="text-brand-muted" aria-hidden="true" />
+                Query Interface
+              </button>
+            </div>
+          )}
+        </div>
 
         {/* ── Theme toggle ──────────────────────────────────────── */}
         <button
@@ -329,6 +519,8 @@ export default function GlobalHeader({ onMenuToggle }) {
           )}
         </div>
       </div>
+        </>
+      )}
     </header>
   );
 }

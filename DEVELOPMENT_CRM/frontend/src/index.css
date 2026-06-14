@@ -52,6 +52,11 @@
   
   /* Typography */
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  
+  /* Mobile-specific tokens */
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --bottom-nav-height: 56px;
+  --mobile-header-height: 52px;
 }
 
 .dark {

@@ -22,7 +22,19 @@ import ShiftDetailPage from './pages/ShiftDetailPage';
 import AssetsPage from './pages/AssetsPage';
 import AssetDetailPage from './pages/AssetDetailPage';
 import AssetHierarchyPage from './pages/AssetHierarchyPage';
+import AccountListPage from './pages/AccountListPage';
+import AccountDetailPage from './pages/AccountDetailPage';
+import ContactListPage from './pages/ContactListPage';
+import ContactDetailPage from './pages/ContactDetailPage';
+import FieldServiceMobilePage from './pages/FieldServiceMobilePage';
+import WorkOrderDetailMobile from './pages/WorkOrderDetailMobile';
+import TimesheetMobilePage from './pages/TimesheetMobilePage';
+import ServiceAppointmentsMobilePage from './pages/ServiceAppointmentsMobilePage';
+import ServiceAppointmentDetailMobile from './pages/ServiceAppointmentDetailMobile';
+import SyncPage from './pages/SyncPage';
 import AppLayout from './components/layout/AppLayout';
+import { TabProvider } from './contexts/TabContext';
+import { SubtabProvider } from './contexts/SubtabContext';
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated } = useAuth();
@@ -63,7 +75,11 @@ export default function App() {
           <Route
             element={
               <ProtectedRoute>
-                <AppLayout />
+                <TabProvider>
+                  <SubtabProvider>
+                    <AppLayout />
+                  </SubtabProvider>
+                </TabProvider>
               </ProtectedRoute>
             }
           >
@@ -93,6 +109,23 @@ export default function App() {
             <Route path="/assets"                element={<AssetsPage />} />
             <Route path="/assets/:id"            element={<AssetDetailPage />} />
             <Route path="/assets/:id/hierarchy"  element={<AssetHierarchyPage />} />
+
+            {/* Account module */}
+            <Route path="/accounts"              element={<AccountListPage />} />
+            <Route path="/accounts/:id"          element={<AccountDetailPage />} />
+
+            {/* Contact module */}
+            <Route path="/contacts"              element={<ContactListPage />} />
+            <Route path="/contacts/:id"          element={<ContactDetailPage />} />
+
+            {/* Mobile Field Service */}
+            <Route path="/field/jobs"                   element={<FieldServiceMobilePage />} />
+            <Route path="/field/jobs/:id"               element={<WorkOrderDetailMobile />} />
+            <Route path="/field/today"                  element={<FieldServiceMobilePage />} />
+            <Route path="/field/timesheet"              element={<TimesheetMobilePage />} />
+            <Route path="/field/appointments"           element={<ServiceAppointmentsMobilePage />} />
+            <Route path="/field/appointments/:id"       element={<ServiceAppointmentDetailMobile />} />
+            <Route path="/field/sync"                   element={<SyncPage />} />
 
             <Route path="*"            element={<Navigate to="/dashboard" replace />} />
           </Route>

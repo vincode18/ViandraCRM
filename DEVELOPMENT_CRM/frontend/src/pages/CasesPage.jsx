@@ -1,7 +1,8 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Plus, RefreshCw, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
-import api from '../utils/api';
+import { fetchCases } from '../services/caseService';
+import { useSupabaseQuery } from '../hooks/useSupabaseQuery';
 
 const STATUSES  = ['', 'Open', 'Assigned', 'InProgress', 'Resolved', 'Closed'];
 const PRIORITIES = ['', 'Critical', 'High', 'Medium', 'Low'];
@@ -18,39 +19,22 @@ function StatusBadge({ value }) {
 
 export default function CasesPage() {
   const navigate = useNavigate();
-  const [cases, setCases]       = useState([]);
-  const [total, setTotal]       = useState(0);
   const [page, setPage]         = useState(1);
   const [pageSize]              = useState(20);
-  const [loading, setLoading]   = useState(true);
-  const [error, setError]       = useState('');
   const [search, setSearch]     = useState('');
   const [statusFilter, setStatusFilter]     = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
   const [searchInput, setSearchInput]       = useState('');
 
+  // Fetch Cases from Supabase with fallback
+  const fetchFn = useCallback(() => fetchCases(), []);
+  const { data: cases = [], loading, error, isMock } = useSupabaseQuery(fetchFn, []);
+
+  const total = cases.length;
   const totalPages = Math.ceil(total / pageSize);
 
-  const fetchCases = useCallback(async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const params = new URLSearchParams({ page, pageSize });
-      if (search)          params.set('search', search);
-      if (statusFilter)    params.set('status', statusFilter);
-      if (priorityFilter)  params.set('priority', priorityFilter);
-      const res = await api.get(`/cases?${params}`);
-      const d = res.data?.data;
-      setCases(d?.items ?? []);
-      setTotal(d?.totalCount ?? 0);
-    } catch (err) {
-      setError(err.response?.data?.message ?? 'Failed to load cases.');
-    } finally {
-      setLoading(false);
-    }
-  }, [page, pageSize, search, statusFilter, priorityFilter]);
-
-  useEffect(() => { fetchCases(); }, [fetchCases]);
+  // Client-side pagination
+  const paginatedCases = cases.slice((page - 1) * pageSize, page * pageSize);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -164,6 +148,9 @@ export default function CasesPage() {
           {error}
         </div>
       )}
+      {isMock && !loading && (
+        <div className="text-xs text-amber-500 px-2">(Using offline mock data)</div>
+      )}
 
       {/* Table */}
       <div className="card overflow-x-auto p-0">
@@ -188,14 +175,14 @@ export default function CasesPage() {
                   ))}
                 </tr>
               ))
-            ) : cases.length === 0 ? (
+            ) : paginatedCases.length === 0 ? (
               <tr>
                 <td colSpan={8} className="px-4 py-12 text-center text-brand-muted">
                   No cases match your filters.
                 </td>
               </tr>
             ) : (
-              cases.map(c => (
+              paginatedCases.map(c => (
                 <tr
                   key={c.caseID}
                   className="border-b border-brand-border/50 hover:bg-brand-card/50 transition-colors"

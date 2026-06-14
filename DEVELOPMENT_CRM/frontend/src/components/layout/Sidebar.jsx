@@ -15,7 +15,8 @@ const NAV_ITEMS = [
   { to: '/cases',      icon: FolderOpen,      label: 'Cases' },
   { to: '/workorders', icon: Wrench,           label: 'Work Orders' },
   { to: '/assets',     icon: Package,          label: 'Assets' },
-  { to: '/accounts',   icon: Building2,        label: 'Accounts',  disabled: true },
+  { to: '/accounts',   icon: Building2,        label: 'Accounts' },
+  { to: '/contacts',   icon: Users,            label: 'Contacts' },
   { to: '/users',      icon: Users,            label: 'Users',     adminOnly: true, disabled: true },
   { to: '/reports',    icon: BarChart2,        label: 'Reports',   disabled: true },
 ];
@@ -152,6 +153,42 @@ const SHIFT_MODULE_NAV = [
   },
 ];
 
+const ACCOUNT_MODULE_NAV = [
+  {
+    section: 'ACCOUNTS',
+    items: [
+      { to: '/accounts', icon: Building2, label: 'All Accounts' },
+      { to: '/accounts?status=Active', icon: CheckCircle2, label: 'Active' },
+      { to: '/accounts?status=Inactive', icon: Archive, label: 'Inactive' },
+    ]
+  },
+  {
+    section: 'QUICK LINKS',
+    items: [
+      { to: '/contacts', icon: Users, label: 'Contacts' },
+      { to: '/cases', icon: FolderOpen, label: 'Cases' },
+    ]
+  },
+];
+
+const CONTACT_MODULE_NAV = [
+  {
+    section: 'CONTACTS',
+    items: [
+      { to: '/contacts', icon: Users, label: 'All Contacts' },
+      { to: '/contacts?status=Active', icon: CheckCircle2, label: 'Active' },
+      { to: '/contacts?status=Inactive', icon: Archive, label: 'Inactive' },
+    ]
+  },
+  {
+    section: 'QUICK LINKS',
+    items: [
+      { to: '/accounts', icon: Building2, label: 'Accounts' },
+      { to: '/cases', icon: FolderOpen, label: 'Cases' },
+    ]
+  },
+];
+
 const ASSET_MODULE_NAV = [
   {
     section: 'ASSET MANAGEMENT',
@@ -190,7 +227,10 @@ export default function Sidebar({ isOpen }) {
   const isServiceArea = /^\/(plants|workcenters|territories)/.test(path);
   const isShift = /^\/shifts/.test(path);
   const isAsset = /^\/assets/.test(path);
-  const effectiveModule = isServiceArea ? 'plant' : isShift ? 'shift' : isAsset ? 'asset' : currentModule;
+  const isAccount = /^\/accounts/.test(path);
+  const isContact = /^\/contacts/.test(path);
+  const effectiveModule = isServiceArea ? 'plant' : isShift ? 'shift' : isAsset ? 'asset'
+    : isAccount ? 'account' : isContact ? 'contact' : currentModule;
 
   return (
     <aside
@@ -266,6 +306,62 @@ export default function Sidebar({ isOpen }) {
         ) : currentModule === 'fieldservice' ? (
           // Field Service Module Navigation
           FIELD_SERVICE_MODULE_NAV.map((navSection) => (
+            <div key={navSection.section} className="mb-4">
+              <p className="text-[10px] font-semibold uppercase tracking-widest px-3 mb-2" style={{ color: 'var(--text-muted)' }}>
+                {navSection.section}
+              </p>
+              <ul className="space-y-0.5">
+                {navSection.items.map(({ to, icon: Icon, label }) => (
+                  <li key={label}>
+                    <NavLink
+                      to={to}
+                      className={({ isActive }) =>
+                        `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm
+                         transition-all duration-150 group
+                         ${isActive
+                           ? 'bg-brand-blue/15 text-brand-blue font-semibold border border-brand-blue/20'
+                           : 'text-gray-400 hover:bg-brand-card hover:text-white'}`
+                      }
+                    >
+                      <Icon size={16} aria-hidden="true" className="shrink-0" />
+                      <span className="truncate">{label}</span>
+                    </NavLink>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        ) : effectiveModule === 'account' ? (
+          // Account Module Navigation
+          ACCOUNT_MODULE_NAV.map((navSection) => (
+            <div key={navSection.section} className="mb-4">
+              <p className="text-[10px] font-semibold uppercase tracking-widest px-3 mb-2" style={{ color: 'var(--text-muted)' }}>
+                {navSection.section}
+              </p>
+              <ul className="space-y-0.5">
+                {navSection.items.map(({ to, icon: Icon, label }) => (
+                  <li key={label}>
+                    <NavLink
+                      to={to}
+                      className={({ isActive }) =>
+                        `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm
+                         transition-all duration-150 group
+                         ${isActive
+                           ? 'bg-brand-blue/15 text-brand-blue font-semibold border border-brand-blue/20'
+                           : 'text-gray-400 hover:bg-brand-card hover:text-white'}`
+                      }
+                    >
+                      <Icon size={16} aria-hidden="true" className="shrink-0" />
+                      <span className="truncate">{label}</span>
+                    </NavLink>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        ) : effectiveModule === 'contact' ? (
+          // Contact Module Navigation
+          CONTACT_MODULE_NAV.map((navSection) => (
             <div key={navSection.section} className="mb-4">
               <p className="text-[10px] font-semibold uppercase tracking-widest px-3 mb-2" style={{ color: 'var(--text-muted)' }}>
                 {navSection.section}

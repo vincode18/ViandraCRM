@@ -1,0 +1,378 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>EMR Console - TSI Tab</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-fixed-dim": "#c8c6c5",
+                        "inverse-surface": "#2f3131",
+                        "background": "#f9f9f9",
+                        "tertiary-fixed": "#e2e2e2",
+                        "on-primary-fixed-variant": "#564500",
+                        "on-secondary-fixed-variant": "#474646",
+                        "on-background": "#1a1c1c",
+                        "error-container": "#ffdad6",
+                        "primary-fixed-dim": "#eec200",
+                        "on-tertiary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "inverse-on-surface": "#f1f1f1",
+                        "surface-bright": "#f9f9f9",
+                        "outline": "#7f7660",
+                        "on-secondary-container": "#656464",
+                        "on-tertiary-container": "#555757",
+                        "on-secondary-fixed": "#1c1b1b",
+                        "tertiary-fixed-dim": "#c6c6c6",
+                        "on-primary-container": "#695400",
+                        "surface-container-highest": "#e2e2e2",
+                        "surface-container": "#eeeeee",
+                        "surface-container-high": "#e8e8e8",
+                        "surface-variant": "#e2e2e2",
+                        "on-error": "#ffffff",
+                        "primary-container": "#f5c800",
+                        "surface-container-low": "#f3f3f3",
+                        "on-secondary": "#ffffff",
+                        "surface-tint": "#725c00",
+                        "secondary-container": "#e5e2e1",
+                        "on-surface-variant": "#4d4632",
+                        "on-primary": "#ffffff",
+                        "primary": "#725c00",
+                        "on-surface": "#1a1c1c",
+                        "surface": "#f9f9f9",
+                        "error": "#ba1a1a",
+                        "tertiary-container": "#cdcdcd",
+                        "on-tertiary-fixed": "#1a1c1c",
+                        "inverse-primary": "#eec200",
+                        "secondary-fixed": "#e5e2e1",
+                        "tertiary": "#5d5f5f",
+                        "surface-dim": "#dadada",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed": "#ffe081",
+                        "on-tertiary-fixed-variant": "#454747",
+                        "secondary": "#5f5e5e",
+                        "outline-variant": "#d1c6ab",
+                        "on-primary-fixed": "#231b00"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "md": "16px",
+                        "margin": "24px",
+                        "xs": "4px",
+                        "base": "8px",
+                        "xl": "32px",
+                        "sm": "8px",
+                        "lg": "24px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "body-sm": ["Hanken Grotesk"],
+                        "label-sm": ["JetBrains Mono"],
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "body-md": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "headline-sm": ["Hanken Grotesk"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "label-md": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { background-color: #f9f9f9; color: #1a1c1c; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .material-symbols-outlined.fill { font-variation-settings: 'FILL' 1; }
+        .grid-bg { background-image: radial-gradient(#e2e2e2 1px, transparent 1px); background-size: 16px 16px; }
+    </style>
+</head>
+<body class="font-body-md text-body-md antialiased min-h-screen flex flex-col">
+<!-- TopAppBar Large (Semantic Nav Anchor) -->
+<header class="bg-surface dark:bg-surface-dim flex justify-between items-center px-margin h-16 w-full fixed top-0 z-50 border-b border-outline-variant dark:border-outline">
+<div class="flex items-center gap-md">
+<span class="font-headline-md text-headline-md font-bold text-on-surface dark:text-on-surface-variant">EMR Console</span>
+</div>
+<div class="flex items-center gap-md">
+<button class="p-2 hover:bg-surface-container-high transition-colors rounded-full cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim">notifications</span>
+</button>
+<button class="p-2 hover:bg-surface-container-high transition-colors rounded-full cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim">settings</span>
+</button>
+<button class="p-2 hover:bg-surface-container-high transition-colors rounded-full cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim">help</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border border-outline-variant overflow-hidden ml-sm cursor-pointer active:opacity-80 hover:bg-surface-container-high transition-colors">
+<img alt="Operator Profile" class="w-full h-full object-cover" data-alt="A close-up headshot of a male technical operator wearing a pristine white lab coat in a brightly lit, sterile laboratory environment. The lighting is high-key and diffused, emphasizing a clean, modern aesthetic. The color palette features neutral grays and bright whites, conveying precision and professionalism." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZmNw6wTzqtkPWEVfOyf7uuxa9HvXZ9WXANUJHWJhXrDP-CUmoRpX_AKyZ2SB7fLW1f1s-mHKzXo1U_qobcZCOv-3n9EDSxlvpiR21oyUBcoZH63m5ws5yNXZwZbYaNbgkEj-DmnayZDn8DZKa8u3HDhxfwl1IxwzFvBGpA2GDXjoL_T3nRLwEe4_H1a-Ocvm4ezB3Y8wESvWBwLJsKTgdhNsa3LOb-JpDA07EWn4hARF0w-B6Ef1I3OVwBfceoBl2iiwPvmQ6cXZI">
+</div>
+</div>
+</header>
+<!-- Main Content Area -->
+<div class="flex pt-16 h-screen">
+<!-- SideNavBar -->
+<nav class="bg-surface-container-lowest dark:bg-inverse-surface fixed left-0 top-0 h-full flex flex-col pt-16 z-40 border-r border-outline-variant dark:border-outline docked left-0 h-full w-64 hidden md:flex">
+<div class="p-margin border-b border-outline-variant dark:border-outline flex items-center gap-md">
+<div class="w-10 h-10 rounded bg-primary-container flex items-center justify-center text-on-primary-container">
+<span class="material-symbols-outlined">precision_manufacturing</span>
+</div>
+<div>
+<h2 class="font-headline-sm text-headline-sm font-black text-on-surface">TechOps</h2>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Precision EMR</p>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto py-md px-sm flex flex-col gap-xs">
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant font-medium hover:bg-surface-container-high transition-all scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined text-primary-container dark:text-primary-fixed">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg bg-primary-container text-on-primary-container font-bold scale-95 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined text-on-primary-container">precision_manufacturing</span>
+<span class="font-label-md text-label-md">Equipment</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant font-medium hover:bg-surface-container-high transition-all scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined text-primary-container dark:text-primary-fixed">build</span>
+<span class="font-label-md text-label-md">Maintenance</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant font-medium hover:bg-surface-container-high transition-all scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined text-primary-container dark:text-primary-fixed">analytics</span>
+<span class="font-label-md text-label-md">Analytics</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant font-medium hover:bg-surface-container-high transition-all scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined text-primary-container dark:text-primary-fixed">history</span>
+<span class="font-label-md text-label-md">Logs</span>
+</a>
+</div>
+<div class="p-md border-t border-outline-variant dark:border-outline">
+<button class="w-full bg-primary-container text-on-primary-container font-label-md text-label-md py-sm rounded-lg hover:bg-primary hover:text-on-primary transition-colors flex items-center justify-center gap-sm font-bold">
+<span class="material-symbols-outlined">upload</span>
+                    Upload Techcare Files
+                </button>
+</div>
+<div class="p-sm flex flex-col gap-xs mt-auto mb-md">
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant font-medium hover:bg-surface-container-high transition-all scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined text-primary-container dark:text-primary-fixed">support</span>
+<span class="font-label-md text-label-md">Support</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant font-medium hover:bg-surface-container-high transition-all scale-95 active:scale-90" href="#">
+<span class="material-symbols-outlined text-primary-container dark:text-primary-fixed">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</div>
+</nav>
+<!-- Canvas -->
+<main class="flex-1 ml-0 md:ml-64 flex flex-col h-full bg-background grid-bg overflow-hidden relative">
+<!-- TopAppBar Small (Contextual Tabs) -->
+<div class="bg-surface-container dark:bg-surface-container-highest bg-surface-container-low border-b border-outline-variant flex items-center space-x-xl px-margin h-12 w-full shrink-0 z-30">
+<a class="text-secondary hover:text-on-surface hover:text-primary transition-colors cursor-pointer font-label-md text-label-md py-sm" href="#">Details</a>
+<a class="text-secondary hover:text-on-surface hover:text-primary transition-colors cursor-pointer font-label-md text-label-md py-sm" href="#">FAR</a>
+<a class="text-primary border-b-2 border-primary pb-2 font-label-md text-label-md py-sm font-bold" href="#">TSI</a>
+<a class="text-secondary hover:text-on-surface hover:text-primary transition-colors cursor-pointer font-label-md text-label-md py-sm" href="#">TSR</a>
+<a class="text-secondary hover:text-on-surface hover:text-primary transition-colors cursor-pointer font-label-md text-label-md py-sm" href="#">Feed</a>
+</div>
+<!-- Scrollable Content -->
+<div class="flex-1 overflow-y-auto p-margin md:p-xl flex flex-col gap-margin">
+<!-- Header -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-md mb-md">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface">Technical Service Investigation</h1>
+<p class="font-label-md text-label-md text-on-surface-variant flex items-center gap-sm mt-xs">
+<span class="material-symbols-outlined text-primary" style="font-size: 16px;">tag</span> EMR U-00021652
+                        </p>
+</div>
+<div class="flex gap-sm">
+<button class="px-md py-sm border border-on-surface text-on-surface font-label-md text-label-md rounded hover:bg-surface-container transition-colors flex items-center gap-xs bg-surface">
+<span class="material-symbols-outlined" style="font-size: 18px;">download</span> Export PDF
+                        </button>
+<button class="px-md py-sm bg-primary-container text-on-primary-container font-label-md text-label-md font-bold rounded hover:bg-primary hover:text-on-primary transition-colors flex items-center gap-xs border border-primary-container">
+<span class="material-symbols-outlined fill" style="font-size: 18px;">edit_document</span> Edit TSI
+                        </button>
+</div>
+</div>
+<!-- Main Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Left Column: Troubleshooting & Findings (Span 8) -->
+<div class="lg:col-span-8 flex flex-col gap-gutter">
+<!-- Detailed Troubleshooting Bento -->
+<div class="bg-surface rounded-xl border border-outline-variant p-margin shadow-sm relative overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary-container opacity-10 rounded-bl-full -mr-8 -mt-8 pointer-events-none"></div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-md flex items-center gap-sm border-b border-outline-variant pb-sm">
+<span class="material-symbols-outlined text-primary">plumbing</span>
+                                Detailed Troubleshooting
+                            </h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-margin">
+<div>
+<h4 class="font-label-md text-label-md text-on-surface-variant mb-sm uppercase tracking-wider">Diagnostic Checklist</h4>
+<ul class="space-y-sm">
+<li class="flex items-center gap-sm p-sm bg-surface-container-lowest border border-outline-variant rounded">
+<div class="w-4 h-4 rounded bg-primary-container border border-on-surface flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface" style="font-size: 12px; font-weight: 700;">check</span>
+</div>
+<span class="font-body-md text-body-md text-on-surface">Thermal Imaging Scan</span>
+</li>
+<li class="flex items-center gap-sm p-sm bg-surface-container-lowest border border-outline-variant rounded">
+<div class="w-4 h-4 rounded bg-primary-container border border-on-surface flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface" style="font-size: 12px; font-weight: 700;">check</span>
+</div>
+<span class="font-body-md text-body-md text-on-surface">Vibration Analysis</span>
+</li>
+<li class="flex items-center gap-sm p-sm bg-surface-container-lowest border border-outline-variant rounded opacity-70">
+<div class="w-4 h-4 rounded border border-on-surface flex items-center justify-center bg-surface">
+</div>
+<span class="font-body-md text-body-md text-on-surface-variant">Acoustic Emission Test</span>
+</li>
+<li class="flex items-center gap-sm p-sm bg-surface-container-lowest border border-outline-variant rounded">
+<div class="w-4 h-4 rounded bg-primary-container border border-on-surface flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface" style="font-size: 12px; font-weight: 700;">check</span>
+</div>
+<span class="font-body-md text-body-md text-on-surface">Fluid Viscosity Check</span>
+</li>
+</ul>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-on-surface-variant mb-sm uppercase tracking-wider">Execution Steps</h4>
+<ol class="space-y-md border-l-2 border-outline-variant ml-sm pl-md">
+<li class="relative">
+<div class="absolute -left-[25px] top-1 w-3 h-3 rounded-full bg-outline-variant border-2 border-surface"></div>
+<p class="font-label-md text-label-md text-on-surface font-bold">Step 1: Isolate Power</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Main breaker locked out. Verified zero voltage at terminals T1, T2, T3.</p>
+</li>
+<li class="relative">
+<div class="absolute -left-[25px] top-1 w-3 h-3 rounded-full bg-primary border-2 border-surface"></div>
+<p class="font-label-md text-label-md text-on-surface font-bold">Step 2: Inspect Bearings</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-xs bg-error-container text-on-error-container p-xs rounded border border-error-container mt-xs inline-block">Outcome: Significant scoring observed on inboard bearing raceway.</p>
+</li>
+<li class="relative">
+<div class="absolute -left-[25px] top-1 w-3 h-3 rounded-full bg-outline-variant border-2 border-surface"></div>
+<p class="font-label-md text-label-md text-on-surface font-bold">Step 3: Oil Analysis</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Sample extracted for particulate count. High metallic flake concentration noted.</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<!-- Technical Findings Table -->
+<div class="bg-surface rounded-xl border border-outline-variant shadow-sm overflow-hidden flex flex-col">
+<div class="p-margin border-b border-outline-variant flex justify-between items-center bg-surface-container-lowest">
+<h3 class="font-headline-sm text-headline-sm text-on-surface flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary">science</span>
+                                    Technical Findings
+                                </h3>
+<span class="font-label-sm text-label-sm bg-surface-container-high text-on-surface px-sm py-xs rounded border border-outline-variant">3 Items Logged</span>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-outline-variant">
+<th class="p-sm font-label-sm text-label-sm text-on-surface-variant uppercase">Component</th>
+<th class="p-sm font-label-sm text-label-sm text-on-surface-variant uppercase">Failure Detail</th>
+<th class="p-sm font-label-sm text-label-sm text-on-surface-variant uppercase">Spec Delta</th>
+<th class="p-sm font-label-sm text-label-sm text-on-surface-variant uppercase">Env. Impact</th>
+</tr>
+</thead>
+<tbody class="font-body-md text-body-md">
+<tr class="border-b border-outline-variant hover:bg-surface-bright transition-colors">
+<td class="p-sm text-on-surface font-bold">Inboard Bearing (SKF-6204)</td>
+<td class="p-sm text-on-surface-variant">Raceway scoring, cage deformation</td>
+<td class="p-sm font-label-sm text-label-sm text-error bg-error-container px-xs rounded inline-block mt-sm mb-sm ml-sm">-0.05mm Tol. Exceeded</td>
+<td class="p-sm text-on-surface-variant">High ambient particulate</td>
+</tr>
+<tr class="border-b border-outline-variant hover:bg-surface-bright transition-colors">
+<td class="p-sm text-on-surface font-bold">Shaft Seal (Viton)</td>
+<td class="p-sm text-on-surface-variant">Thermal degradation, cracking</td>
+<td class="p-sm font-label-sm text-label-sm text-on-surface bg-surface-container px-xs rounded inline-block mt-sm mb-sm ml-sm">Within 5% Expected Wear</td>
+<td class="p-sm text-on-surface-variant">Operating temp +15°C above spec</td>
+</tr>
+<tr class="hover:bg-surface-bright transition-colors">
+<td class="p-sm text-on-surface font-bold">Lubricant (ISO VG 46)</td>
+<td class="p-sm text-on-surface-variant">Oxidation, viscosity breakdown</td>
+<td class="p-sm font-label-sm text-label-sm text-error bg-error-container px-xs rounded inline-block mt-sm mb-sm ml-sm">Visc. Index -12%</td>
+<td class="p-sm text-on-surface-variant">Moisture ingress detected (200ppm)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- Right Column: Root Cause (Span 4) -->
+<div class="lg:col-span-4 flex flex-col gap-gutter">
+<!-- Root Cause Card -->
+<div class="bg-surface rounded-xl border border-outline-variant p-margin shadow-sm h-full border-t-4 border-t-primary">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-md flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary">hub</span>
+                                Root Cause Analysis
+                            </h3>
+<div class="mb-lg">
+<h4 class="font-label-md text-label-md text-on-surface-variant mb-xs uppercase tracking-wider">Primary Cause</h4>
+<div class="bg-primary-container bg-opacity-20 border border-primary-container rounded p-md">
+<p class="font-body-lg text-body-lg text-on-surface font-bold">Premature Lubrication Failure</p>
+<p class="font-body-md text-body-md text-on-surface-variant mt-xs">Thermal breakdown of ISO VG 46 lubricant due to sustained operation above rated temperature threshold, leading to inadequate film thickness and subsequent metal-on-metal contact at the inboard bearing.</p>
+</div>
+</div>
+<div class="mb-lg">
+<h4 class="font-label-md text-label-md text-on-surface-variant mb-xs uppercase tracking-wider">Contributing Factors</h4>
+<ul class="space-y-xs">
+<li class="flex gap-sm items-start">
+<span class="material-symbols-outlined text-outline-variant" style="font-size: 18px;">arrow_right</span>
+<span class="font-body-sm text-body-sm text-on-surface">Ambient facility temperature +5°C higher than seasonal average.</span>
+</li>
+<li class="flex gap-sm items-start">
+<span class="material-symbols-outlined text-outline-variant" style="font-size: 18px;">arrow_right</span>
+<span class="font-body-sm text-body-sm text-on-surface">Inadequate ventilation around equipment housing (blocked louvers).</span>
+</li>
+<li class="flex gap-sm items-start">
+<span class="material-symbols-outlined text-outline-variant" style="font-size: 18px;">arrow_right</span>
+<span class="font-body-sm text-body-sm text-on-surface">Slight misalignment detected during last PM (within spec, but marginal).</span>
+</li>
+</ul>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-on-surface-variant mb-xs uppercase tracking-wider">Failure Mode</h4>
+<div class="flex items-center gap-sm bg-surface-container-low p-sm rounded border border-outline-variant">
+<span class="font-label-sm text-label-sm font-bold bg-secondary-fixed text-on-secondary-fixed px-xs py-[2px] rounded">FMA-04</span>
+<span class="font-body-md text-body-md text-on-surface">Adhesive Wear (Galling)</span>
+</div>
+</div>
+<div class="mt-xl pt-md border-t border-outline-variant">
+<h4 class="font-label-sm text-label-sm text-on-surface-variant mb-sm uppercase tracking-wider">Investigator</h4>
+<div class="flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border border-outline-variant overflow-hidden">
+<img alt="Lead Investigator" class="w-full h-full object-cover" data-alt="A portrait of a male lead investigator with short hair and glasses, wearing a professional gray button-down shirt. The lighting is bright and even, set in a modern industrial office with a light-mode aesthetic. The background is slightly blurred, emphasizing a clinical and precise atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBZrnHVhiS7gOXbq4HGw5xGrJDPMdFbCVhEGOHNmiAGHXyOUbB6EM7J_VxMfWLNwtIVNCY5miVTI8WGmS3ml2HMUJ5gv5o8nTPB8pvIemHR_qMQ2ND4dRPtrq6-9G9Vz1xP5iyAlgWT5au4ofeQH5LSvzFanUM7XBidX-W1JyHJx69SLQ1TSt4sqPNzD-IoM5jZ3ajOD0OtspsEB_0ZnvxyFRTWrkKqSdtFzyzPvSKgqp3qerGtcahZ8hNWzSqxq9gZLC5LP4REuaUK">
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface font-bold">Dr. Aris Thorne</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Senior Reliability Engineer</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>
