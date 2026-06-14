@@ -10,7 +10,7 @@ import { useTabKeyboardShortcuts } from '../../hooks/useTabKeyboardShortcuts';
 import { useIsMobile } from '../../hooks/useBreakpoint';
 
 export default function AppLayout() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth >= 768);
   const location = useLocation();
   const { activeTab } = useTabs();
   const isMobile = useIsMobile();

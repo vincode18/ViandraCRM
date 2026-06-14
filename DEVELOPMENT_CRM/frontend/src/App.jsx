@@ -33,6 +33,8 @@ import ServiceAppointmentsMobilePage from './pages/ServiceAppointmentsMobilePage
 import ServiceAppointmentDetailMobile from './pages/ServiceAppointmentDetailMobile';
 import SyncPage from './pages/SyncPage';
 import AppLayout from './components/layout/AppLayout';
+import { TabProvider } from './contexts/TabContext';
+import { SubtabProvider } from './contexts/SubtabContext';
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated } = useAuth();
@@ -73,7 +75,11 @@ export default function App() {
           <Route
             element={
               <ProtectedRoute>
-                <AppLayout />
+                <TabProvider>
+                  <SubtabProvider>
+                    <AppLayout />
+                  </SubtabProvider>
+                </TabProvider>
               </ProtectedRoute>
             }
           >
